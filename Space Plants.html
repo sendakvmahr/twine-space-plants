@@ -162,6 +162,9 @@ var LZString={_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234
   text-align: center; 
   padding-top: 10px;
 }
+#inventory_grid p { margin: 0; }
+#inventory_grid .desc { padding-left: 0; }
+.itemHover.selected-item { background: #2c364f; }
 .hidden { display: none; }
 
 /*
@@ -205,14 +208,14 @@ window.isPastTag = (storyTag) => {
 window.inventoryPop = (toPop) => {
   if (typeof(toPop) === "string") {
     toPop = State.variables.cargo.findIndex(
-      (x) => x.name === toPop
+      (x) => x !== null && x.name === toPop
     );
   } else if (typeof(toPop) !== "number") {
     throw new Error(
       "Incorrect parameter for inventoryPop " + toPop.toString()
     );
   }
-  State.variables.cargo.splice(toPop, 1);
+  State.variables.cargo[toPop] = null;
 }
 
 window.inventoryAdd = (toAdd) => {
@@ -221,7 +224,13 @@ window.inventoryAdd = (toAdd) => {
   }
   let item = (Object.assign({}, setup.items[toAdd]));
   item.name = toAdd;
-  State.variables.cargo.push(item);
+  for (let i=0; i < State.variables.max_cargo; i++) {
+    if (State.variables.cargo[i] === null) {
+      State.variables.cargo[i] = item;
+      return i;
+    }
+  }
+  return 0;
 }
 
 window.inventoryClean = () => {
@@ -233,6 +242,21 @@ window.inventoryClean = () => {
       index = State.variables.cargo.findIndex(isDead);
     }
   }
+}
+
+window.inventoryItems = () => {
+  // this will be more complicated with area
+  return State.variables.cargo.filter((item) => item != null);
+}
+
+window.canAddItem = (item) => {
+  // this will be more complicated with area
+  return window.inventoryItems().length < State.variables.max_cargo;
+}
+
+// may not be used later
+window.findItemIndex = (item) => {
+  return State.variables.cargo.findIndex((x) => x !== null && x.name === item);
 }
 
 // Time passage/updates
@@ -284,7 +308,7 @@ window.randChoice = (arr) => {
 
 window.addStorTag = (tag) => {
   if (State.variables.story_tags.includes(tag)) {
-	  State.variables.story_tags;
+    State.variables.story_tags;
   }
 }
 
@@ -303,30 +327,79 @@ window._updateItemDemand = (planet, item) => {
   }
 }
 
-// Actual onrender JS
+window.mouseClickItems = (index1, index2) => {
+  // assume items in alphabetical order
+  let inventoryMap = { "nutes1|substrate1" : "sprout_spinach" };
+  let hasNull = State.variables.cargo[index1] === null || State.variables.cargo[index2] === null;
+  let inventoryAction = "";
+  let key = "";
+  if (hasNull) {
+    inventoryAction = "move";
+  } else {
+    key = [State.variables.cargo[index1].name, 
+           State.variables.cargo[index2].name].sort().join("|");
+    inventoryAction = (Object.keys(inventoryMap).includes(key)) ? "combine" : "move";
+  }
+  if (inventoryAction === "combine") {
+    window.inventoryPop(index1);
+    window.inventoryPop(index2);
+    window.inventoryAdd(inventoryMap[key]);
+  } else if (inventoryAction === "move") {
+    let temp = State.variables.cargo[index2];
+    State.variables.cargo[index2] = State.variables.cargo[index1]
+    State.variables.cargo[index1] = temp;
+  }
+}
 
+var selectedItem = -1;
+// Actual onrender JS
 $(document).on(':passagedisplay', function (eventObject) {
   // settings
   $('#toggle-descs').click(() => {
     $("#story").toggleClass("compact");
   });
   // inventory grid
-  let inventoryGrid = $("#inventory_grid");
-  if (inventoryGrid) {
-    for (let c=0; c < State.variables.cargo.length; c++) {
-      let cargoItem = State.variables.cargo[c];
-      let toAppend = $("<div class='itemHover' data-name='" + cargoItem.name + "'></div>");
-      let stats = $("<div class='stats'></div>");
-      stats.append($("<p>Fragility: " + cargoItem.fragility + "</p>"));
-      stats.append($("<p>Base Value: " + cargoItem.raw_value + "</p>"));
-      stats.append($("<p>Lifespan: " + ((cargoItem.lifespan === -1) ? "Infinite" : cargoItem.lifespan) + "</p>"));
-      toAppend.append($("<div class='name'>" + cargoItem.display_name + "</div>"));
-      toAppend.append(stats);
-      toAppend.append($("<div class='desc'>" + cargoItem.description + "</div>"));
-      inventoryGrid.append(toAppend);
+  function renderInventoryGrid() {
+    let inventoryGrid = $("#inventory_grid");
+    if (inventoryGrid.length) {
+      inventoryGrid.html("");
+      for (let c=0; c < State.variables.cargo.length; c++) {
+        let cargoItem = State.variables.cargo[c];
+        let toAppend = "";
+        if (cargoItem === null) {
+          toAppend = $("<div class='itemHover' data-name='empty' data-index=" + c + "></div>");
+        } else {
+          toAppend = $("<div class='itemHover' data-name='" + cargoItem.name + "' data-index=" + c + "></div>");
+          let stats = $("<div class='stats'></div>");
+          stats.append($("<p>Fragility: " + cargoItem.fragility + "</p>"));
+          stats.append($("<p>Base Value: " + cargoItem.raw_value + "</p>"));
+          stats.append($("<p>Lifespan: " + ((cargoItem.lifespan === -1) ? "Infinite" : cargoItem.lifespan) + "</p>"));
+          toAppend.append($("<div class='name'>" + cargoItem.display_name + "</div>"));
+          toAppend.append(stats);
+          toAppend.append($("<div class='desc'>" + cargoItem.description + "</div>"));
+        }
+        inventoryGrid.append(toAppend);
+      }
+      $(".itemHover").click(
+        function(ev) {
+          let index = parseInt(this.attributes["data-index"].value);
+          if (selectedItem === -1) {
+            selectedItem = index;
+            $(this).toggleClass("selected-item");
+          } else if (selectedItem === index){
+            selectedItem = -1;
+            $(this).toggleClass("selected-item");
+          } else {
+            window.mouseClickItems(selectedItem, index);
+            selectedItem = -1;
+            renderInventoryGrid();
+          }
+        }
+      )
     }
   }
-  
+  renderInventoryGrid();
+
   // shop widget and inventory grid
   let hoverDesc = $("hover-description");
   if (hoverDesc) {
@@ -394,7 +467,7 @@ You are currently on &lt;&lt;link _link_desc planet_description&gt;&gt;\
 &lt;&lt;include &quot;TermInit&quot;&gt;&gt;
 &lt;&lt;include &quot;PlanetInit&quot;&gt;&gt;
 &lt;&lt;set $seeds = [&quot;seeds_spinach0&quot;]&gt;&gt;
-&lt;&lt;set $cargo = []&gt;&gt;
+&lt;&lt;set $cargo = [null, null, null, null, null, null, null, null]&gt;&gt;
 &lt;&lt;set $max_cargo to 8&gt;&gt;
 &lt;&lt;set $money to 200&gt;&gt;
 &lt;&lt;set $fuel to true&gt;&gt;
@@ -411,33 +484,18 @@ You are currently on &lt;&lt;link _link_desc planet_description&gt;&gt;\
 &lt;&lt;inventoryAdd &quot;nutes1&quot;&gt;&gt;
 &lt;&lt;inventoryAdd &quot;substrate1&quot;&gt;&gt;
 &lt;&lt;inventoryAdd &quot;food1&quot;&gt;&gt;
-&lt;&lt;inventoryAdd &quot;food1&quot;&gt;&gt;
 &lt;&lt;inventoryAdd &quot;food2&quot;&gt;&gt;
-&lt;&lt;inventoryAdd &quot;food2&quot;&gt;&gt;
-&lt;&lt;inventoryAdd &quot;food3&quot;&gt;&gt;
-&lt;&lt;inventoryAdd &quot;food3&quot;&gt;&gt;
-/%
-&lt;&lt;include &quot;util&quot;&gt;&gt;
-
-&lt;&lt;inventoryAdd &quot;nutes1&quot;)&gt;&gt;
-&lt;&lt;inventory_add &quot;substrate1&quot;&gt;&gt;
-
-&lt;&lt;set $story_tags = [&quot;dead_raw_dead&quot;]&gt;&gt;
-&lt;&lt;inventory_add &quot;food1&quot;&gt;&gt;
-&lt;&lt;inventory_add &quot;food1&quot;&gt;&gt;
-&lt;&lt;inventory_add &quot;food2&quot;&gt;&gt;
-&lt;&lt;inventory_add &quot;food2&quot;&gt;&gt;
-&lt;&lt;inventory_add &quot;food3&quot;&gt;&gt;
-&lt;&lt;inventory_add &quot;food3&quot;&gt;&gt;%/</tw-passagedata><tw-passagedata pid="3" name="PassageHeader" tags="script-pile" position="200,275" size="100,100">&lt;&lt;include &#39;util&#39;&gt;&gt;
+&lt;&lt;inventoryAdd &quot;food3&quot;&gt;&gt;</tw-passagedata><tw-passagedata pid="3" name="PassageHeader" tags="script-pile" position="200,275" size="100,100">&lt;&lt;include &#39;util&#39;&gt;&gt;
+&lt;&lt;set _currentInventory = inventoryItems()&gt;&gt;
 &lt;div id=&quot;header&quot;&gt;
   &lt;div&gt;
     Money: $money
     &lt;&lt;if isPastTag(&quot;dead_raw_dead&quot;)&gt;&gt;Seeds: &lt;&lt;= dispArr($seeds) &gt;&gt;
     &lt;&lt;/if&gt;&gt;\
-    [[Cargo|inventory_view]]: &lt;&lt;if $cargo.length is 0&gt;&gt;\
+    [[Cargo|inventory_view]]: &lt;&lt;if _currentInventory.length is 0&gt;&gt;\
         Empty (0/$max_cargo)
     &lt;&lt;else&gt;&gt;\
-        &lt;&lt;= dispArr($cargo)&gt;&gt; ($cargo.length/$max_cargo)
+        &lt;&lt;= dispArr(_currentInventory)&gt;&gt; (_currentInventory.length/$max_cargo)
     &lt;&lt;/if&gt;&gt;\
     &lt;&lt;set _disp_location = disp($location[0]) &gt;&gt;\
     &lt;&lt;if $location[1] &lt;= 0 &gt;&gt;\
@@ -533,24 +591,7 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
     	&lt;&lt;link _text planet_description&gt;&gt;&lt;&lt;set $desc_planet = _planet&gt;&gt;&lt;&lt;/link&gt;&gt;
      &lt;&lt;/capture&gt;&gt;
   &lt;&lt;/widget&gt;&gt;
- 
-   &lt;&lt;widget &quot;plant_management_menu&quot;&gt;&gt;
-    &lt;&lt;if $story_tags.includes(&quot;dead_raw_dead&quot;)&gt;&gt;
-      &lt;&lt;set _display_text = &quot;Use 1 Sand and 1 Nutrients to start a plant. Takes 2 weeks to grow.&quot;&gt;&gt;
-      &lt;&lt;if $cargo.findIndex((x) =&gt; x.name === &quot;substrate1&quot;) != -1 and $cargo.findIndex((x) =&gt; x.name === &quot;nutes1&quot;) != -1 and $location[1] &gt; 0&gt;&gt;
-        &lt;&lt;link _display_text inventory_view&gt;&gt;
-          &lt;&lt;passTime 1&gt;&gt;
-          &lt;&lt;set $location[1] = $location[1] -1&gt;&gt;
-          &lt;&lt;inventoryPop &quot;substrate1&quot;&gt;&gt;
-          &lt;&lt;inventoryPop &quot;nutes1&quot;&gt;&gt;
-          &lt;&lt;inventoryAdd &quot;sprout_spinach&quot;&gt;&gt;
-        &lt;&lt;/link&gt;&gt;
-        &lt;&lt;else&gt;&gt;
-        &lt;span class=&quot;disabled&quot;&gt;&lt;&lt;=_display_text&gt;&gt;&lt;/span&gt;
-      &lt;&lt;/if&gt;&gt;
-    &lt;&lt;/if&gt;&gt;
-  &lt;&lt;/widget&gt;&gt;
- &lt;&lt;/nobr&gt;&gt;</tw-passagedata><tw-passagedata pid="9" name="ship" tags="" position="600,600" size="100,100">You are sitting on your ship. 
+&lt;&lt;/nobr&gt;&gt;  </tw-passagedata><tw-passagedata pid="9" name="ship" tags="" position="600,600" size="100,100">You are sitting on your ship. 
 &lt;&lt;if $location[0] == &quot;dead_raw&quot; and $location[1] &lt;= 10&gt;&gt;\
   An emergency [[news|dead_raw_dead]] announcement has been sent out.
 &lt;&lt;else&gt;&gt;\
@@ -595,6 +636,10 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
 &lt;&lt;/if&gt;&gt;\
 
 &lt;&lt;return&gt;&gt;</tw-passagedata><tw-passagedata pid="11" name="ItemInit" tags="script-pile" position="300,0" size="100,100">&lt;&lt;set setup.items = {
+	&quot;empty&quot;: {
+    	display_name: &quot;&quot;,
+        description: &quot;An empty space.&quot;
+    },
 	&quot;sprout_spinach&quot;: {
     	display_name: &quot;Spinach Sprout&quot;,
         fragility: 0,
@@ -790,7 +835,7 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
       &lt;&lt;set _link_text = _link_text + &quot;&lt;/span&gt;&lt;span class=&#39;itemCost&#39;&gt;&quot; + _cost + &quot; &quot; +  $currency[1] + &quot;&lt;/span&gt;&quot;&gt;&gt;
       &lt;&lt;if _cost &gt; 0&gt;&gt;
 		&lt;div class=&quot;itemHover&quot; @data-name=&quot;_item&quot;&gt;
-          &lt;&lt;if $cargo.findIndex((x) =&gt; x.name === _item) != -1 and _use_links&gt;&gt;
+          &lt;&lt;if findItemIndex(_item) != -1 and _use_links&gt;&gt;
               &lt;&lt;link _link_text shop&gt;&gt;
                 &lt;&lt;inventoryPop _item&gt;&gt;
                 &lt;&lt;if $planets[_planet].demand[_item] * .8 &lt; 1&gt;&gt;
@@ -822,7 +867,7 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
       &lt;&lt;set _link_text = &quot;&lt;span class=&#39;itemName&#39;&gt;&quot; + setup.items[_item].display_name&gt;&gt;
       &lt;&lt;set _link_text = _link_text + &quot;&lt;/span&gt;&lt;span class=&#39;itemCost&#39;&gt;&quot; + _cost + &quot; &quot; + $currency[1] + &quot;&lt;/span&gt;&quot;&gt;&gt;
 	  &lt;div class=&quot;itemHover&quot; @data-name=&quot;_item&quot;&gt;
-        &lt;&lt;if $money &gt;= _cost and $cargo.length &lt; 8 and _use_links&gt;&gt;\
+        &lt;&lt;if $money &gt;= _cost and canAddItem(_item) and _use_links&gt;&gt;\
           &lt;&lt;link _link_text shop&gt;&gt;
           &lt;&lt;inventoryAdd _item&gt;&gt;
           &lt;&lt;set $money = $money - _cost&gt;&gt;
@@ -890,12 +935,11 @@ Maybe it would be better go there instead.
 </tw-passagedata><tw-passagedata pid="15" name="notes" tags="Notes" position="200,500" size="100,100">Text in asterisks is my textbarf with no editing/thought, so it needs to be edited pretty heavily
 Todo:
 	Refactor:
-        passages	
-            inventory_view (upgrade to allow for moving items as well)
 	Horai sells imported candy
     	max 2 sales per planet
     Dispose button - costs money, but can clear a slot in inventory
     Freelance as a local with some grindiness, or beg
+   more sensible inventory recipe map (with conditions)
   
 convert week count to days
 decaying of items, and fragile items breaking
@@ -911,13 +955,20 @@ Music notes if I want to cmopose stuff later
     SOM2 - the way this person rearranged everything
         I think I like the use of flutes/harp/slower paced 
         I don&#39;t think this wants to be chiptuney actually
-    </tw-passagedata><tw-passagedata pid="16" name="inventory_view" tags="" position="200,700" size="100,100">&lt;&lt;include &quot;util&quot;&gt;&gt;\
+</tw-passagedata><tw-passagedata pid="16" name="inventory_view" tags="" position="200,700" size="100,100">&lt;&lt;include &quot;util&quot;&gt;&gt;\
 &lt;div id=&quot;inventory_grid&quot;&gt;&lt;/div&gt;
 &lt;div id=&quot;hover-description&quot;&gt;Mouse over item for a description.&lt;/div&gt;
 Fragility: How likely something is to break every week in transit.
 Base Value: Base value of item.
 Lifespan: How many weeks this can spend in transit before becoming worthless.
-&lt;&lt;plant_management_menu&gt;&gt;
+
+&lt;&lt;if isPastTag(&quot;dead_raw_dead&quot;)&gt;&gt;\
+	Try moving sand onto nutrients to make a spinach sprout.
+&lt;&lt;else&gt;&gt;
+	Click an item to pick it up or select it. Then on another item to\
+    swap their positions, or an empty spot to move the item.
+&lt;&lt;/if&gt;&gt;\
+
 &lt;&lt;return&gt;&gt;</tw-passagedata><tw-passagedata pid="17" name="TermInit" tags="script-pile" position="300,100" size="100,100">/*For all the terms I am sure I will replace a few times b/c I can&#39;t make up my mind*/
 &lt;&lt;set setup.terms = {
 	&quot;alien&quot;: {
