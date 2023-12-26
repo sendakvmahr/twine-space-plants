@@ -9,13 +9,14 @@ Space Plants 1
   "format-version": "2.36.1",
   "start": "on_planet",
   "tag-colors": {
-    "Notes": "red"
+    "Notes": "red",
+    "script-pile": "purple"
   },
   "zoom": 1
 }
 
 
-:: ItemInit {"position":"300,100","size":"100,100"}
+:: ItemInit [script-pile] {"position":"300,0","size":"100,100"}
 <<set setup.items = {
 	"sprout_spinach": {
     	display_name: "Spinach Sprout",
@@ -132,8 +133,8 @@ Space Plants 1
 }>>
 
 
-
-:: PassageHeader {"position":"200,300","size":"100,100"}
+:: PassageHeader [script-pile] {"position":"200,275","size":"100,100"}
+<<include 'util'>>
 <div id="header">
   <div>
     Money: $money
@@ -144,25 +145,27 @@ Space Plants 1
     <<else>>\
         <<= dispArr($cargo)>> ($cargo.length/$max_cargo)
     <</if>>\
+    <<set _disp_location = disp($location[0]) >>\
     <<if $location[1] <= 0 >>\
-        [[Location|on_planet]]: <<= disp($location[0])>>
+        [[Location|on_planet]]: <<details_link _disp_location $location[0]>>
     <<elseif $location[1] == 1>>\
-        [[Location|ship]]: Reaching <<= disp($location[0])>> tomorrow.
+        [[Location|ship]]: Reaching <<details_link _disp_location $location[0]>> tomorrow.
     <<else>>\
-        [[Location|ship]]: $location[1] days away from <<= disp($location[0])>>
+        [[Location|ship]]: $location[1] days away from <<details_link _disp_location $location[0]>>
     <</if>>\
     Fuel: <<if $fuel>>Full<<else>>Empty<</if>>
   </div><div id="settings">
       <span id="toggle-descs"><<link "Toggle Compact View">><</link>></span>
   </div>
-  <<if $daily_reports.length != 0>>\
-    Daily reports: $daily_reports
-    <<set $daily_reports = []>>\
-  <</if>>
 </div>
+<<if $daily_reports.length != 0>>\
+	Daily reports: 
+    <<= $daily_reports.join("<br>") >>
+	<<set $daily_reports = []>>
+<</if>>\
 
 
-:: PlanetInit {"position":"400,100","size":"100,100"}
+:: PlanetInit [script-pile] {"position":"400,100","size":"100,100"}
 <<set $planets to {
 	"raw": {
     	display_name: "Persephone",
@@ -238,8 +241,9 @@ Space Plants 1
 }>>
 
 
-:: StoryInit {"position":"200,100","size":"100,100"}
+:: StoryInit [script-pile] {"position":"200,100","size":"100,100"}
 <<include "ItemInit">>
+<<include "TermInit">>
 <<include "PlanetInit">>
 <<set $seeds = ["seeds_spinach0"]>>
 <<set $cargo = []>>
@@ -258,6 +262,12 @@ Space Plants 1
 <<set $story_tags = ["dead_raw_dead"]>>
 <<inventoryAdd "nutes1">>
 <<inventoryAdd "substrate1">>
+<<inventoryAdd "food1">>
+<<inventoryAdd "food1">>
+<<inventoryAdd "food2">>
+<<inventoryAdd "food2">>
+<<inventoryAdd "food3">>
+<<inventoryAdd "food3">>
 /%
 <<include "util">>
 
@@ -273,101 +283,87 @@ Space Plants 1
 <<inventory_add "food3">>%/
 
 
-:: cryosleep {"position":"650,200","size":"100,100"}
-<<include "updates">>\
-<<widget "cryosleep">>\
-	<<link "Sleep normally (advance 1 day)" ship>><<set $location[1] = $location[1] -1>><<update_daily>><</link>>
-  	<<if $location[1] > 7>>\
-      <<link "Go to cryosleep (advance 1 week)" ship>>\
-      	<<set $location[1] = $location[1] -7>>\
-      	<<update_daily>><<update_daily>><<update_daily>><<update_daily>><<update_daily>><<update_daily>><<update_daily>>
-      	<<set $news to either(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)>>
-      <</link>>
-    <<else>>\
-      <<link "Go to cryosleep (land on planet)" on_planet>>\
-      	<<set $location[1] = 0>>\
-        <<set $fuel to false>>\
-        <<update_daily>>\
-        <<set $news to 0>>\
-      <</link>>
-  <</if>>\
-<</widget>>\
+:: TermInit [script-pile] {"position":"300,100","size":"100,100"}
+/*For all the terms I am sure I will replace a few times b/c I can't make up my mind*/
+<<set setup.terms = {
+	"alien": {
+    	"empire": "Breen",
+     }
+} >>
 
 
 :: dead_raw_dead {"position":"800,475","size":"100,100"}
 <<set $story_tags to $story_tags.concat("dead_raw_dead")>>\
-<<print $planets["dead_raw"].display_name>> has been attacked and destroyed. Cargo ships heading towards <<print $planets["dead_raw"].display_name>> are advised to stop by <<print $planets["raw"].display_name>> to pick up food supplies. Shortages and price increases are predicted.
-        
-Any stations, ships, or planets that can help produce and transport food, please do so. 
+<<= disp("dead_raw")>> has been attacked and destroyed by the <<= setup.terms["alien"]["empire"]>> Empire. Food shortages are expected, as <<print disp("dead_raw")>> was the primary provide of food in this solar system. Cargo ships that were heading towards <<print disp("dead_raw")>> are advised to stop by <<print disp("raw")>> to refuel and pick up food supplies for other planets. 
 
-Soil is heavily regulated... but sand, nutrients, and seeds are not. (Don't ask why, space laws). It's been a while, but maybe you could give it a try?
+<<linkreplace "Huh. Someone I knew was on that planet.">>\
+Their dream was to *eventually build space stations that could make each planet largely independent with its own facilities for food, manufacturing, etc. so that trade between planets was primarily for demand for raw materials and thing that took lots of skill to make*
 
-Sand and nutrients can be gotten from <<print $planets["mfg"].display_name>>.
-<<set $location = ["raw", either(3, 4, 5)]>>
+I wasn't weren't fond of their enthusiasm to destroy my livelihood. But they were a good source of information, and willing to explain anything I asked about, along with information I didn't think I'd need to know about. 
 
-<<return>>
+Like how sand, nutrients, and seeds were all it took to grow food in space. And how <<= disp("mfg")>> was the main source of those supplies.
+
+Maybe it would be better go there instead. 
+
+<<set _display = "Go to " + disp("mfg")>>\
+<<link _display ship>>\
+	<<set $location = ["mfg", either(17, 21, 25)]>>\
+<</link>>
+<<set _display = "Go to " + disp("raw")>>\
+<<link _display ship>>\
+	<<set $location = ["raw", either(17, 21, 25)]>>\
+<</link>>
+<</linkreplace>>
+
 
 
 :: depart_prepare {"position":"425,600","size":"100,100"}
 <<include "util">>\
-<<if $cargo.length is 0>>\
-	There's no point in leaving without inventory.
-<<elseif not $fuel>>
+<<if not $fuel>>\
 	Can't leave the planet without fuel.
 <<else>>\
 	Choose a planet.
 	<<set _planet_names to Object.keys($planets)>>\
   	<<for _i = 0; _i < _planet_names.length; _i++>>\
         <<set _raw_name = _planet_names[_i] >>\
-        <<takeoff_link _raw_name>>
-  	<</for>>
+        <<capture _raw_name >>\
+        	<<set _display = disp(_raw_name) >>\
+	        <<if _raw_name == "dead_raw" and isPastTag("dead_raw_dead")>>\
+		        <<= _display >>\
+        	<<elseif  _raw_name == $location[0]>>\
+	        	<<= _display>>, (Here)\
+        	<<else>>\
+	        	<<link _display ship>>\
+        			<<set $location = [_raw_name, either(17, 21, 25)]>>\
+	        	<</link>>\
+	        <</if>>\
+		<</capture>>\
+        <a class="detail-link" @data-item="_raw_name" href="#">(Details)</a>
+	<</for>>\
 <</if>>\
 <<return>>
+
+<div id="planet-desc"></div>
 
 /*[[ship]]
 [[planet_description]]*/
 
 
-:: inventory_view {"position":"200,700","size":"100,100"}
-<<include "plant_management">>\
 <<script>>
-
-console.log(State);
-console.log(State.getVar("$cargo"));
+  $(document).on(':passagedisplay', (ev) => {
+  	$(".detail-link").click((ev) => {
+    	State.variables.desc_planet = ev.target.attributes["data-item"].value;
+        setPageElement("planet-desc", "planet_description");
+    })
+  });
 <</script>>
-<div id="inventory_grid">
-	<<nobr>>\
-      <<for _i = 0; _i < 8; _i++>>\
-		<<if _i < $cargo.length>>
-        	<div>
-              <div class="name">
-              	<<= $cargo[_i].display_name>>
-              </div>
-              <div class="stats">
-              	<p>Fragility: <<= $cargo[_i].fragility>></p>
-              	<p>Base Value: <<= $cargo[_i].raw_value>></p>
-              	<p>Lifespan: <<if $cargo[_i].lifespan == -1>>Infinite<<else>>$cargo[_i].lifespan<</if>></p>
-              </div>
-              <div class="desc">
-              	<<= $cargo[_i].description>>
-              </div>
-              <div class="hidden">
-              	<span><<=_i>></span>
-              </div>
-            </div>
-        <<else>>
-        	<div>
-              <div class="name"></div>
-              <div class="stats"></div>
-              <div class="desc"></div>
-              <div class="hidden">
-              	<span><<=_i>></span>
-              </div>
-            </div>
-        <</if>>
-      <</for>>
-    <</nobr>>\
-</div>
+
+
+
+:: inventory_view {"position":"200,700","size":"100,100"}
+<<include "util">>\
+<div id="inventory_grid"></div>
+<div id="hover-description">Mouse over item for a description.</div>
 Fragility: How likely something is to break every week in transit.
 Base Value: Base value of item.
 Lifespan: How many weeks this can spend in transit before becoming worthless.
@@ -376,26 +372,31 @@ Lifespan: How many weeks this can spend in transit before becoming worthless.
 
 
 :: notes [Notes] {"position":"200,500","size":"100,100"}
+Text in asterisks is my textbarf with no editing/thought, so it needs to be edited pretty heavily
 Todo:
 	Refactor:
-    	script chunks:
-        	updates, plant/inventory management, cryosleep
-        passages
-        	planet_description, depart_prepare, ship, dead_raw_dead, space_updates
+        passages	
             inventory_view (upgrade to allow for moving items as well)
 	Horai sells imported candy
     	max 2 sales per planet
     Dispose button - costs money, but can clear a slot in inventory
     Freelance as a local with some grindiness, or beg
-
-advance to "travel for X days"
-
+  
 convert week count to days
 decaying of items, and fragile items breaking
 
 random events
 
 you wanted to travel in space. space is a lot of empty, seeing the cool stuff in space is expensive. most of your time in space is spent asleep. 
+
+
+Music notes if I want to cmopose stuff later
+	Dubmood cydonian sky 2
+    Surprisingly, Start of a New Trial apollo Justice
+    SOM2 - the way this person rearranged everything
+        I think I like the use of flutes/harp/slower paced 
+        I don't think this wants to be chiptuney actually
+    
 
 
 :: npc_list {"position":"500,300","size":"100,100"}
@@ -439,45 +440,15 @@ Planet name: <<print $planets[$desc_planet].display_name>>
 	This is an agricultural planet. Imports supplies and chemicals, exports food. 
     <<if $story_point >=1>>It has been blown up.<</if>>
 <</if>>
-<<if !$story_tags.includes("dead_raw_dead") or $desc_planet != "dead_raw">>\
-<<set _sell_set = Object.keys($planets[$desc_planet].demand)>>\
-<h4 style="margin: 0"> Sell Prices </h4>\
-  <<set _sell_set = Object.keys($planets[$desc_planet].demand)>>\
-  <<for _i = 0; _i < _sell_set.length; _i++>>\
-      <<sell_link _sell_set[_i] $desc_planet false>>\
-  <</for>>\
-<h4 style="margin: 0"> Buy Prices</h4>\
-  <<set _stock = $planets[$desc_planet].stock>>\
-      <<for _i = 0; _i < _stock.length; _i++>>\
-          <<buy_link _stock[_i] $desc_planet false>>\
-      <</for>>\
+<<if !isPastTag("dead_raw_dead") or $desc_planet != "dead_raw">>\
+	<<salesInterface false>>
 <</if>>
 
 <<return>>
 
 
-:: plant_management {"position":"850,100","size":"100,100"}
-<<include "util">>\
-<<include "updates">>\
-<<widget "plant_management_menu">>\
-	<<if $story_tags.includes("dead_raw_dead")>>\
-    	<<set _display_text = "Use 1 Sand and 1 Nutrients to start a plant. Takes 2 weeks to grow.">>\
-        <<if $cargo.findIndex((x) => x.name === "substrate1") != -1 and $cargo.findIndex((x) => x.name === "nutes1") != -1 and $location[1] > 0>>\
-        	<<link _display_text inventory_view>>\
-            	<<update_daily>>\
-                <<set $location[1] = $location[1] -1>>
-            	<<inventory_pop "substrate1">>\
-                <<inventory_pop "nutes1">>\
-                <<inventory_add "sprout_spinach">>\
-            <</link>>
-        <<else>>\
-        	<span class="disabled"><<=_display_text>></span>
-        <</if>>\
-    <</if>>\
-<</widget>>\
 
-
-:: sales {"position":"750,100","size":"100,100"}
+:: sales [script-pile] {"position":"700,100","size":"100,100"}
 <<nobr>>
   <<widget 'sell_link'>>
     <<set _item = _args[0]>>
@@ -488,19 +459,21 @@ Planet name: <<print $planets[$desc_planet].display_name>>
       <<set _link_text = "<span class='itemName'>" + setup.items[_item].display_name >> 
       <<set _link_text = _link_text + "</span><span class='itemCost'>" + _cost + " " +  $currency[1] + "</span>">>
       <<if _cost > 0>>
-        <<if $cargo.findIndex((x) => x.name === _item) != -1 and _use_links>>
-          <<link _link_text shop>>
-            <<inventoryPop _item>>
-            <<if $planets[_planet].demand[_item] * .8 < 1>>
-              $planets[_planet].demand[_item] = 1
-            <<else>>
-              $planets[_planet].demand[_item] = $planets[_planet].demand[_item] * .8
-            <</if>>
-            <<set $money = $money + _cost>>
-          <</link>>
-        <<else>>
-          <span class="disabled"> _link_text</span>
+		<div class="itemHover" @data-name="_item">
+          <<if $cargo.findIndex((x) => x.name === _item) != -1 and _use_links>>
+              <<link _link_text shop>>
+                <<inventoryPop _item>>
+                <<if $planets[_planet].demand[_item] * .8 < 1>>
+                  $planets[_planet].demand[_item] = 1
+                <<else>>
+                  $planets[_planet].demand[_item] = $planets[_planet].demand[_item] * .8
+                <</if>>
+                <<set $money = $money + _cost>>
+              <</link>>
+          <<else>>
+            <span class="disabled"> _link_text</span>
         <</if>>
+            </div>
           <span class="desc">
             <br>
             <<= desc(_item) >>
@@ -518,14 +491,16 @@ Planet name: <<print $planets[$desc_planet].display_name>>
     <<capture _cost _item>>
       <<set _link_text = "<span class='itemName'>" + setup.items[_item].display_name>>
       <<set _link_text = _link_text + "</span><span class='itemCost'>" + _cost + " " + $currency[1] + "</span>">>
-      <<if $money >= _cost and $cargo.length < 8 and _use_links>>\
-        <<link _link_text shop>>
-        <<inventoryAdd _item>>
-        <<set $money = $money - _cost>>
-        <</link>>
-      <<else>>
-        <span class="disabled"> _link_text</span>
-      <</if>>
+	  <div class="itemHover" @data-name="_item">
+        <<if $money >= _cost and $cargo.length < 8 and _use_links>>\
+          <<link _link_text shop>>
+          <<inventoryAdd _item>>
+          <<set $money = $money - _cost>>
+          <</link>>
+        <<else>>
+          <span class="disabled"> _link_text</span>
+        <</if>>
+      </div>
           <span class="desc">
             <br>
             <<= desc(_item) >>
@@ -533,18 +508,57 @@ Planet name: <<print $planets[$desc_planet].display_name>>
           <br>
     <</capture>>
   <</widget>>
+
+  <<widget "salesInterface">>
+  	<<set _allow_sales = _args[0]>>
+    <<if _allow_sales >>
+    	<<set _sell_string = "Sell">>
+    	<<set _buy_string = "Buy">>
+    <<else>>
+    	<<set _sell_string = "Will Buy (Estimated)">>
+    	<<set _buy_string = "Will Sell (Estimated)">>
+    <</if>>
+    <div class="sales-interface">
+      <div>
+        <h4 style="margin: 0"><<=_sell_string>></h4>
+        <<set _sell_set = Object.keys($planets[$location[0]].demand)>>
+        <<for _i = 0; _i < _sell_set.length; _i++>>
+          <<sell_link _sell_set[_i] $location[0] _allow_sales>>
+        <</for>>
+      </div>
+      <div>
+        <h4 style="margin: 0"><<=_buy_string>></h4>
+        <<set _stock = $planets[$location[0]].stock>>
+        <<for _i = 0; _i < _stock.length; _i++>>
+          <<buy_link _stock[_i] $location[0] _allow_sales>>
+        <</for>>
+      </div>
+    </div>
+	<div id="hover-description">Mouse over item for a description.</div>
+  <</widget>>
 <</nobr>>
 
 
 :: ship {"position":"600,600","size":"100,100"}
-<<include "cryosleep">>\
 You are sitting on your ship. 
 <<if $location[0] == "dead_raw" and $location[1] <= 10>>\
-    An emergency [[news|dead_raw_dead]] announcement has been sent out.
+  An emergency [[news|dead_raw_dead]] announcement has been sent out.
 <<else>>\
-	[[Listen to the news|space_updates]]
-    [[Manage your cargo|inventory_view]]
-  	<<cryosleep>>
+  [[Listen to the news|space_updates]]
+  [[Manage your cargo|inventory_view]]
+  <<link "Sleep normally (advance 1 day)" ship>><<set $location[1] = $location[1] -1>><<passTime 1>><</link>>
+    <<if $location[1] > 7>>\
+    <<link "Go to cryosleep (advance 1 week)" ship>>\
+      <<set $location[1] = $location[1] -7>>\
+      <<passTime 7>>
+    <</link>>
+  <<else>>\
+    <<link "Go to cryosleep (land on planet)" on_planet>>\
+      <<set $location[1] = 0>>\
+      <<set $fuel to false>>\
+      <<passTime $location[1]>>\
+    <</link>>
+  <</if>>\
 <</if>>\
 
 /*
@@ -554,22 +568,7 @@ You are sitting on your ship.
 
 :: shop {"position":"650,450","size":"100,100"}
 <<include "sales">>\
-<div class="sales-interface">
-  <div>
-    <h4 style="margin: 0"> Sell</h4>\
-    <<set _sell_set = Object.keys($planets[$location[0]].demand)>>\
-    <<for _i = 0; _i < _sell_set.length; _i++>>\
-      <<sell_link _sell_set[_i] $location[0] true>>\
-    <</for>>\
-  </div>
-  <div>
-    <h4 style="margin: 0"> Buy </h4>\
-    <<set _stock = $planets[$location[0]].stock>>\
-    <<for _i = 0; _i < _stock.length; _i++>>\
-      <<buy_link _stock[_i] $location[0] true>>\
-    <</for>>\
-  </div>
-</div>
+<<salesInterface true>>
 <<if !$fuel>>\  /* refueling */
   <h4 style="margin: 0"> Refuel </h4>\
   <<set _fuel_cost = 10>>\
@@ -584,103 +583,57 @@ You are sitting on your ship.
 
 
 :: space_updates {"position":"800,600","size":"100,100"}
-Random events and flavor not implemented yet.So some hints.  
-<<if $story_tags.includes("dead_raw_dead")>>Prices will fluctuate, and there  is no end in sight. (no more progression available)<<else>>Elysium, breadbasket of the local galaxy in high demand of nutrients, as usual.<</if>>\
-<<set $news = -1>>
-<<switch $news>>\
-	<<case 0>>\
-		 Weather is <<print either("sunny", "rainy", "cloudy", "foggy")>> on <<print $planets[$location[0]].display_name>> right now.
-    <<case 1>>\
-    	Dissolved Ultra Pasturized Fiber trends on <<print $planets["tourism"].display_name>>, leading to a shortage of solvents.
-    <<case 2>>\
-    	Static. You wish you could splurge on a music player for your ship.
-    <<case 3>>\
-    	An upcoming holiday on  <<print $planets["mfg"].display_name>> will give ore supplies time to build up.
-    <<case 4>>\
-    	Is that an alien ship? Maybe it's best to stay quiet and sleep.
-    <<case 5>>\
-    	You listen to a soda jingle for several minutes before shutting it off. 
-    <<case 6>>\
-    	<<print either(6, 7, 8)>> ships have been lost in the ongoing conflicts against the aliens.
-    <<case 7>> \   
-    	Recreational use of volatile chemicals on <<print $planets["tourism"].display_name>> continues to draw derision from <<print $planets["raw"].display_name>>.
-    <<case 8>> \
-    	Shipping companies complain about lack of workers, and workers continue to complain about lack of holidays. 
-    <<case 9>>\
-    	<<print $planets["mfg"].display_name>>'s planet continues to suffer from its haze layer and global cooling. 
-    <<default>>\
-    	Silence. 
-<</switch>>
+<<set _updates = {
+  "default": [
+    "Dissolved " + disp(either(Object.keys(setup.items))) + " trends on " + disp("tourism") + ", leading to a shortage of solvents and an increase in hospistal visits.",
+    "Static. You wish you could splurge on a music player for your ship.",
+    "You listen to a soda advertisement for several minutes before shutting it off.",
+    "Shipping companies complain about lack of workers, and workers continue to complain about lack of holidays.",
+    "Recreational use of volatile chemicals on " + disp("tourism") + " continues to draw derision from " + disp("raw") + ".",
+    "Silence. Nobody's out there today." 
+  ],
+  "dead_raw_dead": [
+    "Is that an alien ship? Maybe it's best to stay quiet and sleep.",
+    either(6, 7, 8) + " ships have been lost in the ongoing conflicts against the aliens.",
+  ]
+}
+>>\
+<<if isPastTag("dead_raw_dead")>>\
+	<<= either(_updates["dead_raw_dead"].concat(_updates["default"])) >>
+<<else>>\
+	<<= either(_updates["default"]) >>
+<</if>>\
 
 <<return>>
 
 
-:: updates {"position":"650,100","size":"100,100"}
-<<widget 'update_daily'>>\
-	<<nobr>>\
-    	<<set _planet_list = Object.keys($planets)>>
-    	<<for _p = 0; _p< _planet_list.length; _p++>>
-        	<<set _planet = _planet_list[_p]>>
-            <<set _demand_list = Object.keys($planets[_planet].demand)>>
-        	<<for _i = 0; _i < _demand_list.length; _i++>>
-            	<<set _item = _demand_list[_i]>>
-            	<<if _item.contains("food") and $story_point >= 1>>
-                	<<set _weight = either(1, 1.2, 1.3, 1.4, 1.5)>>
-                <<else>>
-                	<<set _weight = either(.7, .8, .9, 1, 1.1, 1.2, 1.3)>>
-                <</if>>
-                <<set _demand = $planets[_planet].demand[_item]>>
-                <<if _demand * _weight < 1 and _demand != 0 >>
-                	<<set _demand = 1>>
-                <<elseif _demand * _weight > 5>>
-                	<<set _demand = 5>>
-                 <<else>>
-                 	<<set _demand = _demand * _weight>>
-                 <</if>>
-                <<set $planets[_planet].demand[_item] = _demand>>
-            <</for>>
-        <</for>>
-  	<<for _i=0; _i < $cargo.length; _i++>>
-    	<<if $cargo[_i].fragility > 0>>
-        	<<if Math.random <= $cargo[_i].fragility>>
-            	<<set $daily_reports to $daily_reports.concat("A "+ $cargo[_i].display_name + " has been damaged during turbulence.")>>
-                <<set $cargo[_i].lifespan = 0>>
-            <</if>>
-        <</if>>
-    	<<if $cargo[_i].lifespan > 0>>
-        	<<set $cargo[_i].lifespan = $cargo[_i].lifespan -1>>
-            <<if $cargo[_i].lifespan == 0>>
-            	<<if $cargo[_i].name.includes("sprout")>>
-            		<<set $daily_reports to $daily_reports.concat("A "+ $cargo[_i].display_name + "has finished growing.")>>
-                    <<inventory_add "food3">>
-                    <<inventory_add "substrate1">>
-                <<else>>
-            		<<set $daily_reports to $daily_reports.concat("A "+ $cargo[_i].display_name + "has gone bad.")>>
-                <</if>>
-            <</if>>
-        <</if>>
-    <</for>>
-    <<inventory_clean>>
-    <</nobr>>\
-<</widget>>\
-
-
-:: util {"position":"750,0","size":"100,100"}
-<<nobr>>
-  <<widget 'takeoff_link'>>
-          <<if _args[0] == "dead_raw" and isPastTag("dead_raw_dead")>>\
-              <<= disp(_args[0])>>
-          <<elseif _args[0] == $location[0]>>
-              <<= disp(_args[0])>> (Here)
-          <<else>>\
-            <<link disp(_args[0]) ship>>\
-                <<set $location = [_args[0], either(17, 21, 25)]>>\
-            <</link>>
-          <</if>>
-          <<link (Description) planet_description>><<set $desc_planet = _args[0]>><</link>>
+:: util [script-pile] {"position":"600,100","size":"100,100"}
+<<nobr>>  
+  <<widget 'details_link'>>
+  	<<set _text = _args[0] >>
+  	<<set _planet = _args[1] >>
+    <<capture _planet _text >>
+    	<<link _text planet_description>><<set $desc_planet = _planet>><</link>>
+     <</capture>>
+  <</widget>>
+ 
+   <<widget "plant_management_menu">>
+    <<if $story_tags.includes("dead_raw_dead")>>
+      <<set _display_text = "Use 1 Sand and 1 Nutrients to start a plant. Takes 2 weeks to grow.">>
+      <<if $cargo.findIndex((x) => x.name === "substrate1") != -1 and $cargo.findIndex((x) => x.name === "nutes1") != -1 and $location[1] > 0>>
+        <<link _display_text inventory_view>>
+          <<passTime 1>>
+          <<set $location[1] = $location[1] -1>>
+          <<inventoryPop "substrate1">>
+          <<inventoryPop "nutes1">>
+          <<inventoryAdd "sprout_spinach">>
+        <</link>>
+        <<else>>
+        <span class="disabled"><<=_display_text>></span>
+      <</if>>
+    <</if>>
   <</widget>>
  <</nobr>>
-
 
 
 :: StoryScript [script]
@@ -747,12 +700,110 @@ window.inventoryClean = () => {
   }
 }
 
+// Time passage/updates
+window.passTime = (days) => {
+  let planets = Object.keys(State.variables.planets);
+  for (let d=0; d<days; d++) {
+    // Update planetary demands
+    for (let p=0; p<planets.length; p++) {
+      let planet = planets[p];
+      let demandList = Object.keys(
+        State.variables.planets[planet].demand
+      );
+      for (let dmd=0; dmd<demandList.length; dmd++){
+        let item = demandList[dmd];
+        window._updateItemDemand(planet, item);
+      }
+    }
+    // Cargo updates
+    for (let c=0; c<State.variables.cargo.length; c++) {
+      let wasBroken = false;
+      if (Math.random() <= State.variables.cargo[c].fragility) {
+        State.variables.cargo[c].lifespan = 0;
+        wasBroken = true;
+      }
+      if (State.variables.cargo[c].lifespan > 0) {
+        State.variables.cargo[c].lifespan -= 1;
+      }
+      if (State.variables.cargo[c].lifespan === 0) {
+        let name = window.disp(State.variables.cargo[c].name)
+        if (State.variables.cargo[c].name.includes("sprout")) {
+          window.inventoryAdd("food3");
+          window.inventoryAdd("substrate1");
+          State.variables.daily_reports.push("A " + name + " has finished growing." );
+        } else if (wasBroken) {
+          State.variables.daily_reports.push("A " + name + " has been damaged during turbulence.");
+        } else {
+          State.variables.daily_reports.push("A " + name + " has gone bad.");
+        }
+      }
+    }
+    window.inventoryClean();
+  }
+}
+
+window.randChoice = (arr) => {
+  // Let's see if this works better than either?
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+window.addStorTag = (tag) => {
+  if (State.variables.story_tags.includes(tag)) {
+	  State.variables.story_tags;
+  }
+}
+
+window._updateItemDemand = (planet, item) => {
+  let weight = 1;
+  if (item.contains("food") && window.isPastTag("dead_raw_dead")) {
+    weight = window.randChoice([1, 1.2, 1.3, 1.4, 1.5]);
+  } else {
+    weight = window.randChoice([.7, .8, .9, 1, 1.1, 1.2, 1.3]);
+  }
+  let demand = State.variables.planets[planet].demand[item];
+  if (demand * weight < 1 && demand !== 0) {
+    State.variables.planets[planet].demand[item] = 1;
+  } else {
+    State.variables.planets[planet].demand[item] = demand * weight;
+  }
+}
+
 // Actual onrender JS
 
 $(document).on(':passagedisplay', function (eventObject) {
-  document.querySelector('#toggle-descs').onclick = function(){
+  // settings
+  $('#toggle-descs').click(() => {
     $("#story").toggleClass("compact");
-  };
+  });
+  // inventory grid
+  let inventoryGrid = $("#inventory_grid");
+  if (inventoryGrid) {
+    for (let c=0; c < State.variables.cargo.length; c++) {
+      let cargoItem = State.variables.cargo[c];
+      let toAppend = $("<div class='itemHover' data-name='" + cargoItem.name + "'></div>");
+      let stats = $("<div class='stats'></div>");
+      stats.append($("<p>Fragility: " + cargoItem.fragility + "</p>"));
+      stats.append($("<p>Base Value: " + cargoItem.raw_value + "</p>"));
+      stats.append($("<p>Lifespan: " + ((cargoItem.lifespan === -1) ? "Infinite" : cargoItem.lifespan) + "</p>"));
+      toAppend.append($("<div class='name'>" + cargoItem.display_name + "</div>"));
+      toAppend.append(stats);
+      toAppend.append($("<div class='desc'>" + cargoItem.description + "</div>"));
+      inventoryGrid.append(toAppend);
+    }
+  }
+  
+  // shop widget and inventory grid
+  let hoverDesc = $("hover-description");
+  if (hoverDesc) {
+    // idk why but jquery doesn't seem to like modern () => syntax
+    $("div.itemHover").hover(
+      function() {
+        $("#hover-description").html(window.desc($(this).data("name")));
+      }, function() {
+        $("#hover-description").html("Mouse over item for a description.");
+      }
+    );
+  }
 });
 
 // Repetitive Macro stuff
@@ -775,11 +826,21 @@ Macro.add('desc', {
   }
 });
 
+Macro.add('passTime', {
+  handler : function () {
+    window.passTime(this.args[0]);
+  }
+});
+
+Macro.add('displayInventoryGrid', {
+  handler : function () {
+    window.displayInventoryGrid();
+  }
+});
 
 :: StoryStylesheet [stylesheet]
-.disabled {
-  color: darkgrey;
-}
+.disabled { color: darkgrey; }
+.detail-link.link-external::after { content: none; }
 #header {
   display: flex;
   justify-content: space-between;
@@ -806,7 +867,7 @@ Macro.add('desc', {
 .compact .sales-interface {
   display: flex;
 }
-.compact .sales-interface div {
+.compact .sales-interface > div {
   width: 100%;
   padding: 0 20px;
 }
