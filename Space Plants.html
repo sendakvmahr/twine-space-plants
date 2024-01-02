@@ -98,7 +98,7 @@ var LZString={_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234
 		<div id="init-lacking"><p>Browser lacks capabilities required to play.</p><p>Upgrade or switch to another browser.</p></div>
 		<div id="init-loading"><div>Loading&hellip;</div></div>
 	</div>
-	<tw-storydata name="Space Plants" startnode="18" creator="Twine" creator-version="2.8.0" format="SugarCube" format-version="2.36.1" ifid="a39d4033-db33-4cc3-9e10-aa95abfe18de" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">.disabled { color: darkgrey; }
+	<tw-storydata name="Space Plants" startnode="17" creator="Twine" creator-version="2.8.0" format="SugarCube" format-version="2.36.1" ifid="a39d4033-db33-4cc3-9e10-aa95abfe18de" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">.disabled { color: darkgrey; }
 .detail-link.link-external::after { content: none; }
 #header {
   display: flex;
@@ -234,7 +234,7 @@ window.inventoryAdd = (toAdd) => {
 }
 
 window.inventoryClean = () => {
-  let isDead = (x) => x.lifespan === 0;
+  let isDead = (x) => x !== null && x.lifespan === 0;
   let index = State.variables.cargo.findIndex(isDead);
   for (let i=0; i < State.variables.max_cargo; i++) {
     if (index !== -1) {
@@ -276,24 +276,26 @@ window.passTime = (days) => {
     }
     // Cargo updates
     for (let c=0; c<State.variables.cargo.length; c++) {
-      let wasBroken = false;
-      if (Math.random() <= State.variables.cargo[c].fragility) {
-        State.variables.cargo[c].lifespan = 0;
-        wasBroken = true;
-      }
-      if (State.variables.cargo[c].lifespan > 0) {
-        State.variables.cargo[c].lifespan -= 1;
-      }
-      if (State.variables.cargo[c].lifespan === 0) {
-        let name = window.disp(State.variables.cargo[c].name)
-        if (State.variables.cargo[c].name.includes("sprout")) {
-          window.inventoryAdd("food3");
-          window.inventoryAdd("substrate1");
-          State.variables.daily_reports.push("A " + name + " has finished growing." );
-        } else if (wasBroken) {
-          State.variables.daily_reports.push("A " + name + " has been damaged during turbulence.");
-        } else {
-          State.variables.daily_reports.push("A " + name + " has gone bad.");
+      if (State.variables.cargo[c] !== null) {
+        let wasBroken = false;
+        if (Math.random() <= State.variables.cargo[c].fragility) {
+          State.variables.cargo[c].lifespan = 0;
+          wasBroken = true;
+        }
+        if (State.variables.cargo[c].lifespan > 0) {
+          State.variables.cargo[c].lifespan -= 1;
+        }
+        if (State.variables.cargo[c].lifespan === 0) {
+          let name = window.disp(State.variables.cargo[c].name)
+          if (State.variables.cargo[c].name.includes("sprout")) {
+            window.inventoryAdd("food3");
+            window.inventoryAdd("substrate1");
+            State.variables.daily_reports.push("A " + name + " has finished growing." );
+          } else if (wasBroken) {
+            State.variables.daily_reports.push("A " + name + " has been damaged during turbulence.");
+          } else {
+            State.variables.daily_reports.push("A " + name + " has gone bad.");
+          }
         }
       }
     }
@@ -414,6 +416,9 @@ $(document).on(':passagedisplay', function (eventObject) {
   }
 });
 
+// compact by default
+$("#story").toggleClass("compact");
+
 // Repetitive Macro stuff
 
 Macro.add('inventoryAdd', {
@@ -444,10 +449,12 @@ Macro.add('displayInventoryGrid', {
   handler : function () {
     window.displayInventoryGrid();
   }
-});</script><tw-tag name="Notes" color="red"></tw-tag><tw-tag name="script-pile" color="purple"></tw-tag><tw-tag name="location" color="green"></tw-tag><tw-tag name="widget-like" color="blue"></tw-tag><tw-tag name="story" color="orange"></tw-tag><tw-passagedata pid="1" name="on_planet" tags="location" position="500,300" size="100,100">&lt;&lt;if isPastTag(&quot;dead_raw_dead&quot;)&gt;&gt;\
+});
+
+</script><tw-tag name="Notes" color="red"></tw-tag><tw-tag name="script-pile" color="purple"></tw-tag><tw-tag name="location" color="green"></tw-tag><tw-tag name="widget-like" color="blue"></tw-tag><tw-tag name="story" color="orange"></tw-tag><tw-passagedata pid="1" name="on_planet" tags="location" position="500,300" size="100,100">&lt;&lt;if isPastTag(&quot;dead_raw_dead&quot;)&gt;&gt;\
 	With the destruction of &lt;&lt;= disp(&quot;dead_raw&quot;) &gt;&gt;, you might be able to make more monies and upgrade your ship. 
 &lt;&lt;else&gt;&gt;\
-	You run a cargo ship. It&#39;s a simple job - buy cheap stuff from one planet, sell it to another planet that needs it and will pay more for it.
+	Running a cargo ship is a simple job. Buy stuff from one planet, sell it to another planet that needs it and will pay more for it.
 &lt;&lt;/if&gt;&gt;\
 &lt;&lt;set _link_desc = disp($location[0]) &gt;&gt;\
 You are currently on &lt;&lt;link _link_desc planet_description&gt;&gt;\
@@ -529,7 +536,7 @@ You are currently on &lt;&lt;link _link_desc planet_description&gt;&gt;\
 	        &lt;&lt;if _raw_name == &quot;dead_raw&quot; and isPastTag(&quot;dead_raw_dead&quot;)&gt;&gt;\
 		        &lt;&lt;= _display &gt;&gt;\
         	&lt;&lt;elseif  _raw_name == $location[0]&gt;&gt;\
-	        	&lt;&lt;= _display&gt;&gt;, (Here)\
+	        	&lt;&lt;= _display&gt;&gt; (Here)\
         	&lt;&lt;else&gt;&gt;\
 	        	&lt;&lt;link _display ship&gt;&gt;\
         			&lt;&lt;set $location = [_raw_name, either(17, 21, 25)]&gt;&gt;\
@@ -753,6 +760,13 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
         lifespan: -1,
         raw_value: 120,
         description: &quot;Not particularly useful, but not for the ill-equipped cargo ships.&quot;
+    },
+    &quot;alien_candy&quot;: {
+        display_name: &quot;Imported Candy&quot;,
+        fragility: 0,
+        lifespan: -1,
+        raw_value: 10,
+        description: &quot; for tourists, but a rare treat for those in the solar system. &quot;
     }
 }&gt;&gt;</tw-passagedata><tw-passagedata pid="12" name="PlanetInit" tags="script-pile" position="225,25" size="100,100">&lt;&lt;set $planets to {
 	&quot;raw&quot;: {
@@ -769,6 +783,7 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
         	&quot;chem2&quot;: 1,
         	&quot;chem3&quot;: 2,
         	&quot;nutes1&quot;: 1,
+            &quot;alien_candy&quot;: 1,
         },
         stock: [&quot;mats1&quot;, &quot;mats2&quot;, &quot;mats3&quot;, &quot;food1&quot;, &quot;substrate1&quot;]
     },
@@ -784,6 +799,7 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
         	&quot;food3&quot;: 2,
         	&quot;seeds_spinach0&quot;: 0,
         	&quot;substrate1&quot;: 0,
+            &quot;alien_candy&quot;: 1,
         },
         stock: [&quot;supplies1&quot;, &quot;supplies2&quot;, &quot;supplies3&quot;, &quot;chem1&quot;, &quot;chem2&quot;, &quot;chem3&quot;, &quot;nutes1&quot;]
     },
@@ -806,7 +822,7 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
         	&quot;nutes1&quot;: 2,
         	&quot;substrate1&quot;: 0.5,
         },
-        stock: []
+        stock: [&quot;alien_candy&quot;]
     },
     &quot;dead_raw&quot;:{
     	display_name: &quot;Elysium&quot;,
@@ -823,6 +839,7 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
         	&quot;chem3&quot;: 2,
         	&quot;nutes1&quot;: 3,
         	&quot;substrate1&quot;: 3,
+            &quot;alien_candy&quot;: 1,
         },
         stock: [&quot;food1&quot;, &quot;food2&quot;, &quot;food3&quot;]
     }
@@ -934,40 +951,7 @@ Maybe it would be better go there instead.
 	&lt;&lt;set $location = [&quot;raw&quot;, either(17, 21, 25)]&gt;&gt;\
 &lt;&lt;/link&gt;&gt;
 &lt;&lt;/linkreplace&gt;&gt;
-</tw-passagedata><tw-passagedata pid="15" name="notes" tags="Notes" position="675,25" size="100,100">Todo:
-	Code:
-        Horai sell imported candy (decent markup, but only 2 sales per planet per day.)
-        Inventory action - dispose of item. Can only be done on planets, costs money, deletes an item from inventory. 
-        2x2 item
-        More sensible recipe map
-		Random events
-        Timeline of some sort
-	Writing:
-    	Ajurhang needs to be pithier
-        Char needs to be... more professionally happy
-	Art:
-		Figure out what the 3 planets look like
-    Design:
-    	Ajurhang&#39;s species needs a name
-        Put all the actual stuff into a GDD dir on dropbox
-
-you wanted to travel in space. space is a lot of empty, seeing the cool stuff in space is expensive. most of your time in space is spent asleep. 
-
-Music notes if I want to cmopose stuff later
-	Dubmood cydonian sky 2
-    Surprisingly, Start of a New Trial apollo Justice
-    SOM2 - the way this person rearranged everything
-        I think I like the use of flutes/harp/slower paced 
-        I don&#39;t think this wants to be chiptuney actually
-    &lt;&lt;if  $character[&quot;body&quot;] === &quot;vertebrate&quot;&gt;&gt;
-    &lt;&lt;else if $character[&quot;body&quot;] === &quot;mollusk&quot;&gt;&gt;
-    &lt;&lt;else if $character[&quot;body&quot;] === &quot;insect&quot;&gt;&gt;
-    &lt;&lt;else if $character[&quot;body&quot;] === &quot;plant&quot;&gt;&gt;
-    &lt;&lt;else if $character[&quot;body&quot;] === &quot;nonsolid&quot;&gt;&gt;
-    &lt;&lt;else&gt;&gt;
-    	&lt;script&gt;alert(&quot;something went wrong&quot;);&lt;/script&gt;
-    &lt;&lt;/if&gt;&gt;
-</tw-passagedata><tw-passagedata pid="16" name="inventory_view" tags="widget-like" position="600,150" size="100,100">&lt;&lt;include &quot;util&quot;&gt;&gt;\
+</tw-passagedata><tw-passagedata pid="15" name="inventory_view" tags="widget-like" position="600,150" size="100,100">&lt;&lt;include &quot;util&quot;&gt;&gt;\
 &lt;div id=&quot;inventory_grid&quot;&gt;&lt;/div&gt;
 &lt;div id=&quot;hover-description&quot;&gt;Mouse over item for a description.&lt;/div&gt;
 Fragility: How likely something is to break every week in transit.
@@ -981,14 +965,12 @@ Lifespan: How many weeks this can spend in transit before becoming worthless.
     swap their positions, or an empty spot to move the item.
 &lt;&lt;/if&gt;&gt;\
 
-&lt;&lt;return&gt;&gt;</tw-passagedata><tw-passagedata pid="17" name="TermInit" tags="script-pile" position="125,25" size="100,100">/*For all the terms I am sure I will replace a few times b/c I can&#39;t make up my mind*/
+&lt;&lt;return&gt;&gt;</tw-passagedata><tw-passagedata pid="16" name="TermInit" tags="script-pile" position="125,25" size="100,100">/*For all the terms I am sure I will replace a few times b/c I can&#39;t make up my mind*/
 &lt;&lt;set setup.terms = {
 	&quot;alien&quot;: {
     	&quot;empire&quot;: &quot;Breen&quot;,
      }
-} &gt;&gt;</tw-passagedata><tw-passagedata pid="18" name="Intro1" tags="story" position="100,200" size="100,100">Notes - the descriptive parts might suck because they&#39;re more notes for me on how to draw things, instead of good written description. 
-
-&lt;&lt;nobr&gt;&gt;
+} &gt;&gt;</tw-passagedata><tw-passagedata pid="17" name="Intro1" tags="story" position="100,200" size="100,100">&lt;&lt;nobr&gt;&gt;
 	&lt;&lt;widget &#39;toggleAll&#39;&gt;&gt;
 	    &lt;&lt;for _i = 0; _i &lt; _args.length; _i++&gt;&gt;
           &lt;&lt;toggleclass _args[_i] &quot;hidden&quot;&gt;&gt;
@@ -1017,7 +999,7 @@ Lifespan: How many weeks this can spend in transit before becoming worthless.
     &lt;&lt;/widget&gt;&gt;
 
 &lt;span id=&quot;text1&quot;&gt;
-	&lt;p&gt;You&#39;ve landed your ship on Mt. Rosele, the highest mountain in &lt;&lt;= disp(&quot;dead_raw&quot;)&gt;&gt;. 
+	&lt;p&gt;You are on the highest mountain in &lt;&lt;= disp(&quot;dead_raw&quot;)&gt;&gt;, making a delivery for a client. 
     By most species&#39; standards, the sunlight would be considered intense at this altitude. But for you, the light here is &lt;/p&gt;
   &lt;span&gt;
     &lt;&lt;charSetupLink &quot;habitat&quot; &quot;space&quot; 1 &quot;Dim.&quot; &quot;dim.&quot;&gt;&gt;
@@ -1028,7 +1010,7 @@ Lifespan: How many weeks this can spend in transit before becoming worthless.
 &lt;/span&gt;
 
 &lt;span id=&quot;text2&quot; class=&quot;hidden&quot;&gt;
-	&lt;p&gt;Lighting was the least irksome of Ajurhang&#39;s needs. After all, they had you hauling 30 tons of sand up a mountain. Even with your transportation assistance tools, 30 tons of sand was still a lot.  &lt;/p&gt;
+	&lt;p&gt;They had you hauling 30 tons of sand up a mountain. Even with tools, that was a lot. &lt;/p&gt;
   &lt;span&gt;
     &lt;&lt;charSetupLink &quot;body&quot; &quot;vertebrate&quot; 2 &quot;The climb was starting to take its toll on my back.&quot;&gt;&gt;
     &lt;&lt;charSetupLink &quot;body&quot; &quot;mollusk&quot; 2 &quot;Even my tentacles were starting to give out.&quot;&gt;&gt;
@@ -1064,43 +1046,35 @@ Lifespan: How many weeks this can spend in transit before becoming worthless.
     margin: auto;
     display: block;
   }
-&lt;/style&gt;</tw-passagedata><tw-passagedata pid="19" name="Intro2" tags="story" position="225,200" size="100,100">&lt;&lt;set $character = {
-	&quot;habitat&quot;: &quot;space&quot;,
-    &quot;body&quot;: &quot;nonsolid&quot;,
-    &quot;name&quot;: &quot;Tararntula&quot;}&gt;&gt;\
-&lt;span id=&quot;text4&quot;&gt;
+&lt;/style&gt;</tw-passagedata><tw-passagedata pid="18" name="Intro2" tags="story" position="225,200" size="100,100">&lt;span id=&quot;text4&quot;&gt;
    &lt;img src=&quot;./images/ajurhang.jpg&quot;/&gt;
    Ajurhang: Good morning. I think. Oh! Hello &lt;&lt;= $character[&quot;name&quot;] &gt;&gt;! What are you doing here?&lt;br/&gt;
-    &lt;&lt;= $character[&quot;name&quot;] &gt;&gt;: Sand. You ordered 30 tons of sand and requested delivery home. &lt;br/&gt;
-    Ajurhang: Right! Yes! The minerals from &lt;&lt;=disp(&quot;mfg&quot;)&gt;&gt;. Let take a look. Drop it. 
+    &lt;&lt;= $character[&quot;name&quot;] &gt;&gt;: You ordered 30 tons of sand delivered. &lt;br/&gt;
+    Ajurhang: Right! Yes! The minerals from &lt;&lt;=disp(&quot;mfg&quot;)&gt;&gt;. Let take a look. 
    
-    You released the sand into a big pile. Ajurhang stuck a tendril in before (happily rustling) over and taking the payment system out of your hand.
+    You released the sand into a big pile. Ajurhang stuck a tendril in before rustling over and taking the payment system out of your hand.
     
-    Ajurhang: Absolutely delicious. Wait, Azhrhong? That&#39;s why it took so long? How did they get THAT? It&#39;s Ajurhang! A-J-U-R-H-A-N-G! It&#39;s a simple name! Ugh. Thank you for bringing the sand, despite how much trouble they must&#39;ve given you. Right, and for dragging it up here.
+    Ajurhang: Absolutely delicious. Wait, they spelled my name as Azhrhong? That&#39;s why it took so long? How did they get THAT? It&#39;s Ajurhang! A-J-U-R-H-A-N-G! It&#39;s a simple name! Ugh.
     
-   &lt;&lt;linkreplace &quot;You ordered 30 tons of snacks?&quot;&gt;&gt;\
+   &lt;&lt;linkreplace &quot;Did you order 30 tons of snacks?&quot;&gt;&gt;\
    	&lt;&lt;toggleclass &quot;#text6&quot; &quot;hidden&quot;&gt;&gt;\
-    &lt;&lt;= $character[&quot;name&quot;] &gt;&gt;: You ordered 30 tons of snacks?
+    &lt;&lt;= $character[&quot;name&quot;] &gt;&gt;: Did you ordered 30 tons of snacks?
     &lt;&lt;/linkreplace&gt;&gt;
 &lt;/span&gt;&lt;&lt;nobr&gt;&gt;
 
 &lt;span id=&quot;text6&quot; class=&quot;hidden&quot;&gt;
 	Ajurhang: Only a third of it is for snacking! Most of it is for my experiments. There&#39;s very few colonized planets with quality substrates, and even fewer substrates that can be taken across planets.&lt;br/&gt;&lt;br/&gt;
     They gesture at the IV bag plugged into them.&lt;br/&gt;&lt;br/&gt;	
-    Ajurhang: I&#39;ve been using this liquid plant food for 10 months.&lt;br/&gt;&lt;br/&gt;
+    Ajurhang: I&#39;ve been using this liquid nutrients for 10 months. This is NOT real food!&lt;br/&gt;&lt;br/&gt;
     &lt;&lt;if  [&quot;vertebrate&quot;, &quot;mollusk&quot;, &quot;insect&quot;].includes($character[&quot;body&quot;])&gt;&gt;
-		Doesn&#39;t your species prefer what you &quot;real food&quot; over what you call &lt;&lt;= disp(&quot;food1&quot;)&gt;&gt;? Same idea! This bag is NOT real food!
-    	&lt;&lt;set _reply_text = &quot;That&#39;s probably 98% of what I eat nowadays.&quot;&gt;&gt;
+    	&lt;&lt;set _reply_text = &quot;Nobody eats real food in space.&quot;&gt;&gt;
     &lt;&lt;elseif $character[&quot;body&quot;] === &quot;plant&quot;&gt;&gt;
-		Unfortunately, this is the reality for most of us. Plant based species rarely develop the environmental and nutritional tolerances that most others develop. Given your condition, I assume you are one of the few, lucky ones.  
-    	&lt;&lt;set _reply_text = &quot;I am. But&quot;&gt;&gt;
+		&lt;&lt;set _reply_text = &quot;I like that stuff.&quot;&gt;&gt;
     &lt;&lt;elseif $character[&quot;body&quot;] === &quot;nonsolid&quot;&gt;&gt;
-    	Most of us matter-based beings lose our minds if we don&#39;t get our sustenance from what our forms demand.  
+    	Ajurhang: I&#39;m not sure if you&#39;d understand. 
     	&lt;&lt;set _reply_text = &quot;Hey. I don&#39;t have a body but I eat too.&quot;&gt;&gt;
-    &lt;&lt;else&gt;&gt;
-    	&lt;script&gt;alert(&quot;something went wrong&quot;);&lt;/script&gt;
     &lt;&lt;/if&gt;&gt;&lt;br/&gt;&lt;br/&gt;
-    &lt;&lt;set _reply_text = _reply_text + &quot; I understand.&quot;&gt;&gt;
+    &lt;&lt;set _reply_text = _reply_text + &quot;But I understand.&quot;&gt;&gt;
 &lt;&lt;linkreplace _reply_text&gt;&gt;
 	&lt;&lt;= $character[&quot;name&quot;] &gt;&gt;:&lt;&lt;= _reply_text&gt;&gt;
     &lt;&lt;toggleclass &quot;#text7&quot; &quot;hidden&quot;&gt;&gt;
@@ -1112,16 +1086,15 @@ Lifespan: How many weeks this can spend in transit before becoming worthless.
     &lt;&lt;if $character[&quot;body&quot;] === &quot;nonsolid&quot;&gt;&gt;
     	You... eat too? How-Nevermind, it&#39;d be rude of me to interrogate you about your possible nutrient intake system. But you might understand why this is important then.
     &lt;&lt;elseif $character[&quot;body&quot;] === &quot;plant&quot;&gt;&gt;
-    	Then you&#39;ll understand why this is imporant, especially for us.
+    	Well, then this is for those of us with taste.
     &lt;&lt;else&gt;&gt;
     	Then you&#39;ll understand why this is imporant.
     &lt;&lt;/if&gt;&gt;&lt;br/&gt;&lt;br/&gt;
     They gesture at the pile of sand.&lt;br/&gt;&lt;br/&gt; 
-    Ajurhang: I want space to be habitable for everything and everyone - starting from most unsentient food, and eventually, sustaining beings like &lt;&lt;if $character[&quot;body&quot;] === &quot;plant&quot;&gt;&gt;us&lt;&lt;else&gt;&gt;me&lt;&lt;/if&gt;&gt;. Not just the planets with brightest stars and thinnest atmospheres, while still being reliant on imported nutrients.&lt;br/&gt;&lt;br/&gt; 
-    They appear to have made a gesture. You assume it&#39;s one of annoyance and frustration.&lt;br/&gt;&lt;br/&gt;
+    Ajurhang: I want all planets to be habitable for all kinds of life - starting with unsentient food, and eventually, sustaining beings like &lt;&lt;if $character[&quot;body&quot;] === &quot;plant&quot;&gt;&gt;us&lt;&lt;else&gt;&gt;me&lt;&lt;/if&gt;&gt;. I didn&#39;t get off my home planet to end up restricted to planets with bright stars, thin atmospheres, and on active trade routes.&lt;br/&gt;&lt;br/&gt; 
     Ajurhang: Anyways, I appreciate your help so far. &lt;br/&gt;&lt;br/&gt;
 &lt;&lt;linkreplace &quot;For this much markup, I&#39;ll be happy to bring you whatever you need.&quot;&gt;&gt;&lt;&lt;toggleclass &quot;#text8&quot; &quot;hidden&quot;&gt;&gt;
-&lt;&lt;= $character[&quot;name&quot;] &gt;&gt;: For this much markup, I&#39;ll be happy to bring you whatever you need.
+	&lt;&lt;= $character[&quot;name&quot;] &gt;&gt;: For this much markup, I&#39;ll be happy to bring you whatever you need.
 &lt;&lt;/linkreplace&gt;&gt;&lt;br/&gt;&lt;br/&gt;
 &lt;/span&gt;
 
