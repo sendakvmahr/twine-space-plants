@@ -353,6 +353,8 @@ window.mouseClickItems = (index1, index2) => {
   if (isTrash) {
     let indexToTrash = (index1 === "trash") ? index2 : index1;
     window.inventoryPop(indexToTrash);
+    State.variables.money -= setup.trash_cost;
+    state.display("inventory_view", this);
     return;
   }
   let hasNull = State.variables.cargo[index1] === null || State.variables.cargo[index2] === null;
@@ -387,12 +389,15 @@ $(document).on(':passagedisplay', function (eventObject) {
   function renderInventoryGrid() {
     selectedItem = -1;
     let inventoryContainer = $("#inventory_container");
+    let contents = '<div id="trash"'
     if (inventoryContainer.length) {
-      if (window.isOnPlanet()) {
-	      inventoryContainer.html('<div id="trash">Dispose of item (50 monies)</div><div id="inventory_grid"></div>');
+      if (window.isOnPlanet() && State.variables.money >= setup.trash_cost) {
+	      contents += '';
       } else {
-	      inventoryContainer.html('<div id="trash" class="disabled">Dispose of item (50 monies)</div><div id="inventory_grid"></div>');
+	      contents += ' class="disabled"';
       }
+      contents += '>Dispose of item (' + setup.trash_cost.toString() + ' monies)</div><div id="inventory_grid"></div>';
+      inventoryContainer.html(contents);
       let inventoryGrid = $("#inventory_grid");
       for (let c=0; c < State.variables.cargo.length; c++) {
         let cargoItem = State.variables.cargo[c];
@@ -530,7 +535,7 @@ You are currently on &lt;&lt;link _link_desc planet_description&gt;&gt;\
 &lt;&lt;set $seeds = [&quot;seeds_spinach0&quot;]&gt;&gt;
 &lt;&lt;set $cargo = [null, null, null, null, null, null, null, null]&gt;&gt;
 &lt;&lt;set $max_cargo to 8&gt;&gt;
-&lt;&lt;set $money to 200&gt;&gt;
+&lt;&lt;set $money to 0&gt;&gt;
 &lt;&lt;set $fuel to true&gt;&gt;
 &lt;&lt;set $location to [&quot;dead_raw&quot;, 0] &gt;&gt;
 &lt;&lt;set $planet = $location[0]&gt;&gt;
@@ -539,7 +544,6 @@ You are currently on &lt;&lt;link _link_desc planet_description&gt;&gt;\
 &lt;&lt;set $daily_reports to []&gt;&gt;
 &lt;&lt;set $story_tags = []&gt;&gt;
 &lt;&lt;set $character = {}&gt;&gt;
-&lt;&lt;set $money to 0&gt;&gt;
 &lt;&lt;inventoryAdd &quot;substrate1&quot;&gt;&gt;
 &lt;&lt;inventoryAdd &quot;substrate1&quot;&gt;&gt;
 &lt;&lt;inventoryAdd &quot;substrate1&quot;&gt;&gt;
@@ -1158,7 +1162,7 @@ You got 300 monies.
     	Ajurhang: I&#39;m not sure if you&#39;d understand. 
     	&lt;&lt;set _reply_text = &quot;Hey. I don&#39;t have a body but I eat too.&quot;&gt;&gt;
     &lt;&lt;/if&gt;&gt;&lt;br/&gt;&lt;br/&gt;
-    &lt;&lt;set _reply_text = _reply_text + &quot;But I understand.&quot;&gt;&gt;
+    &lt;&lt;set _reply_text = _reply_text + &quot; But I understand.&quot;&gt;&gt;
 &lt;&lt;linkreplace _reply_text&gt;&gt;
 	&lt;&lt;= $character[&quot;name&quot;] &gt;&gt;:&lt;&lt;= _reply_text&gt;&gt;
     &lt;&lt;toggleclass &quot;#text7&quot; &quot;hidden&quot;&gt;&gt;
