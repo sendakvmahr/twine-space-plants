@@ -651,8 +651,9 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
 &lt;&lt;if $desc_planet == &quot;raw&quot;&gt;&gt;\
 	This planet exports raw materials.\
 &lt;&lt;elseif $desc_planet == &quot;mfg&quot;&gt;&gt;
-	This planet imports metals and exports chemicals and supplies.
+	Home planet of a non-solid species comprised of noble gases. Being made of chemically inert gases made them excellent at working volatile chemicals, leading to &lt;&lt;= disp(&quot;mfg&quot;)&gt;&gt; being one of the solar system&#39;s main source for &lt;b&gt;manufactured goods, particularly chemicals and refined materials&lt;/b&gt;. Over time, the climate change caused by increased manufacturing has led to global cooling. The temperature change did not bother the native species too much. It was inconvenient for visiting aliens and certain manufacturing processes. As a result, several megastructures were built to take advantage of geothermal and solar heating. 
 &lt;&lt;elseif $desc_planet == &quot;tourism&quot;&gt;&gt;\
+	A lifeless, tidally locked planet that was first settled by wealthy individuals who wished to live outside day night cycles. Due to being able to cater to extremophiles from both ends of the temperature spectrum as well as having a small band of temperate light, &lt;&lt;= disp(&quot;tourism&quot;)&gt;&gt; eventually became a popular sightseeing spot for many, with &lt;b&gt;tourism&lt;/b&gt; becoming the main source of income for the planet. For many, &lt;&lt;= disp(&quot;tourism&quot;)&gt;&gt; is one of the safest places to see natural formations and life from other parts of the temperature spectrum. Due to the range of aliens in one place, it is a center where many ideas come about and are exchanged. However, very few goods of worth end up coming from &lt;&lt;= disp(&quot;tourism&quot;)&gt;&gt;.
 	This planet recieves lots of money from tourists, but does not produce any goods.
 &lt;&lt;elseif $desc_planet == &quot;dead_raw&quot;&gt;&gt;\
 	This is an agricultural planet. Imports supplies and chemicals, exports food. 
@@ -841,7 +842,7 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
     }
 }&gt;&gt;</tw-passagedata><tw-passagedata pid="12" name="PlanetInit" tags="script-pile" position="225,25" size="100,100">&lt;&lt;set $planets to {
 	&quot;raw&quot;: {
-    	display_name: &quot;Persephone&quot;,
+    	display_name: &quot;Horai&quot;,
     	location: 0,
         demand: {
         	&quot;food1&quot;: 0,
@@ -875,7 +876,7 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
         stock: [&quot;supplies1&quot;, &quot;supplies2&quot;, &quot;supplies3&quot;, &quot;chem1&quot;, &quot;chem2&quot;, &quot;chem3&quot;, &quot;nutes1&quot;]
     },
    &quot;tourism&quot;:{
-    	display_name: &quot;Horai&quot;,
+    	display_name: &quot;Persephone&quot;,
     	location: 10,
         demand: {
         	&quot;mats1&quot;: 2,
