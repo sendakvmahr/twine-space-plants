@@ -352,8 +352,10 @@ window.mouseClickItems = (index1, index2) => {
   // no indexing, trashing is a headache
   if (isTrash) {
     let indexToTrash = (index1 === "trash") ? index2 : index1;
-    window.inventoryPop(indexToTrash);
-    State.variables.money -= setup.trash_cost;
+    if (State.variables.cargo[indexToTrash] !== null) {
+      window.inventoryPop(indexToTrash);
+      State.variables.money -= setup.trash_cost;
+    }
     state.display("inventory_view", this);
     return;
   }
@@ -552,7 +554,7 @@ You are currently on &lt;&lt;link _link_desc planet_description&gt;&gt;\
 &lt;&lt;inventoryAdd &quot;substrate1&quot;&gt;&gt;
 &lt;&lt;inventoryAdd &quot;substrate1&quot;&gt;&gt;
 &lt;&lt;inventoryAdd &quot;substrate1&quot;&gt;&gt;
-/*
+/*	
 &lt;&lt;set $story_tags = [&quot;dead_raw_dead&quot;]&gt;&gt;
 &lt;&lt;inventoryAdd &quot;nutes1&quot;&gt;&gt;
 &lt;&lt;inventoryAdd &quot;substrate1&quot;&gt;&gt;
@@ -636,7 +638,7 @@ You are currently on &lt;&lt;link _link_desc planet_description&gt;&gt;\
     &lt;&lt;set _link_text = &quot;Refuel for &quot; + setup.fuel_cost + &quot; monies.&quot;&gt;&gt;\
     &lt;&lt;link _link_text shop&gt;&gt;\
       &lt;&lt;set $fuel to true&gt;&gt;\
-      &lt;&lt;set $money = $money - _fuel_cost&gt;&gt;\
+      &lt;&lt;set $money = $money - setup.fuel_cost&gt;&gt;\
     &lt;&lt;/link&gt;&gt;\
   &lt;&lt;else&gt;&gt;\
   	&lt;&lt;= &quot;Need &quot; + setup.fuel_cost + &quot; &quot; + setup.currency[1] + &quot; to refuel.&quot;&gt;&gt; 
