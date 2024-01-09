@@ -98,7 +98,7 @@ var LZString={_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234
 		<div id="init-lacking"><p>Browser lacks capabilities required to play.</p><p>Upgrade or switch to another browser.</p></div>
 		<div id="init-loading"><div>Loading&hellip;</div></div>
 	</div>
-	<tw-storydata name="Space Plants" startnode="17" creator="Twine" creator-version="2.8.0" format="SugarCube" format-version="2.36.1" ifid="a39d4033-db33-4cc3-9e10-aa95abfe18de" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">.disabled { color: darkgrey; }
+	<tw-storydata name="Space Plants" startnode="15" creator="Twine" creator-version="2.8.0" format="SugarCube" format-version="2.36.1" ifid="a39d4033-db33-4cc3-9e10-aa95abfe18de" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">.disabled { color: darkgrey; }
 .detail-link.link-external::after { content: none; }
 #header {
   display: flex;
@@ -345,6 +345,8 @@ window._updateItemDemand = (planet, item) => {
   }
 }
 
+
+
 window.mouseClickItems = (index1, index2) => {
   // assume items in alphabetical order
   let inventoryMap = { "nutes1|substrate1" : "sprout_spinach" };
@@ -534,7 +536,9 @@ You are currently on &lt;&lt;link _link_desc planet_description&gt;&gt;\
 &lt;&lt;include &quot;TermInit&quot;&gt;&gt;
 &lt;&lt;include &quot;PlanetInit&quot;&gt;&gt;
 &lt;&lt;include &quot;GlobalsInit&quot;&gt;&gt;
-&lt;&lt;set $seeds = [&quot;seeds_spinach0&quot;]&gt;&gt;
+&lt;&lt;set $seeds = [&quot;seeds_spinach&quot;, &quot;seeds_pineapple&quot;]&gt;&gt;
+&lt;&lt;set $selected_seed = 0&gt;&gt;
+&lt;&lt;set $key_items = []&gt;&gt;
 &lt;&lt;set $cargo = [null, null, null, null, null, null, null, null]&gt;&gt;
 &lt;&lt;set $max_cargo to 8&gt;&gt;
 &lt;&lt;set $money to 0&gt;&gt;
@@ -554,8 +558,10 @@ You are currently on &lt;&lt;link _link_desc planet_description&gt;&gt;\
 &lt;&lt;inventoryAdd &quot;substrate1&quot;&gt;&gt;
 &lt;&lt;inventoryAdd &quot;substrate1&quot;&gt;&gt;
 &lt;&lt;inventoryAdd &quot;substrate1&quot;&gt;&gt;
-/*	
+
+
 &lt;&lt;set $story_tags = [&quot;dead_raw_dead&quot;]&gt;&gt;
+/*	
 &lt;&lt;inventoryAdd &quot;nutes1&quot;&gt;&gt;
 &lt;&lt;inventoryAdd &quot;substrate1&quot;&gt;&gt;
 &lt;&lt;inventoryAdd &quot;food1&quot;&gt;&gt;
@@ -800,12 +806,19 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
         raw_value: 10,
         description: &quot;Plant nutrients. Not human food.&quot;
     },
-    &quot;seeds_spinach0&quot;: {
-        display_name: &quot;Spinach&quot;,
+    &quot;seeds_spinach&quot;: {
+        display_name: &quot;Spinach Seeds&quot;,
         fragility: 0,
         lifespan: -1,
         raw_value: 5,
-        description: &quot;An old gag gift. But in the right conditions, they&#39;d take a 3 weeks to turn into baby spinach.&quot;
+        description: &quot;Some old spinach seeds. &quot;
+    },
+    &quot;seeds_pineapple&quot;: {
+        display_name: &quot;Pineapple Seeds&quot;,
+        fragility: 0,
+        lifespan: -1,
+        raw_value: 5,
+        description: &quot;Pineapple seeds, not the Crested variety. &quot;
     },
     &quot;substrate1&quot;: {
         display_name: &quot;Sand&quot;,
@@ -1026,6 +1039,8 @@ Maybe it would be better go there instead.
 &lt;&lt;/link&gt;&gt;
 &lt;&lt;/linkreplace&gt;&gt;
 </tw-passagedata><tw-passagedata pid="15" name="inventory_view" tags="widget-like" position="525,150" size="100,100">&lt;&lt;include &quot;util&quot;&gt;&gt;\
+
+&lt;div id=&quot;small_items_container&gt;&lt;/div&gt;
 &lt;div id=&quot;inventory_container&quot;&gt;&lt;div id=&quot;trash&quot;&gt;Dispose of item (50 monies)&lt;/div&gt;&lt;div id=&quot;inventory_grid&quot;&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;div id=&quot;hover-description&quot;&gt;Mouse over item for a description.&lt;/div&gt;
 Fragility: How likely something is to break every week in transit.
