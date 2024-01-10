@@ -109,14 +109,13 @@ var LZString={_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234
 }
 #header>br { display: none; }
 #header div { width: 100%; }
-#header #settings { text-align: right; }
 .desc {
   color: grey;
   padding-left: 20px;
 }
 
-#story.compact .desc{ display: none; }
-.compact .sales-interface div>span, .compact .sales-interface div>a {
+#story .desc{ display: none; }
+.sales-interface div>span, .sales-interface div>a {
   display: block;
   border-bottom: 1px dotted white;
 }
@@ -207,7 +206,7 @@ window.desc = (object) => {
     return "Todo - migrate planet descriptions";
     //return State.variables.planets[object].display_name;
   }
-  return setup.items[object].description;  
+  return setup.items[object].description;
 }
 
 
@@ -228,7 +227,6 @@ window.isOnPlanet = () => {
 
 // Inventory
 window.inventoryPop = (toPop) => {
-  debugger;
   if (typeof(toPop[0]) === "string") {
     toPop = State.variables.cargo.findIndex(
       (x) => x.name === toPop
@@ -238,18 +236,15 @@ window.inventoryPop = (toPop) => {
       "Incorrect parameter for inventoryPop " + toPop.toString()
     );
   }
-  for (let i=0; i< State.variables.cargo.length; i++) {
-  	if (State.variables.cargo[i].coordinates[0] === toPop[0] &&
-       State.variables.cargo[i].coordinates[1] === toPop[1]) {
-      State.variables.cargo.splice(i, 1);
-      return;
-    }
+  let indexToSplice = getItemIndexByCoord(toPop[0], toPop[1]);
+  if (indexToSplice !== -1) {
+    State.variables.cargo.splice(indexToSplice, 1);
   }
 }
 
 window.inventoryAdd = (toAdd, x, y) => {
-  if (!setup.items.hasOwnProperty(toAdd)) { 
-    throw new Error("You made a typo : " + toAdd.toString()) 
+  if (!setup.items.hasOwnProperty(toAdd)) {
+    throw new Error("You made a typo : " + toAdd.toString())
   }
   if (!window.canAddItem(toAdd, x, y)) {
     throw new Error("Not enough space");
@@ -263,7 +258,7 @@ window.inventoryAdd = (toAdd, x, y) => {
 window.inventoryClean = () => {
   let isDead = (x) => x.lifespan === 0;
   let index = State.variables.cargo.findIndex(isDead);
-  for (let i=0; i < State.variables.max_cargo; i++) {
+  for (let i = 0; i < State.variables.max_cargo; i++) {
     if (index !== -1) {
       State.variables.cargo.splice(index, 1);
       index = State.variables.cargo.findIndex(isDead);
@@ -283,20 +278,20 @@ window.canAddItem = (item, x, y) => {
 // Time passage/updates
 window.passTime = (days) => {
   let planets = Object.keys(State.variables.planets);
-  for (let d=0; d<days; d++) {
+  for (let d = 0; d < days; d++) {
     // Update planetary demands
-    for (let p=0; p<planets.length; p++) {
+    for (let p = 0; p < planets.length; p++) {
       let planet = planets[p];
       let demandList = Object.keys(
         State.variables.planets[planet].demand
       );
-      for (let dmd=0; dmd<demandList.length; dmd++){
+      for (let dmd = 0; dmd < demandList.length; dmd++) {
         let item = demandList[dmd];
         window._updateItemDemand(planet, item);
       }
     }
     // Cargo updates
-    for (let c=0; c<State.variables.cargo.length; c++) {
+    for (let c = 0; c < State.variables.cargo.length; c++) {
       if (State.variables.cargo[c] !== null) {
         let wasBroken = false;
         if (Math.random() <= State.variables.cargo[c].fragility) {
@@ -311,7 +306,7 @@ window.passTime = (days) => {
           if (State.variables.cargo[c].name.includes("sprout")) {
             window.inventoryAdd("food3");
             window.inventoryAdd("substrate1");
-            State.variables.daily_reports.push("A " + name + " has finished growing." );
+            State.variables.daily_reports.push("A " + name + " has finished growing.");
           } else if (wasBroken) {
             State.variables.daily_reports.push("A " + name + " has been damaged during turbulence.");
           } else {
@@ -350,117 +345,125 @@ window._updateItemDemand = (planet, item) => {
   }
 }
 
-
-
-window.mouseClickItems = (index1, index2) => {
-  // assume items in alphabetical order
-  let inventoryMap = { "nutes1|substrate1" : "sprout_spinach" };
-  let isTrash = index1 === "trash" || index2 === "trash";
-  // no indexing, trashing is a headache
-  if (isTrash) {
-    let indexToTrash = (index1 === "trash") ? index2 : index1;
-    if (State.variables.cargo[indexToTrash] !== null) {
-      window.inventoryPop(indexToTrash);
-      State.variables.money -= setup.trash_cost;
+window.getItemIndexByCoord = (x, y) => {
+  for (let c = 0; c < State.variables.cargo.length; c++) {
+    if (State.variables.cargo[c].coordinates[0] === x &&
+      State.variables.cargo[c].coordinates[1] === y) {
+      return c;
     }
-    state.display("inventory_view", this);
-    return;
   }
-  let hasNull = State.variables.cargo[index1] === null || State.variables.cargo[index2] === null;
-  let inventoryAction = "";
-  let key = "";
-  if (hasNull) {
-    inventoryAction = "move";
+  return -1;
+}
+
+window.pickUpItem = (inventory, x, y) => {
+  let pickupIndex = window.getItemIndexByCoord(x, y);
+  State.variables.holding = Object.assign({}, State.variables.cargo[pickupIndex]);
+  window.inventoryPop([x, y]);
+}
+
+window.putDownItem = (x, y) => {
+  let toAdd = Object.assign({}, State.variables.holding);
+  toAdd.coordinates = [x, y];
+  State.variables.cargo.push(toAdd);
+  State.variables.holding = null;
+}
+
+window.createFromRecipe = (hold, putOnto) => {
+  let name = setup.recipes[hold][putOnto];
+  return Object.assign({
+    "name": name
+  }, setup.items[name]);
+}
+
+window.mouseClickItem = function(event) {
+  let object = $(event.currentTarget);
+  let objectType = "";
+  let refresh = false;
+  if (object.attr("id") === "trash") {
+    objectType = "trash";
+  } else if (object.parents("#inventory_grid").length > 0) {
+    objectType = "cargo";
+  } else if (object.parents("#seeds_inventory").length > 0) {
+    objectType = "seeds";
+  }
+  if (State.variables.holding === null) {
+    if (objectType === "cargo" && object.attr("data-name") !== "empty") {
+      // assign item to holding
+      let coords = object.attr("data-index").split("|");
+      coords = [parseInt(coords[0]), parseInt(coords[1])]
+      window.pickUpItem("cargo", coords[0], coords[1]);
+      refresh = true;
+    }
   } else {
-    key = [State.variables.cargo[index1].name, 
-           State.variables.cargo[index2].name].sort().join("|");
-    inventoryAction = (Object.keys(inventoryMap).includes(key)) ? "combine" : "move";
+    if (objectType === "trash") {
+      State.variables.holding = null;
+      State.variables.money -= setup.trash_cost;
+      refresh = true;
+    } else if (objectType === "cargo") {
+      // swap places if they can't be combined, else if it's empty place item down. 
+      let coords = object.attr("data-index").split("|");
+      coords = [parseInt(coords[0]), parseInt(coords[1])]
+      let holding = State.variables.holding["name"];
+      let putOnto = object.attr("data-name");
+      if (object.attr("data-name") === "empty") {
+        window.putDownItem(coords[0], coords[1]);
+      } else if (setup.recipes.hasOwnProperty(holding) && setup.recipes[holding].hasOwnProperty(putOnto)) {
+        // if recipe, make item
+        State.variables.holding = null;
+        let toAppend = createFromRecipe(holding, putOnto);
+        toAppend.coordinates = coords;
+        window.inventoryPop(coords);
+        State.variables.cargo.push(toAppend);
+      }
+      refresh = true;
+    }
   }
-  if (inventoryAction === "combine") {
-    window.inventoryPop(index1);
-    window.inventoryPop(index2);
-    window.inventoryAdd(inventoryMap[key]);
-  } else if (inventoryAction === "move") {
-    let temp = State.variables.cargo[index2];
-    State.variables.cargo[index2] = State.variables.cargo[index1]
-    State.variables.cargo[index1] = temp;
+  if (refresh) {
+    state.display(passage());
   }
 }
 
-var selectedItem = -1;
 // Actual onrender JS
-$(document).on(':passagedisplay', function (eventObject) {
-  // settings
-  $('#toggle-descs').click(() => {
-    $("#story").toggleClass("compact");
-  });
+$(document).on(':passagedisplay', function(eventObject) {
   // inventory grid
   function renderInventoryGrid() {
-    selectedItem = -1;
     let inventoryContainer = $("#inventory_container");
     let contents = '<div id="trash"'
     if (inventoryContainer.length) {
-      if (window.isOnPlanet() && State.variables.money >= setup.trash_cost) {
-	      contents += '';
+      if (window.isOnPlanet() && State.variables.money >= setup.trash_cost && State.variables.holding !== null) {
+        contents += ' class="itemHover"';
       } else {
-	      contents += ' class="disabled"';
+        contents += ' class="itemHover disabled"';
       }
-      contents += '>Dispose of item (' + setup.trash_cost.toString() + ' monies)</div><div id="inventory_grid"></div>';
+      contents += '>Dispose of held item (' + setup.trash_cost.toString() + ' monies)</div><div id="inventory_grid"></div>';
       inventoryContainer.html(contents);
       let inventoryGrid = $("#inventory_grid");
-      for (let c=0; c < State.variables.cargo.length; c++) {
-        let cargoItem = State.variables.cargo[c];
-        let toAppend = "";
-        if (cargoItem === null) {
-          toAppend = $("<div class='itemHover' data-name='empty' data-index=" + c + "></div>");
-        } else {
-          toAppend = $("<div class='itemHover' data-name='" + cargoItem.name + "' data-index=" + c + "></div>");
-          let stats = $("<div class='stats'></div>");
-          stats.append($("<p>Fragility: " + cargoItem.fragility + "</p>"));
-          stats.append($("<p>Base Value: " + cargoItem.raw_value + "</p>"));
-          stats.append($("<p>Lifespan: " + ((cargoItem.lifespan === -1) ? "Infinite" : cargoItem.lifespan) + "</p>"));
-          toAppend.append($("<div class='name'>" + cargoItem.display_name + "</div>"));
-          toAppend.append(stats);
-          toAppend.append($("<div class='desc'>" + cargoItem.description + "</div>"));
-        }
-        inventoryGrid.append(toAppend);
-      }
-      $(".itemHover").click(
-        function(ev) {  
-          let index = parseInt(this.attributes["data-index"].value);
-          if (selectedItem === -1) {
-            selectedItem = index;
-            $(this).toggleClass("selected-item");
-          } else if (selectedItem === index){
-            selectedItem = -1;
-            $(this).toggleClass("selected-item");
-          } else if (selectedItem === "trash") {
-            window.mouseClickItems(selectedItem, index);
-            $("#trash").toggleClass("selected-item");
-            renderInventoryGrid();
-          } else {
-            window.mouseClickItems(selectedItem, index);
-            renderInventoryGrid();
-          }
-        }
-      )
-      $("#trash").click(
-        function(ev) {
-          if (!$(this).hasClass("disabled")){
-            if (selectedItem === -1) {
-              selectedItem = "trash";
-              $(this).toggleClass("selected-item");
-            } else if (selectedItem === "trash"){
-              selectedItem = -1;
-              $(this).toggleClass("selected-item");
-            } else {
-              window.mouseClickItems("trash", selectedItem);
-              $(this).toggleClass("selected-item");
-              renderInventoryGrid();
+      for (let x = 0; x < 4; x++) {
+        for (let y = 0; y < 2; y++) {
+          let rendered = false;
+          let toAppend = "";
+          let dataIndex = x.toString() + "|" + y.toString();
+          for (let c = 0; c < State.variables.cargo.length; c++) {
+            if (State.variables.cargo[c].coordinates[1] === y &&
+              State.variables.cargo[c].coordinates[0] === x) {
+              let cargoItem = State.variables.cargo[c];
+              toAppend = $("<div class='itemHover' data-name='" + cargoItem.name + "' data-index=" + dataIndex + "></div>");
+              let stats = $("<div class='stats'></div>");
+              stats.append($("<p>Fragility: " + cargoItem.fragility + "</p>"));
+              stats.append($("<p>Base Value: " + cargoItem.raw_value + "</p>"));
+              stats.append($("<p>Lifespan: " + ((cargoItem.lifespan === -1) ? "Infinite" : cargoItem.lifespan) + "</p>"));
+              toAppend.append($("<div class='name'>" + cargoItem.display_name + "</div>"));
+              toAppend.append(stats);
+              toAppend.append($("<div class='desc'>" + cargoItem.description + "</div>"));
             }
           }
+          if (toAppend === "") {
+            toAppend = $("<div class='itemHover' data-name='empty' data-index=" + dataIndex + "></div>");
+          }
+          inventoryGrid.append(toAppend);
         }
-      )
+      }
+      $(".itemHover").click(window.mouseClickItem);
     }
     // shop widget and inventory grid
     let hoverDesc = $("hover-description");
@@ -470,10 +473,11 @@ $(document).on(':passagedisplay', function (eventObject) {
         function() {
           if ($(this).attr("id") === "trash") {
             $("#hover-description").html("Throw items away for a fee. Can only be done on planets.");
-          } else {        
+          } else {
             $("#hover-description").html(window.desc($(this).data("name")));
           }
-        }, function() {
+        },
+        function() {
           $("#hover-description").html("Mouse over item for a description.");
         }
       );
@@ -488,36 +492,34 @@ $("#story").toggleClass("compact");
 // Repetitive Macro stuff
 
 Macro.add('inventoryAdd', {
-  handler : function () {
+  handler: function() {
     window.inventoryAdd(this.args[0], this.args[1], this.args[2]);
   }
 });
 
 Macro.add('inventoryPop', {
-  handler : function () {
+  handler: function() {
     window.inventoryPop(this.args);
   }
 });
 
 Macro.add('desc', {
-  handler : function () {
+  handler: function() {
     window.desc(this.args[0]);
   }
 });
 
 Macro.add('passTime', {
-  handler : function () {
+  handler: function() {
     window.passTime(this.args[0]);
   }
 });
 
 Macro.add('displayInventoryGrid', {
-  handler : function () {
+  handler: function() {
     window.displayInventoryGrid();
   }
-});
-
-</script><tw-tag name="Notes" color="red"></tw-tag><tw-tag name="script-pile" color="purple"></tw-tag><tw-tag name="location" color="green"></tw-tag><tw-tag name="widget-like" color="blue"></tw-tag><tw-tag name="story" color="orange"></tw-tag><tw-passagedata pid="1" name="on_planet" tags="location" position="425,300" size="100,100">&lt;&lt;if isPastTag(&quot;dead_raw_dead&quot;)&gt;&gt;\
+});</script><tw-tag name="Notes" color="red"></tw-tag><tw-tag name="script-pile" color="purple"></tw-tag><tw-tag name="location" color="green"></tw-tag><tw-tag name="widget-like" color="blue"></tw-tag><tw-tag name="story" color="orange"></tw-tag><tw-passagedata pid="1" name="on_planet" tags="location" position="425,300" size="100,100">&lt;&lt;if isPastTag(&quot;dead_raw_dead&quot;)&gt;&gt;\
 	With the destruction of &lt;&lt;= disp(&quot;dead_raw&quot;) &gt;&gt;, you might be able to make more monies and upgrade your ship. 
 &lt;&lt;else&gt;&gt;\
 	Running a cargo ship is a simple job. Buy stuff from one planet, sell it to another planet that needs it and will pay more for it.
@@ -538,6 +540,7 @@ You are currently on &lt;&lt;link _link_desc planet_description&gt;&gt;\
 &lt;&lt;/if&gt;&gt;
 %/
 /*[[planet_description]]*/</tw-passagedata><tw-passagedata pid="2" name="StoryInit" tags="script-pile" position="25,25" size="100,100">&lt;&lt;include &quot;ItemInit&quot;&gt;&gt;
+&lt;&lt;include &quot;RecipesInit&quot;&gt;&gt;
 &lt;&lt;include &quot;TermInit&quot;&gt;&gt;
 &lt;&lt;include &quot;PlanetInit&quot;&gt;&gt;
 &lt;&lt;include &quot;GlobalsInit&quot;&gt;&gt;
@@ -557,16 +560,18 @@ You are currently on &lt;&lt;link _link_desc planet_description&gt;&gt;\
 &lt;&lt;set $character = {}&gt;&gt;
 &lt;&lt;set $holding = null&gt;&gt;
 &lt;&lt;inventoryAdd &quot;substrate1&quot; 0 0&gt;&gt;
+
+&lt;&lt;set $money to 300&gt;&gt;
+&lt;&lt;inventoryAdd &quot;nutes1&quot; 1 0&gt;&gt;
+&lt;&lt;inventoryAdd &quot;food2&quot; 2 0&gt;&gt;
+&lt;&lt;inventoryAdd &quot;food3&quot; 3 0&gt;&gt;
 &lt;&lt;inventoryAdd &quot;substrate1&quot; 0 1&gt;&gt;
-&lt;&lt;inventoryAdd &quot;substrate1&quot; 0 2&gt;&gt;
-&lt;&lt;inventoryAdd &quot;substrate1&quot; 0 3&gt;&gt;
-&lt;&lt;inventoryAdd &quot;substrate1&quot; 1 0&gt;&gt;
-&lt;&lt;inventoryAdd &quot;substrate1&quot; 1 1&gt;&gt;
-&lt;&lt;inventoryAdd &quot;substrate1&quot; 1 2&gt;&gt;
-&lt;&lt;inventoryAdd &quot;substrate1&quot; 1 3&gt;&gt;
+&lt;&lt;inventoryAdd &quot;chem1&quot; 1 1&gt;&gt;
+&lt;&lt;inventoryAdd &quot;chem2&quot; 2 1&gt;&gt;
+&lt;&lt;inventoryAdd &quot;chem3&quot; 3 1&gt;&gt;
 
 
-&lt;&lt;inventoryPop 1 2&gt;&gt;
+&lt;&lt;inventoryPop 2 1&gt;&gt;
 
 
 &lt;&lt;set $story_tags = [&quot;dead_raw_dead&quot;]&gt;&gt;
@@ -581,13 +586,6 @@ You are currently on &lt;&lt;link _link_desc planet_description&gt;&gt;\
 &lt;div id=&quot;header&quot;&gt;
   &lt;div&gt;
     Money: $money &lt;&lt;=setup.currency[1]&gt;&gt;
-    &lt;&lt;if isPastTag(&quot;dead_raw_dead&quot;)&gt;&gt;Seeds: &lt;&lt;= dispArr($seeds) &gt;&gt;
-    &lt;&lt;/if&gt;&gt;\
-    [[Cargo|inventory_view]]: &lt;&lt;if _currentInventory.length is 0&gt;&gt;\
-        Empty (0/$max_cargo)
-    &lt;&lt;else&gt;&gt;\
-        &lt;&lt;= dispArr(_currentInventory)&gt;&gt; (_currentInventory.length/$max_cargo)
-    &lt;&lt;/if&gt;&gt;\
     &lt;&lt;set _disp_location = disp($location[0]) &gt;&gt;\
     &lt;&lt;if isOnPlanet() &gt;&gt;\
         [[Location|on_planet]]: &lt;&lt;details_link _disp_location $location[0]&gt;&gt;
@@ -596,9 +594,16 @@ You are currently on &lt;&lt;link _link_desc planet_description&gt;&gt;\
     &lt;&lt;else&gt;&gt;\
         [[Location|ship]]: $location[1] days away from &lt;&lt;details_link _disp_location $location[0]&gt;&gt;
     &lt;&lt;/if&gt;&gt;\
+    &lt;&lt;if isPastTag(&quot;dead_raw_dead&quot;)&gt;&gt;Seeds: &lt;&lt;= dispArr($seeds) &gt;&gt;
+    &lt;&lt;/if&gt;&gt;\
+    [[Cargo|inventory_view]]: &lt;&lt;if _currentInventory.length is 0&gt;&gt;\
+        Empty (0/$max_cargo)
+    &lt;&lt;else&gt;&gt;\
+        &lt;&lt;= dispArr(_currentInventory)&gt;&gt; (_currentInventory.length/$max_cargo)
+    &lt;&lt;/if&gt;&gt;\
     Fuel: &lt;&lt;if $fuel&gt;&gt;Full&lt;&lt;else&gt;&gt;Empty&lt;&lt;/if&gt;&gt;
   &lt;/div&gt;&lt;div id=&quot;settings&quot;&gt;
-      &lt;span id=&quot;toggle-descs&quot;&gt;&lt;&lt;link &quot;Toggle Compact View&quot;&gt;&gt;&lt;&lt;/link&gt;&gt;&lt;/span&gt;
+    Holding: &lt;&lt;if $holding === null&gt;&gt;Nothing &lt;&lt;else&gt;&gt;&lt;&lt;=disp($holding.name)&gt;&gt;&lt;&lt;/if&gt;&gt;
       [[Terms|terms]]
   &lt;/div&gt;
 &lt;/div&gt;
@@ -969,7 +974,8 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
       &lt;&lt;set _link_text = _link_text + &quot;&lt;/span&gt;&lt;span class=&#39;itemCost&#39;&gt;&quot; + _cost + &quot; &quot; +  setup.currency[1] + &quot;&lt;/span&gt;&quot;&gt;&gt;
       &lt;&lt;if _cost &gt; 0&gt;&gt;
 		&lt;div class=&quot;itemHover&quot; @data-name=&quot;_item&quot;&gt;
-          &lt;&lt;if findItemIndex(_item) != -1 and _use_links&gt;&gt;
+          /*if findItemIndex(_item) != -1 and _use_links*/
+          &lt;&lt;if  _use_links&gt;&gt;
               &lt;&lt;link _link_text shop&gt;&gt;
                 &lt;&lt;inventoryPop _item&gt;&gt;
                 &lt;&lt;if $planets[_planet].demand[_item] * .8 &lt; 1&gt;&gt;
@@ -1068,8 +1074,8 @@ Maybe it would be better go there instead.
 &lt;&lt;/linkreplace&gt;&gt;
 </tw-passagedata><tw-passagedata pid="15" name="inventory_view" tags="widget-like" position="525,150" size="100,100">&lt;&lt;include &quot;util&quot;&gt;&gt;\
 
-&lt;div id=&quot;small_items_container&gt;&lt;/div&gt;
-&lt;div id=&quot;inventory_container&quot;&gt;&lt;div id=&quot;trash&quot;&gt;Dispose of item (50 monies)&lt;/div&gt;&lt;div id=&quot;inventory_grid&quot;&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;div id=&quot;seeds_inventory&quot;&gt;&lt;/div&gt;
+&lt;div id=&quot;inventory_container&quot;&gt;&lt;div id=&quot;trash&quot; class=&quot;itemHover&quot;&gt;Dispose of item (50 monies)&lt;/div&gt;&lt;div id=&quot;inventory_grid&quot;&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;div id=&quot;hover-description&quot;&gt;Mouse over item for a description.&lt;/div&gt;
 Fragility: How likely something is to break every week in transit.
 Base Value: Base value of item.
@@ -1297,12 +1303,9 @@ dead_raw_dead: Added after Elysium is blown up.</tw-passagedata><tw-passagedata 
     }
 }*/
 &lt;&lt;set setup.recipes = {
-	&quot;seed_spinach&quot;: {
-    	&quot;substrate1&quot;: {
-        	&quot;name&quot;: &quot;spinach_sprout&quot;,
-            &quot;status&quot;: &quot;dry&quot;
-        }
-     }
+	&quot;nutes1&quot;: {
+    	&quot;substrate1&quot;: &quot;sprout_spinach&quot;
+      }
 }&gt;&gt;</tw-passagedata></tw-storydata>
 	<script id="script-sugarcube" type="text/javascript">
 	/*! SugarCube JS */
