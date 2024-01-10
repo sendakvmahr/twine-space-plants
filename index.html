@@ -122,10 +122,10 @@ var LZString={_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234
 .sales-interface br {
   display: none;
 }
-.compact .sales-interface {
+.sales-interface {
   display: flex;
 }
-.compact .sales-interface > div {
+.sales-interface > div {
   width: 100%;
   padding: 0 20px;
 }
@@ -485,9 +485,6 @@ $(document).on(':passagedisplay', function(eventObject) {
   }
   renderInventoryGrid();
 });
-
-// compact by default
-$("#story").toggleClass("compact");
 
 // Repetitive Macro stuff
 
