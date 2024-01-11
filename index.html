@@ -541,7 +541,7 @@ You are currently on &lt;&lt;link _link_desc planet_description&gt;&gt;\
 &lt;&lt;include &quot;TermInit&quot;&gt;&gt;
 &lt;&lt;include &quot;PlanetInit&quot;&gt;&gt;
 &lt;&lt;include &quot;GlobalsInit&quot;&gt;&gt;
-&lt;&lt;set $seeds = [&quot;seeds_spinach&quot;, &quot;seeds_pineapple&quot;]&gt;&gt;
+&lt;&lt;set $seeds = [&quot;seed_spinach&quot;, &quot;seed_pineapple&quot;]&gt;&gt;
 &lt;&lt;set $selected_seed = 0&gt;&gt;
 &lt;&lt;set $key_items = []&gt;&gt;
 &lt;&lt;set $cargo = []&gt;&gt;
@@ -556,16 +556,16 @@ You are currently on &lt;&lt;link _link_desc planet_description&gt;&gt;\
 &lt;&lt;set $story_tags = []&gt;&gt;
 &lt;&lt;set $character = {}&gt;&gt;
 &lt;&lt;set $holding = null&gt;&gt;
-&lt;&lt;inventoryAdd &quot;substrate1&quot; 0 0&gt;&gt;
+&lt;&lt;inventoryAdd &quot;substrate_basic&quot; 0 0&gt;&gt;
 
 &lt;&lt;set $money to 300&gt;&gt;
-&lt;&lt;inventoryAdd &quot;nutes1&quot; 1 0&gt;&gt;
-&lt;&lt;inventoryAdd &quot;food2&quot; 2 0&gt;&gt;
-&lt;&lt;inventoryAdd &quot;food3&quot; 3 0&gt;&gt;
-&lt;&lt;inventoryAdd &quot;substrate1&quot; 0 1&gt;&gt;
-&lt;&lt;inventoryAdd &quot;chem1&quot; 1 1&gt;&gt;
-&lt;&lt;inventoryAdd &quot;chem2&quot; 2 1&gt;&gt;
-&lt;&lt;inventoryAdd &quot;chem3&quot; 3 1&gt;&gt;
+&lt;&lt;inventoryAdd &quot;nutrients1&quot; 1 0&gt;&gt;
+&lt;&lt;inventoryAdd &quot;space_food2&quot; 2 0&gt;&gt;
+&lt;&lt;inventoryAdd &quot;space_food3&quot; 3 0&gt;&gt;
+&lt;&lt;inventoryAdd &quot;substrate_basic&quot; 0 1&gt;&gt;
+&lt;&lt;inventoryAdd &quot;space_food1&quot; 1 1&gt;&gt;
+&lt;&lt;inventoryAdd &quot;space_food1&quot; 2 1&gt;&gt;
+&lt;&lt;inventoryAdd &quot;space_food1&quot; 3 1&gt;&gt;
 
 
 &lt;&lt;inventoryPop 2 1&gt;&gt;
@@ -736,154 +736,342 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
 &lt;&lt;/if&gt;&gt;\
 
 &lt;&lt;return&gt;&gt;</tw-passagedata><tw-passagedata pid="11" name="ItemInit" tags="script-pile" position="325,25" size="100,100">&lt;&lt;set setup.items = {
-	&quot;empty&quot;: {
-    	display_name: &quot;&quot;,
-        dimensions: [1, 1],
-        description: &quot;An empty space.&quot;
+    &quot;empty&quot;: {
+        &quot;name&quot;: &quot;empty&quot;,
+        &quot;display_name&quot;: &quot;Nothing&quot;,
+        &quot;fragility&quot;: &quot;0&quot;,
+        &quot;lifespan&quot;: &quot;-1&quot;,
+        &quot;raw_value&quot;: &quot;0&quot;,
+        &quot;dimensions&quot;: [
+            &quot;1&quot;,
+            &quot;1&quot;
+        ],
+        &quot;expiration_function&quot;: &quot;&quot;,
+        &quot;on_expiration&quot;: [],
+        &quot;description&quot;: &quot;An empty space.&quot;
     },
-	&quot;sprout_spinach&quot;: {
-    	display_name: &quot;Spinach Sprout&quot;,
-        fragility: 0,
-        lifespan: 15,
-        raw_value: 5,
-        dimensions: [1, 1],
-        description: &quot;A spinach sprout. Takes 2 weeks to grow.&quot;
+    &quot;seed_spinach&quot;: {
+        &quot;name&quot;: &quot;seed_spinach&quot;,
+        &quot;display_name&quot;: &quot;Spinach Seed&quot;,
+        &quot;fragility&quot;: &quot;0&quot;,
+        &quot;lifespan&quot;: &quot;-1&quot;,
+        &quot;raw_value&quot;: &quot;0&quot;,
+        &quot;dimensions&quot;: [
+            &quot;1&quot;,
+            &quot;1&quot;
+        ],
+        &quot;expiration_function&quot;: &quot;&quot;,
+        &quot;on_expiration&quot;: [],
+        &quot;description&quot;: &quot;Spinach seeds.&quot;
     },
-	&quot;mats1&quot;: {
-    	display_name: &quot;Copper Ore&quot;,
-        fragility: 0,
-        lifespan: -1,
-        raw_value: 5,
-        dimensions: [1, 1],
-        description: &quot;Everyone needs this for wires.&quot;
+    &quot;seed_pineapple&quot;: {
+        &quot;name&quot;: &quot;seed_pineapple&quot;,
+        &quot;display_name&quot;: &quot;Pineapple Seed&quot;,
+        &quot;fragility&quot;: &quot;0&quot;,
+        &quot;lifespan&quot;: &quot;-1&quot;,
+        &quot;raw_value&quot;: &quot;0&quot;,
+        &quot;dimensions&quot;: [
+            &quot;1&quot;,
+            &quot;1&quot;
+        ],
+        &quot;expiration_function&quot;: &quot;&quot;,
+        &quot;on_expiration&quot;: [],
+        &quot;description&quot;: &quot;Pineapple seeds.&quot;
     },
-	&quot;mats2&quot;: {
-    	display_name: &quot;Gold Ore&quot;,
-        fragility: 0,
-        lifespan: -1,
-        raw_value: 20,
-        dimensions: [1, 1],
-        description: &quot;Everyone needs this for chips.&quot;
+    &quot;sprout_spinach&quot;: {
+        &quot;name&quot;: &quot;sprout_spinach&quot;,
+        &quot;display_name&quot;: &quot;Spinach Sprout&quot;,
+        &quot;fragility&quot;: &quot;0&quot;,
+        &quot;lifespan&quot;: &quot;15&quot;,
+        &quot;raw_value&quot;: &quot;5&quot;,
+        &quot;dimensions&quot;: [
+            &quot;1&quot;,
+            &quot;1&quot;
+        ],
+        &quot;expiration_function&quot;: &quot;&quot;,
+        &quot;on_expiration&quot;: [
+            {
+                &quot;substrate_basic&quot;: 1
+            },
+            {
+                &quot;produce_spinach&quot;: 1
+            }
+        ],
+        &quot;description&quot;: &quot;A spinach seedling. Will become fresh greens after 15 weeks.&quot;
     },
-	&quot;mats3&quot;: {
-    	display_name: &quot;Platinum Ore&quot;,
-        fragility: 0,
-        lifespan: -1,
-        raw_value: 80,
-        dimensions: [1, 1],
-        description: &quot;Used for something in spaceships, but it&#39;s mainly valuable.&quot;
+    &quot;sprout_pineapple&quot;: {
+        &quot;name&quot;: &quot;sprout_pineapple&quot;,
+        &quot;display_name&quot;: &quot;Baby Pineapple&quot;,
+        &quot;fragility&quot;: &quot;0&quot;,
+        &quot;lifespan&quot;: &quot;40&quot;,
+        &quot;raw_value&quot;: &quot;5&quot;,
+        &quot;dimensions&quot;: [
+            &quot;1&quot;,
+            &quot;1&quot;
+        ],
+        &quot;expiration_function&quot;: &quot;&quot;,
+        &quot;on_expiration&quot;: [
+            {
+                &quot;substrate_basic&quot;: 1
+            },
+            {
+                &quot;produce_pineapple&quot;: 0.9,
+                &quot;produce_pineapple_rare&quot;: 0.1
+            }
+        ],
+        &quot;description&quot;: &quot;A budding pineapple cutting.&quot;
     },
-    &quot;food1&quot;: {
-        display_name: &quot;Ultra Pasturized Fiber&quot;,
-        fragility: 0,
-        lifespan: -1,
-        raw_value: 1,
-        dimensions: [1, 1],
-        description: &quot;A depressing, stable and cheap cube.&quot;
+    &quot;produce_pineapple_rare&quot;: {
+        &quot;name&quot;: &quot;produce_pineapple_rare&quot;,
+        &quot;display_name&quot;: &quot;Crested Pineapple&quot;,
+        &quot;fragility&quot;: &quot;0.7&quot;,
+        &quot;lifespan&quot;: &quot;10&quot;,
+        &quot;raw_value&quot;: &quot;100&quot;,
+        &quot;dimensions&quot;: [
+            &quot;1&quot;,
+            &quot;1&quot;
+        ],
+        &quot;expiration_function&quot;: &quot;&quot;,
+        &quot;on_expiration&quot;: [],
+        &quot;description&quot;: &quot;A mutated pineapple. Expensive, but difficult to sell. &quot;
     },
-    &quot;food2&quot;: {
-        display_name: &quot;Hard Fruit&quot;,
-        fragility: .1,
-        lifespan: 6,
-        raw_value: 5,
-        dimensions: [1, 1],
-        description: &quot;A tough fruit.&quot;
+    &quot;produce_pineapple&quot;: {
+        &quot;name&quot;: &quot;produce_pineapple&quot;,
+        &quot;display_name&quot;: &quot;Pineapple&quot;,
+        &quot;fragility&quot;: &quot;2&quot;,
+        &quot;lifespan&quot;: &quot;10&quot;,
+        &quot;raw_value&quot;: &quot;300&quot;,
+        &quot;dimensions&quot;: [
+            &quot;1&quot;,
+            &quot;2&quot;
+        ],
+        &quot;expiration_function&quot;: &quot;&quot;,
+        &quot;on_expiration&quot;: [],
+        &quot;description&quot;: &quot;An old fruit that is still as finicky as it was centuries ago.&quot;
     },
-    &quot;food3&quot;: {
-        display_name: &quot;Fresh greens&quot;,
-        fragility: .2,
-        lifespan: 15,
-        raw_value: 20,
-        dimensions: [1, 1],
-        description: &quot;The roots are still on!&quot;
+    &quot;produce_spinach&quot;: {
+        &quot;name&quot;: &quot;produce_spinach&quot;,
+        &quot;display_name&quot;: &quot;Fresh Spinach&quot;,
+        &quot;fragility&quot;: &quot;0.1&quot;,
+        &quot;lifespan&quot;: &quot;15&quot;,
+        &quot;raw_value&quot;: &quot;20&quot;,
+        &quot;dimensions&quot;: [
+            &quot;1&quot;,
+            &quot;1&quot;
+        ],
+        &quot;expiration_function&quot;: &quot;&quot;,
+        &quot;on_expiration&quot;: [],
+        &quot;description&quot;: &quot;Tasty leaves.&quot;
+    },
+    &quot;raw_metal_copper&quot;: {
+        &quot;name&quot;: &quot;raw_metal_copper&quot;,
+        &quot;display_name&quot;: &quot;Copper Ore&quot;,
+        &quot;fragility&quot;: &quot;0&quot;,
+        &quot;lifespan&quot;: &quot;-1&quot;,
+        &quot;raw_value&quot;: &quot;5&quot;,
+        &quot;dimensions&quot;: [
+            &quot;1&quot;,
+            &quot;1&quot;
+        ],
+        &quot;expiration_function&quot;: &quot;&quot;,
+        &quot;on_expiration&quot;: [],
+        &quot;description&quot;: &quot;Copper ore.&quot;
+    },
+    &quot;raw_metal_gold&quot;: {
+        &quot;name&quot;: &quot;raw_metal_gold&quot;,
+        &quot;display_name&quot;: &quot;Gold Ore&quot;,
+        &quot;fragility&quot;: &quot;0&quot;,
+        &quot;lifespan&quot;: &quot;-1&quot;,
+        &quot;raw_value&quot;: &quot;30&quot;,
+        &quot;dimensions&quot;: [
+            &quot;1&quot;,
+            &quot;1&quot;
+        ],
+        &quot;expiration_function&quot;: &quot;&quot;,
+        &quot;on_expiration&quot;: [],
+        &quot;description&quot;: &quot;Shiny, impure gold.&quot;
+    },
+    &quot;raw_metal_aluminum&quot;: {
+        &quot;name&quot;: &quot;raw_metal_aluminum&quot;,
+        &quot;display_name&quot;: &quot;Aluminum Grains&quot;,
+        &quot;fragility&quot;: &quot;0&quot;,
+        &quot;lifespan&quot;: &quot;-1&quot;,
+        &quot;raw_value&quot;: &quot;20&quot;,
+        &quot;dimensions&quot;: [
+            &quot;1&quot;,
+            &quot;1&quot;
+        ],
+        &quot;expiration_function&quot;: &quot;&quot;,
+        &quot;on_expiration&quot;: [],
+        &quot;description&quot;: &quot;Unrefined aluminum bits.&quot;
+    },
+    &quot;raw_metal_plat&quot;: {
+        &quot;name&quot;: &quot;raw_metal_plat&quot;,
+        &quot;display_name&quot;: &quot;Platinum Ore&quot;,
+        &quot;fragility&quot;: &quot;0&quot;,
+        &quot;lifespan&quot;: &quot;-1&quot;,
+        &quot;raw_value&quot;: &quot;80&quot;,
+        &quot;dimensions&quot;: [
+            &quot;2&quot;,
+            &quot;2&quot;
+        ],
+        &quot;expiration_function&quot;: &quot;&quot;,
+        &quot;on_expiration&quot;: [],
+        &quot;description&quot;: &quot;Platinum ore.&quot;
+    },
+    &quot;space_food1&quot;: {
+        &quot;name&quot;: &quot;space_food1&quot;,
+        &quot;display_name&quot;: &quot;Ultra Pasteurized Fiber&quot;,
+        &quot;fragility&quot;: &quot;0&quot;,
+        &quot;lifespan&quot;: &quot;-1&quot;,
+        &quot;raw_value&quot;: &quot;1&quot;,
+        &quot;dimensions&quot;: [
+            &quot;1&quot;,
+            &quot;1&quot;
+        ],
+        &quot;expiration_function&quot;: &quot;&quot;,
+        &quot;on_expiration&quot;: [],
+        &quot;description&quot;: &quot;A depressing, stable and cheap cube.&quot;
+    },
+    &quot;space_food2&quot;: {
+        &quot;name&quot;: &quot;space_food2&quot;,
+        &quot;display_name&quot;: &quot;Vacuum Sealed Greens&quot;,
+        &quot;fragility&quot;: &quot;0.05&quot;,
+        &quot;lifespan&quot;: &quot;40&quot;,
+        &quot;raw_value&quot;: &quot;5&quot;,
+        &quot;dimensions&quot;: [
+            &quot;1&quot;,
+            &quot;1&quot;
+        ],
+        &quot;expiration_function&quot;: &quot;&quot;,
+        &quot;on_expiration&quot;: [],
+        &quot;description&quot;: &quot;Vacuum sealed, pasteurized greens with little flavor.&quot;
+    },
+    &quot;space_food3&quot;: {
+        &quot;name&quot;: &quot;space_food3&quot;,
+        &quot;display_name&quot;: &quot;Hard Fruits&quot;,
+        &quot;fragility&quot;: &quot;0.1&quot;,
+        &quot;lifespan&quot;: &quot;50&quot;,
+        &quot;raw_value&quot;: &quot;15&quot;,
+        &quot;dimensions&quot;: [
+            &quot;1&quot;,
+            &quot;1&quot;
+        ],
+        &quot;expiration_function&quot;: &quot;&quot;,
+        &quot;on_expiration&quot;: [],
+        &quot;description&quot;: &quot;Hard fruits that would hurt many species, but have a chance of surviving through space.&quot;
     },
     &quot;supplies1&quot;: {
-        display_name: &quot;Supplies&quot;,
-        fragility: 0,
-        lifespan: -1,
-        raw_value: 10,
-        dimensions: [1, 1],
-        description: &quot;Basic necessities for living&quot;
+        &quot;name&quot;: &quot;supplies1&quot;,
+        &quot;display_name&quot;: &quot;Camping Supplies&quot;,
+        &quot;fragility&quot;: &quot;0&quot;,
+        &quot;lifespan&quot;: &quot;-1&quot;,
+        &quot;raw_value&quot;: &quot;10&quot;,
+        &quot;dimensions&quot;: [
+            &quot;1&quot;,
+            &quot;1&quot;
+        ],
+        &quot;expiration_function&quot;: &quot;&quot;,
+        &quot;on_expiration&quot;: [],
+        &quot;description&quot;: &quot;Camping gear.&quot;
     },
     &quot;supplies2&quot;: {
-        display_name: &quot;Indulgences&quot;,
-        fragility: 0,
-        lifespan: -1,
-        raw_value: 20,
-        dimensions: [1, 1],
-        description: &quot;Ice cream increases morale and productivity by 20%, even if freeze dried.&quot;
+        &quot;name&quot;: &quot;supplies2&quot;,
+        &quot;display_name&quot;: &quot;Maintenance Tools&quot;,
+        &quot;fragility&quot;: &quot;0&quot;,
+        &quot;lifespan&quot;: &quot;-1&quot;,
+        &quot;raw_value&quot;: &quot;30&quot;,
+        &quot;dimensions&quot;: [
+            &quot;1&quot;,
+            &quot;1&quot;
+        ],
+        &quot;expiration_function&quot;: &quot;&quot;,
+        &quot;on_expiration&quot;: [],
+        &quot;description&quot;: &quot;Tools to fix luxuries.&quot;
     },
     &quot;supplies3&quot;: {
-        display_name: &quot;Luxuries&quot;,
-        fragility: 0,
-        lifespan: -1,
-        raw_value: 80,
-        dimensions: [1, 1],
-        description: &quot;The unboxing is part of the experience.&quot;
+        &quot;name&quot;: &quot;supplies3&quot;,
+        &quot;display_name&quot;: &quot;Luxuries&quot;,
+        &quot;fragility&quot;: &quot;0.05&quot;,
+        &quot;lifespan&quot;: &quot;-1&quot;,
+        &quot;raw_value&quot;: &quot;50&quot;,
+        &quot;dimensions&quot;: [
+            &quot;1&quot;,
+            &quot;1&quot;
+        ],
+        &quot;expiration_function&quot;: &quot;&quot;,
+        &quot;on_expiration&quot;: [],
+        &quot;description&quot;: &quot;You\u2019re unsure of what is inside. The unboxing is supposed to be part of the experience. &quot;
     },
-    &quot;nutes1&quot;: {
-        display_name: &quot;Nutrients&quot;,
-        fragility: 0,
-        lifespan: -1,
-        raw_value: 10,
-        dimensions: [1, 1],
-        description: &quot;Plant nutrients. Not human food.&quot;
+    &quot;nutrients1&quot;: {
+        &quot;name&quot;: &quot;nutrients1&quot;,
+        &quot;display_name&quot;: &quot;555 Nutrient Mix&quot;,
+        &quot;fragility&quot;: &quot;0&quot;,
+        &quot;lifespan&quot;: &quot;-1&quot;,
+        &quot;raw_value&quot;: &quot;10&quot;,
+        &quot;dimensions&quot;: [
+            &quot;1&quot;,
+            &quot;1&quot;
+        ],
+        &quot;expiration_function&quot;: &quot;&quot;,
+        &quot;on_expiration&quot;: [],
+        &quot;description&quot;: &quot;Basic hydroponic nutrient mix.&quot;
     },
-    &quot;seeds_spinach&quot;: {
-        display_name: &quot;Spinach Seeds&quot;,
-        fragility: 0,
-        lifespan: -1,
-        raw_value: 5,
-        dimensions: [1, 1],
-        description: &quot;Some old spinach seeds. &quot;
+    &quot;substrate_basic&quot;: {
+        &quot;name&quot;: &quot;substrate_basic&quot;,
+        &quot;display_name&quot;: &quot;Sand&quot;,
+        &quot;fragility&quot;: &quot;0&quot;,
+        &quot;lifespan&quot;: &quot;-1&quot;,
+        &quot;raw_value&quot;: &quot;5&quot;,
+        &quot;dimensions&quot;: [
+            &quot;2&quot;,
+            &quot;1&quot;
+        ],
+        &quot;expiration_function&quot;: &quot;&quot;,
+        &quot;on_expiration&quot;: [],
+        &quot;description&quot;: &quot;Sand composed of \u201ctasty\u201d minerals.&quot;
     },
-    &quot;seeds_pineapple&quot;: {
-        display_name: &quot;Pineapple Seeds&quot;,
-        fragility: 0,
-        lifespan: -1,
-        raw_value: 5,
-        dimensions: [1, 1],
-        description: &quot;Pineapple seeds, not the Crested variety. &quot;
+    &quot;substrate_contam_al&quot;: {
+        &quot;name&quot;: &quot;substrate_contam_al&quot;,
+        &quot;display_name&quot;: &quot;Red Mud&quot;,
+        &quot;fragility&quot;: &quot;0&quot;,
+        &quot;lifespan&quot;: &quot;-1&quot;,
+        &quot;raw_value&quot;: &quot;1&quot;,
+        &quot;dimensions&quot;: [
+            &quot;1&quot;,
+            &quot;1&quot;
+        ],
+        &quot;expiration_function&quot;: &quot;&quot;,
+        &quot;on_expiration&quot;: [],
+        &quot;description&quot;: &quot;A byproduct of aluminum processing. Has some uses, but the mud is worth less than the aluminum inside.&quot;
     },
-    &quot;substrate1&quot;: {
-        display_name: &quot;Sand&quot;,
-        fragility: 0,
-        lifespan: -1,
-        raw_value: 5,
-        dimensions: [1, 1],
-        description: &quot;Nutrionless sand.&quot;
+    &quot;substrate_contam_mix&quot;: {
+        &quot;name&quot;: &quot;substrate_contam_mix&quot;,
+        &quot;display_name&quot;: &quot;Tailings&quot;,
+        &quot;fragility&quot;: &quot;0&quot;,
+        &quot;lifespan&quot;: &quot;1&quot;,
+        &quot;raw_value&quot;: &quot;1&quot;,
+        &quot;dimensions&quot;: [
+            &quot;1&quot;,
+            &quot;1&quot;
+        ],
+        &quot;expiration_function&quot;: &quot;&quot;,
+        &quot;on_expiration&quot;: [],
+        &quot;description&quot;: &quot;Dirt contaminateed with various chemicals.&quot;
     },
-    &quot;chem1&quot;: {
-        display_name: &quot;Solvents&quot;,
-        fragility: 0,
-        lifespan: -1,
-        raw_value: 5,
-        dimensions: [1, 1],
-        description: &quot;Important for cleaning and mixing.&quot;
-    },
-    &quot;chem2&quot;: {
-        display_name: &quot;Polymers&quot;,
-        fragility: 0,
-        lifespan: -1,
-        raw_value: 30,
-        dimensions: [1, 1],
-        description: &quot;It&#39;s plastic.&quot;
-    },
-    &quot;chem3&quot;: {
-        display_name: &quot;Volatiles&quot;,
-        fragility: .5,
-        lifespan: -1,
-        raw_value: 120,
-        dimensions: [1, 1],
-        description: &quot;Not particularly useful, but not for the ill-equipped cargo ships.&quot;
-    },
-    &quot;alien_candy&quot;: {
-        display_name: &quot;Imported Candy&quot;,
-        fragility: 0,
-        lifespan: -1,
-        raw_value: 10,
-        dimensions: [1, 1],
-        description: &quot; for tourists, but a rare treat for those in the solar system. &quot;
+    &quot;chem_volatile&quot;: {
+        &quot;name&quot;: &quot;chem_volatile&quot;,
+        &quot;display_name&quot;: &quot;Liquid Oxygen&quot;,
+        &quot;fragility&quot;: &quot;0.9&quot;,
+        &quot;lifespan&quot;: &quot;-1&quot;,
+        &quot;raw_value&quot;: &quot;100&quot;,
+        &quot;dimensions&quot;: [
+            &quot;1&quot;,
+            &quot;1&quot;
+        ],
+        &quot;expiration_function&quot;: &quot;explosion&quot;,
+        &quot;on_expiration&quot;: [],
+        &quot;description&quot;: &quot;Portable, explosive, and expensive. &quot;
     }
 }&gt;&gt;</tw-passagedata><tw-passagedata pid="12" name="PlanetInit" tags="script-pile" position="225,25" size="100,100">&lt;&lt;set $planets to {
 	&quot;raw&quot;: {
