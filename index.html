@@ -98,7 +98,7 @@ var LZString={_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234
 		<div id="init-lacking"><p>Browser lacks capabilities required to play.</p><p>Upgrade or switch to another browser.</p></div>
 		<div id="init-loading"><div>Loading&hellip;</div></div>
 	</div>
-	<tw-storydata name="Space Plants" startnode="25" creator="Twine" creator-version="2.8.0" format="SugarCube" format-version="2.36.1" ifid="a39d4033-db33-4cc3-9e10-aa95abfe18de" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">.disabled { color: darkgrey; }
+	<tw-storydata name="Space Plants" startnode="5" creator="Twine" creator-version="2.8.0" format="SugarCube" format-version="2.36.1" ifid="a39d4033-db33-4cc3-9e10-aa95abfe18de" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">.disabled { color: darkgrey; }
 .detail-link.link-external::after, #export-state::after { content: none; }
 #header {
   display: flex;
@@ -130,6 +130,36 @@ var LZString={_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234
   padding: 0 20px;
 }
 
+.sales-interface div .itemHover > *  {
+  display: grid;
+  grid-template-columns: 60% 10% 30%;  
+}
+
+.sales-interface .item-dim {
+  display: inline-block;
+  height: 16px; width: 16px;
+  margin-top: .35em;
+  display: grid;
+  grid-template-columns: repeat(2, 50%);
+  grid-template-rows: repeat(2, 50%);
+  
+}
+
+.sales-interface .item-dim div.filled {
+  background: #808080;
+}
+.sales-interface .item-dim div {
+  border: 1px solid #404040;
+}
+
+.sales-interface a .item-dim div.filled {
+  background: #68d;
+}
+.sales-interface a .item-dim div {
+  border: 1px solid #348;
+  
+}
+
 .sales-interface div .desc  {
   display: block;
   border-bottom: 1px dotted white;  
@@ -145,7 +175,7 @@ var LZString={_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234
 }
 
 .itemCost {
-  float: right;
+  text-align: right;
 }
 #inventory_container {
   display: flex;
@@ -173,14 +203,22 @@ var LZString={_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234
 #seeds_inventory div:first-child {
   border-left: none;
 }
-
-#trash {
+#inventory_container > div:first-child {
   justify-content: center;
   display: flex;
   flex-direction: column;
-  border: 1px solid white;
-  max-width: 15%;
+  max-width: 18%;
+  justify-content: space-between;
+}
+#inventory_container > div:first-child > div{
   padding: 15px;
+  flex-grow: 1;
+  max-height: calc(50% - 38px);
+  border: 1px solid white; 
+  height: 2px;
+}
+#trash {
+  border-bottom: 1px solid grey; 
 }
 #inventory_grid br { display: none !important;}
 #inventory_grid > div {
@@ -188,7 +226,8 @@ var LZString={_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234
   text-align: center; 
   padding-top: 10px;
 }
-#inventory_grid p { margin: 0; }
+#inventory_grid p, #held-item-slot p{ margin: 0; }
+#held-item-slot .stats { display: none; }
 #inventory_grid .desc { padding-left: 0; }
 .selected-item { background: #2c364f; }
 .hidden { display: none; }
@@ -201,6 +240,17 @@ var LZString={_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234
   text-decoration: underline;
 }
 
+#sell-box {
+  border: 1px solid white;
+  min-height: 30px;
+  padding: 15px;
+  width: 30%;
+  margin: auto;
+  margin-top: 1em;
+}
+.itemHover:hover, .hoverEffect:hover {
+  background: #333;
+}
 /*
 mats
 food
@@ -245,26 +295,45 @@ window.isPastTag = (storyTag) => {
 }
 
 window.isOnPlanet = () => {
-  console.log(State.variables.location[1]);
-  console.log(State.variables.location[1] === 0);
   return State.variables.location[1] === 0;
 }
 
 // Inventory
 window.inventoryPop = (toPop) => {
+  let indexToSplice = -1;
   if (typeof(toPop[0]) === "string") {
-    toPop = State.variables.cargo.findIndex(
-      (x) => x.name === toPop
-    );
-  } else if (typeof(toPop[0]) !== "number") {
+    if (window.isHoldingItem(toPop[0])) {
+      State.variables.holding = null;
+      return;
+    }
+    indexToSplice = State.variables.cargo.findIndex(
+      (x) => x.name === toPop[0]
+    );	
+  } else if (typeof(toPop[0]) === "number") {
+  	indexToSplice = getItemIndexByCoord(toPop[0], toPop[1]);
+  } else {
     throw new Error(
       "Incorrect parameter for inventoryPop " + toPop.toString()
     );
   }
-  let indexToSplice = getItemIndexByCoord(toPop[0], toPop[1]);
   if (indexToSplice !== -1) {
     State.variables.cargo.splice(indexToSplice, 1);
   }
+}
+
+window.isHoldingItem = (itemName) => {
+  return (State.variables.holding && 
+    State.variables.holding["name"] === itemName) 
+}
+
+window.hasItem = (itemName) => {
+  if (window.isHoldingItem(itemName)) {
+    return true;
+  }
+  let index = State.variables.cargo.findIndex(
+    (x) => x.name === itemName
+  );
+  return index !== -1;
 }
 
 window.inventoryAdd = (toAdd, x, y) => {
@@ -346,7 +415,7 @@ window.passTime = (days) => {
     }
     window.inventoryClean();
     for (let i=0; i < toAdd.length; i++) {
-    	window.inventoryAdd(toAdd[i]);
+      window.inventoryAdd(toAdd[i]);
     }
   }
 }
@@ -393,7 +462,7 @@ window._updateItemDemand = (planet, item) => {
 window.getItemIndexByCoord = (x, y) => {
   for (let c = 0; c < State.variables.cargo.length; c++) {
     if (State.variables.cargo[c].coordinates[0] === x &&
-      State.variables.cargo[c].coordinates[1] === y) {
+        State.variables.cargo[c].coordinates[1] === y) {
       return c;
     }
   }
@@ -430,6 +499,30 @@ window.createFromRecipe = (hold, putOnto) => {
   }, setup.items[recipeResults]);
 }
 
+window.getSellCost = function(planet, item) {
+  let val = State.variables.planets[planet]["demand"][item] * setup.items[item]["raw_value"];
+  return (isNaN(val)) ? 0 : val;
+}
+
+window.sell = function() {
+  if (State.variables.holding === null) {
+  	State.variables.feedback_strings.push("Click on an item to hold it, then click the sell box to sell it.");
+    state.display(passage());
+    return;
+  }
+  let cost = window.getSellCost(State.variables.location[0], State.variables.holding["name"]); //update multishop
+  if (cost <= 0) {
+    State.variables.feedback_strings.push(window.disp(State.variables.holding["name"]) + " cannot be sold here.");
+    state.display(passage());
+    return;
+  } 
+  State.variables.money += cost;
+  State.variables.holding = null;
+  state.display(passage());
+}
+
+
+// should be mouseClickInventory or something, selling/giving seems to be simpler
 window.mouseClickItem = function(event) {
   let object = $(event.currentTarget);
   let objectType = "";
@@ -440,7 +533,7 @@ window.mouseClickItem = function(event) {
     objectType = "cargo";
   } else if (object.parents("#seeds_inventory").length > 0) {
     objectType = "seeds";
-  }
+  } 
   if (objectType === "seeds" && object.attr("data-index") !== State.variables.selected_seed) {
     State.variables.selected_seed = Number(object.attr("data-index"));
     refresh = true;
@@ -458,7 +551,7 @@ window.mouseClickItem = function(event) {
       State.variables.money -= setup.trash_cost;
       refresh = true;
     } else if (objectType === "cargo") {
-      // swap places if they can't be combined, else if it's empty place item down. 
+      // merge, combine, or do nothing
       let coords = object.attr("data-index").split("|");
       coords = [parseInt(coords[0]), parseInt(coords[1])]
       let holding = State.variables.holding["name"];
@@ -481,12 +574,92 @@ window.mouseClickItem = function(event) {
   }
 }
 
+window.renderItemHover = function(cargoItem, dataIndex) {
+  if (cargoItem === null) {
+    return $("<div class='itemHover' data-name='empty' data-index=" + dataIndex + "></div>");
+  }
+  let result = $("<div class='itemHover' data-name='" + cargoItem.name + "' data-index=" + dataIndex + "></div>");
+  let stats = $("<div class='stats'></div>");
+  stats.append($("<p>Fragility: " + cargoItem.fragility + "</p>"));
+  stats.append($("<p>Base Value: " + cargoItem.raw_value + "</p>"));
+  stats.append($("<p>Lifespan: " + ((cargoItem.lifespan === -1) ? "Infinite" : cargoItem.lifespan) + "</p>"));
+  result.append($("<div class='name'>" + cargoItem.display_name + "</div>"));
+  result.append(stats);
+  result.append($("<div class='desc'>" + cargoItem.description + "</div>"));
+  return $(result);
+}
+
+window.renderInventoryGrid = () => {
+  let inventoryContainer = $("#inventory_container");
+  let contents = '<div><div class="hoverEffect" id="held-item-slot"><b>Held item:</b></div><div id="trash"'
+  if (inventoryContainer.length) {
+    // trash
+    if (window.isOnPlanet() && State.variables.money >= setup.trash_cost && State.variables.holding !== null) {
+      contents += ' class="itemHover"';
+    } else {
+      contents += ' class="itemHover disabled"';
+    }
+    contents += '>Dispose of held item (' + setup.trash_cost.toString() + ' monies)</div>';
+    contents += '</div><div id="inventory_grid"></div>';
+    inventoryContainer.html(contents);
+    $("#held-item-slot").append(window.renderItemHover(State.variables.holding))
+    // items
+    let inventoryGrid = $("#inventory_grid");
+    for (let y = 0; y < 2; y++) {
+      for (let x = 0; x < 4; x++) {
+        let rendered = false;
+        let toAppend = "";
+        let dataIndex = x.toString() + "|" + y.toString();
+        for (let c = 0; c < State.variables.cargo.length; c++) {
+          if (State.variables.cargo[c].coordinates[1] === y &&
+              State.variables.cargo[c].coordinates[0] === x) {
+            toAppend = window.renderItemHover(State.variables.cargo[c], dataIndex)
+          }
+        }
+        if (toAppend === "") {
+          toAppend = window.renderItemHover(null, dataIndex);
+        }
+        inventoryGrid.append(toAppend);
+      }
+      //seeds
+      let seedAppend = "";
+      if (window.isPastTag("dead_raw_dead")) {
+        for (let n = 0; n < State.variables.seeds.length; n++) {
+          let seed = State.variables.seeds[n];
+          let _class = (n === State.variables.selected_seed) ? " selected-item" : "";
+          seedAppend += "<div class='itemHover" + _class + "' data-name='" + seed + "' data-index='" + n + "'>" + window.disp(seed) + "</div>";
+        }
+      }
+      $("#seeds_inventory").html(seedAppend);
+
+    }
+    $(".itemHover").click(window.mouseClickItem);
+  }
+  // shop widget and inventory grid
+  let hoverDesc = $("#hover-description");
+  if (hoverDesc) {
+    // idk why but jquery doesn't seem to like modern () => syntax
+    $("div.itemHover, #trash").hover(
+      function() {
+        if ($(this).attr("id") === "trash") {
+          $("#hover-description").html("Throw items away for a fee. Can only be done on planets.");
+        } else {
+          $("#hover-description").html(window.desc($(this).data("name")));
+        }
+      },
+      function() {
+        $("#hover-description").html("Mouse over item for a description.");
+      }
+    );
+  }
+}
+
 // Actual onrender JS
 $(document).on(':passagedisplay', function(eventObject) {
   // header export
   $("#export-state").click((e) => {
     let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(
-    	State.variables, null, "\t"
+      State.variables, null, "\t"
     ));
     let dlAnchorElem = document.createElement("a");
     dlAnchorElem.setAttribute("href", dataStr);
@@ -494,77 +667,8 @@ $(document).on(':passagedisplay', function(eventObject) {
     dlAnchorElem.click();
   });
   // inventory grid
-  function renderInventoryGrid() {
-    let inventoryContainer = $("#inventory_container");
-    let contents = '<div id="trash"'
-    if (inventoryContainer.length) {
-      // trash
-      if (window.isOnPlanet() && State.variables.money >= setup.trash_cost && State.variables.holding !== null) {
-        contents += ' class="itemHover"';
-      } else {
-        contents += ' class="itemHover disabled"';
-      }
-      contents += '>Dispose of held item (' + setup.trash_cost.toString() + ' monies)</div><div id="inventory_grid"></div>';
-      inventoryContainer.html(contents);
-      // items
-      let inventoryGrid = $("#inventory_grid");
-      for (let x = 0; x < 4; x++) {
-        for (let y = 0; y < 2; y++) {
-          let rendered = false;
-          let toAppend = "";
-          let dataIndex = x.toString() + "|" + y.toString();
-          for (let c = 0; c < State.variables.cargo.length; c++) {
-            if (State.variables.cargo[c].coordinates[1] === y &&
-              State.variables.cargo[c].coordinates[0] === x) {
-              let cargoItem = State.variables.cargo[c];
-              toAppend = $("<div class='itemHover' data-name='" + cargoItem.name + "' data-index=" + dataIndex + "></div>");
-              let stats = $("<div class='stats'></div>");
-              stats.append($("<p>Fragility: " + cargoItem.fragility + "</p>"));
-              stats.append($("<p>Base Value: " + cargoItem.raw_value + "</p>"));
-              stats.append($("<p>Lifespan: " + ((cargoItem.lifespan === -1) ? "Infinite" : cargoItem.lifespan) + "</p>"));
-              toAppend.append($("<div class='name'>" + cargoItem.display_name + "</div>"));
-              toAppend.append(stats);
-              toAppend.append($("<div class='desc'>" + cargoItem.description + "</div>"));
-            }
-          }
-          if (toAppend === "") {
-            toAppend = $("<div class='itemHover' data-name='empty' data-index=" + dataIndex + "></div>");
-          }
-          inventoryGrid.append(toAppend);
-        }
-        //seeds
-        let seedAppend = "";
-        if (window.isPastTag("dead_raw_dead")) {
-	        for (let n = 0; n < State.variables.seeds.length; n++) {
-              let seed = State.variables.seeds[n];
-              let _class = (n === State.variables.selected_seed) ? " selected-item" : "";
-              seedAppend += "<div class='itemHover" + _class + "' data-name='" + seed + "' data-index='" + n + "'>" + window.disp(seed) + "</div>";
-            }
-        }
-        $("#seeds_inventory").html(seedAppend);
-        
-      }
-      $(".itemHover").click(window.mouseClickItem);
-    }
-    // shop widget and inventory grid
-    let hoverDesc = $("hover-description");
-    if (hoverDesc) {
-      // idk why but jquery doesn't seem to like modern () => syntax
-      $("div.itemHover, #trash").hover(
-        function() {
-          if ($(this).attr("id") === "trash") {
-            $("#hover-description").html("Throw items away for a fee. Can only be done on planets.");
-          } else {
-            $("#hover-description").html(window.desc($(this).data("name")));
-          }
-        },
-        function() {
-          $("#hover-description").html("Mouse over item for a description.");
-        }
-      );
-    }
-  }
-  renderInventoryGrid();
+  window.renderInventoryGrid();
+  $("#sell-box").click((e) => { window.sell(); })
 });
 
 // Repetitive Macro stuff
@@ -593,9 +697,9 @@ Macro.add('passTime', {
   }
 });
 
-Macro.add('displayInventoryGrid', {
+Macro.add('hasItem', {
   handler: function() {
-    window.displayInventoryGrid();
+    window.hasItem(this.args[0]);
   }
 });
 </script><tw-tag name="Notes" color="red"></tw-tag><tw-tag name="script-pile" color="purple"></tw-tag><tw-tag name="location" color="green"></tw-tag><tw-tag name="widget-like" color="blue"></tw-tag><tw-tag name="story" color="orange"></tw-tag><tw-passagedata pid="1" name="on_planet" tags="location" position="425,300" size="100,100">&lt;&lt;if isPastTag(&quot;dead_raw_dead&quot;)&gt;&gt;\
@@ -638,10 +742,22 @@ You are currently on &lt;&lt;link _link_desc planet_description&gt;&gt;\
 &lt;&lt;set $story_tags = []&gt;&gt;
 &lt;&lt;set $character = {}&gt;&gt;
 &lt;&lt;set $holding = null&gt;&gt;
-&lt;&lt;set $npc_talk = [&quot;dead_raw&quot;, 1]</tw-passagedata><tw-passagedata pid="3" name="PassageHeader" tags="widget-like" position="325,150" size="100,100">&lt;&lt;include &#39;util&#39;&gt;&gt;
-&lt;&lt;set _currentInventory = inventoryItems()&gt;&gt;
+&lt;&lt;set $npc_talk = [&quot;dead_raw&quot;, 1]&gt;&gt;
+&lt;&lt;set $feedback_strings = [&quot;Error message&quot;]&gt;&gt;
+
+
+&lt;&lt;inventoryAdd &quot;space_food1&quot; 1 1&gt;&gt;
+&lt;&lt;inventoryAdd &quot;space_food1&quot; 3 1&gt;&gt;
+
+&lt;&lt;inventoryAdd &quot;nutrients1&quot; 2 1&gt;&gt;
+&lt;&lt;inventoryAdd &quot;nutrients1&quot; 0 1&gt;&gt;
+
+&lt;&lt;inventoryAdd &quot;substrate_basic&quot; 0 0&gt;&gt;
+&lt;&lt;inventoryAdd &quot;substrate_basic&quot; 2 0&gt;&gt;
+</tw-passagedata><tw-passagedata pid="3" name="PassageHeader" tags="widget-like" position="325,150" size="100,100">&lt;&lt;include &#39;util&#39;&gt;&gt;\
+&lt;&lt;set _currentInventory = inventoryItems()&gt;&gt;\
 &lt;div id=&quot;header&quot;&gt;
-  &lt;div&gt;
+  &lt;div&gt;\
     Money: $money &lt;&lt;=setup.currency[1]&gt;&gt;
     &lt;&lt;set _disp_location = disp($location[0]) &gt;&gt;\
     &lt;&lt;if isOnPlanet() &gt;&gt;\
@@ -655,7 +771,7 @@ You are currently on &lt;&lt;link _link_desc planet_description&gt;&gt;\
     &lt;&lt;/if&gt;&gt;\
     [[Cargo|inventory_view]]: (_currentInventory.length/$max_cargo)
     Fuel: &lt;&lt;if $fuel&gt;&gt;Full&lt;&lt;else&gt;&gt;Empty&lt;&lt;/if&gt;&gt;
-  &lt;/div&gt;&lt;div id=&quot;settings&quot;&gt;
+  &lt;/div&gt;&lt;div id=&quot;settings&quot;&gt;\
     Holding: &lt;&lt;if $holding === null&gt;&gt;Nothing &lt;&lt;else&gt;&gt;&lt;&lt;=disp($holding.name)&gt;&gt;&lt;&lt;/if&gt;&gt;
       [[Terms|terms]]
       &lt;a id=&quot;export-state&quot; href=&quot;&quot;&gt;Export  State&lt;/a&gt;
@@ -665,7 +781,11 @@ You are currently on &lt;&lt;link _link_desc planet_description&gt;&gt;\
 	Daily reports: 
     &lt;&lt;= $daily_reports.join(&quot;&lt;br&gt;&quot;) &gt;&gt;
 	&lt;&lt;set $daily_reports = []&gt;&gt;
-&lt;&lt;/if&gt;&gt;\</tw-passagedata><tw-passagedata pid="4" name="depart_prepare" tags="widget-like" position="725,150" size="100,100">&lt;&lt;include &quot;util&quot;&gt;&gt;\
+&lt;&lt;/if&gt;&gt;\
+&lt;&lt;if $feedback_strings.length != 0&gt;&gt;\
+	&lt;span style=&quot;color: red&quot;&gt;&lt;&lt;= $feedback_strings.join(&quot;&lt;br&gt;&quot;) &gt;&gt;&lt;/span&gt;
+	&lt;&lt;set $feedback_strings = []&gt;&gt;
+&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="4" name="depart_prepare" tags="widget-like" position="725,150" size="100,100">&lt;&lt;include &quot;util&quot;&gt;&gt;\
 &lt;&lt;if not $fuel&gt;&gt;\
 	Can&#39;t leave the planet without fuel.
 &lt;&lt;else&gt;&gt;\
@@ -705,7 +825,9 @@ You are currently on &lt;&lt;link _link_desc planet_description&gt;&gt;\
   });
 &lt;&lt;/script&gt;&gt;
 </tw-passagedata><tw-passagedata pid="5" name="shop" tags="widget-like location" position="425,150" size="100,100">&lt;&lt;include &quot;sales&quot;&gt;&gt;\
-&lt;&lt;salesInterface true&gt;&gt;\
+&lt;&lt;salesInterface true&gt;&gt;
+&lt;div id=&quot;inventory_container&quot;&gt;&lt;div id=&quot;inventory_grid&quot;&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;div id=&quot;hover-description&quot;&gt;Mouse over item for a description.&lt;/div&gt;
 &lt;&lt;if !$fuel&gt;&gt;\  /* refueling */
   &lt;h4 style=&quot;margin: 0&quot;&gt; Refuel &lt;/h4&gt;\
   &lt;&lt;if $money &gt;= setup.fuel_cost&gt;&gt;\
@@ -864,7 +986,7 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
         &quot;name&quot;: &quot;sprout_pineapple&quot;,
         &quot;display_name&quot;: &quot;Baby Pineapple&quot;,
         &quot;fragility&quot;: &quot;0&quot;,
-        &quot;lifespan&quot;: &quot;5&quot;,
+        &quot;lifespan&quot;: &quot;40&quot;,
         &quot;raw_value&quot;: &quot;5&quot;,
         &quot;dimensions&quot;: [
             &quot;1&quot;,
@@ -1133,60 +1255,69 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
         &quot;expiration_function&quot;: &quot;explosion&quot;,
         &quot;on_expiration&quot;: [],
         &quot;description&quot;: &quot;Portable, explosive, and expensive. &quot;
+    },
+    &quot;alien_candy&quot;: {
+        &quot;name&quot;: &quot;alien_candy&quot;,
+        &quot;display_name&quot;: &quot;Alien Candy&quot;,
+        &quot;fragility&quot;: &quot;0&quot;,
+        &quot;lifespan&quot;: &quot;-1&quot;,
+        &quot;raw_value&quot;: &quot;10&quot;,
+        &quot;dimensions&quot;: [
+            &quot;1&quot;,
+            &quot;1&quot;
+        ],
+        &quot;expiration_function&quot;: &quot;&quot;,
+        &quot;on_expiration&quot;: [],
+        &quot;description&quot;: &quot;Candy from distant star systems.&quot;
     }
-}&gt;&gt;	</tw-passagedata><tw-passagedata pid="12" name="PlanetInit" tags="script-pile" position="225,25" size="100,100">&lt;&lt;set $planets to {
+}&gt;&gt;</tw-passagedata><tw-passagedata pid="12" name="PlanetInit" tags="script-pile" position="225,25" size="100,100">&lt;&lt;set $planets to {
 	&quot;raw&quot;: {
     	display_name: &quot;Horai&quot;,
     	location: 0,
         demand: {
-        	&quot;food1&quot;: 0,
-        	&quot;food2&quot;: 1,
-        	&quot;food3&quot;: 2,
+        	&quot;space_food1&quot;: 0,
+        	&quot;space_food2&quot;: 1,
+        	&quot;space_food3&quot;: 2,
         	&quot;supplies1&quot;: 2,
         	&quot;supplies2&quot;: 1.5,
         	&quot;supplies3&quot;: 1,
-        	&quot;chem1&quot;: 2,
-        	&quot;chem2&quot;: 1,
-        	&quot;chem3&quot;: 2,
-        	&quot;nutes1&quot;: 1,
+        	&quot;chem_volatile&quot;: 2,
+        	&quot;nutrients1&quot;: 1,
             &quot;alien_candy&quot;: 1,
         },
-        stock: [&quot;mats1&quot;, &quot;mats2&quot;, &quot;mats3&quot;, &quot;food1&quot;, &quot;substrate1&quot;]
+        stock: [&quot;raw_metal_copper&quot;, &quot;raw_metal_gold&quot;, &quot;raw_metal_plat&quot;, &quot;space_food1&quot;, &quot;substrate_basic&quot;]
     },
     &quot;mfg&quot;: {
     	display_name: &quot;Svarog&quot;,
     	location: 5,
         demand: {
-        	&quot;mats1&quot;: 0,
-        	&quot;mats2&quot;: 0,
-        	&quot;mats3&quot;: 0,
-        	&quot;food1&quot;: 1,
-        	&quot;food2&quot;: 1,
-        	&quot;food3&quot;: 2,
-        	&quot;seeds_spinach0&quot;: 0,
-        	&quot;substrate1&quot;: 0,
+        	&quot;raw_metal_copper&quot;: 0,
+        	&quot;raw_metal_gold&quot;: 0,
+        	&quot;raw_metal_plat&quot;: 0,
+        	&quot;space_food1&quot;: 1,
+        	&quot;space_food2&quot;: 1,
+        	&quot;space_food3&quot;: 2,
+        	&quot;substrate_basic&quot;: 0,
             &quot;alien_candy&quot;: 1,
         },
-        stock: [&quot;supplies1&quot;, &quot;supplies2&quot;, &quot;supplies3&quot;, &quot;chem1&quot;, &quot;chem2&quot;, &quot;chem3&quot;, &quot;nutes1&quot;]
+        stock: [&quot;supplies1&quot;, &quot;supplies2&quot;, &quot;supplies3&quot;, &quot;chem_volatile&quot;, &quot;nutrients1&quot;]
     },
    &quot;tourism&quot;:{
     	display_name: &quot;Persephone&quot;,
     	location: 10,
         demand: {
-        	&quot;mats1&quot;: 2,
-        	&quot;mats2&quot;: 2,
-        	&quot;mats3&quot;: 2,
-        	&quot;food1&quot;: 1,
-        	&quot;food2&quot;: 2,
-        	&quot;food3&quot;: 2,
+        	&quot;raw_metal_copper&quot;: 2,
+        	&quot;raw_metal_gold&quot;: 2,
+        	&quot;raw_metal_plat&quot;: 2,
+        	&quot;space_food1&quot;: 1,
+        	&quot;space_food2&quot;: 2,
+        	&quot;space_food3&quot;: 2,
         	&quot;supplies1&quot;: 2,
         	&quot;supplies2&quot;: 1.5,
         	&quot;supplies3&quot;: 1,
-        	&quot;chem1&quot;: 2,
-        	&quot;chem2&quot;: 2,
-        	&quot;chem3&quot;: 2,
-        	&quot;nutes1&quot;: 2,
-        	&quot;substrate1&quot;: 0.5,
+        	&quot;chem_volatile&quot;: 2,
+        	&quot;nutrients1&quot;: 2,
+        	&quot;substrate_basic&quot;: 0.5,
         },
         stock: [&quot;alien_candy&quot;]
     },
@@ -1194,53 +1325,51 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
     	display_name: &quot;Elysium&quot;,
     	location: 10,
         demand: {
-        	&quot;mats1&quot;: 0,
-        	&quot;mats2&quot;: 0,
-        	&quot;mats3&quot;: 0,
+        	&quot;raw_metal_copper&quot;: 0,
+        	&quot;raw_metal_gold&quot;: 0,
+        	&quot;raw_metal_plat&quot;: 0,
         	&quot;supplies1&quot;: 2,
         	&quot;supplies2&quot;: 1.5,
         	&quot;supplies3&quot;: 1,
-        	&quot;chem1&quot;: 2,
-        	&quot;chem2&quot;: 1,
-        	&quot;chem3&quot;: 2,
-        	&quot;nutes1&quot;: 3,
-        	&quot;substrate1&quot;: 3,
+        	&quot;chem_volatile&quot;: 2,
+        	&quot;nutrients1&quot;: 3,
+        	&quot;substrate_basic&quot;: 3,
             &quot;alien_candy&quot;: 1,
         },
-        stock: [&quot;food1&quot;, &quot;food2&quot;, &quot;food3&quot;]
+        stock: [&quot;space_food1&quot;, &quot;space_food2&quot;, &quot;space_food3&quot;]
     }
-}&gt;&gt;</tw-passagedata><tw-passagedata pid="13" name="sales" tags="script-pile" position="750,25" size="100,100">&lt;&lt;nobr&gt;&gt;
+}&gt;&gt;</tw-passagedata><tw-passagedata pid="13" name="sales" tags="script-pile widget-like" position="750,25" size="100,100">&lt;&lt;nobr&gt;&gt;
   &lt;&lt;widget &#39;sell_link&#39;&gt;&gt;
     &lt;&lt;set _item = _args[0]&gt;&gt;
     &lt;&lt;set _planet = _args[1]&gt;&gt;
     &lt;&lt;set _use_links = _args[2]&gt;&gt;
-    &lt;&lt;set _cost = Math.floor(setup.items[_args[0]].raw_value * $planets[_planet].demand[_item])&gt;&gt;
+    &lt;&lt;if Object.keys($planets[_planet].demand).includes(_item)&gt;&gt;
+    	&lt;&lt;set _cost = Math.floor(setup.items[_item].raw_value * $planets[_planet].demand[_item])&gt;&gt;
+	&lt;&lt;else&gt;&gt;
+    	&lt;&lt;set _cost = 0&gt;&gt;
+    &lt;&lt;/if&gt;&gt;
     &lt;&lt;capture _cost _item&gt;&gt;
-      &lt;&lt;set _link_text = &quot;&lt;span class=&#39;itemName&#39;&gt;&quot; + setup.items[_item].display_name &gt;&gt; 
-      &lt;&lt;set _link_text = _link_text + &quot;&lt;/span&gt;&lt;span class=&#39;itemCost&#39;&gt;&quot; + _cost + &quot; &quot; +  setup.currency[1] + &quot;&lt;/span&gt;&quot;&gt;&gt;
+      &lt;&lt;set _link_text = &quot;&lt;span class=&#39;itemName&#39;&gt;&quot; + disp(_item) &gt;&gt; 
+      &lt;&lt;set _link_text = _link_text + &quot;&lt;/span&gt;&lt;div class=&#39;item-dim&#39;&gt;&lt;div class=&#39;filled&#39;&gt;&lt;/div&gt;&lt;div&gt;&lt;/div&gt;&lt;div&gt;&lt;/div&gt;&lt;div&gt;&lt;/div&gt;&lt;/div&gt;&lt;span class=&#39;itemCost&#39;&gt;&quot; + _cost + &quot; &quot; +  setup.currency[1] + &quot;&lt;/span&gt;&quot;&gt;&gt;
+      &lt;div class=&quot;itemHover&quot; @data-name=&quot;_item&quot;&gt;
       &lt;&lt;if _cost &gt; 0&gt;&gt;
-		&lt;div class=&quot;itemHover&quot; @data-name=&quot;_item&quot;&gt;
-          /*if findItemIndex(_item) != -1 and _use_links*/
-          &lt;&lt;if  _use_links&gt;&gt;
+     	&lt;&lt;if (_use_links &amp;&amp; hasItem(_item))&gt;&gt;
               &lt;&lt;link _link_text shop&gt;&gt;
                 &lt;&lt;inventoryPop _item&gt;&gt;
-                &lt;&lt;if $planets[_planet].demand[_item] * .8 &lt; 1&gt;&gt;
-                  $planets[_planet].demand[_item] = 1
-                &lt;&lt;else&gt;&gt;
-                  $planets[_planet].demand[_item] = $planets[_planet].demand[_item] * .8
-                &lt;&lt;/if&gt;&gt;
+                  /*
+                  &lt;&lt;if $planets[_planet].demand[_item] * .8 &lt; 1&gt;&gt;
+                    $planets[_planet].demand[_item] = 1
+                  &lt;&lt;else&gt;&gt;
+                    $planets[_planet].demand[_item] = $planets[_planet].demand[_item] * .8
+                  &lt;&lt;/if&gt;&gt;
+                  */
                 &lt;&lt;set $money = $money + _cost&gt;&gt;
               &lt;&lt;/link&gt;&gt;
-          &lt;&lt;else&gt;&gt;
-            &lt;span class=&quot;disabled&quot;&gt; _link_text&lt;/span&gt;
+        &lt;&lt;else&gt;&gt;
+              &lt;span class=&quot;disabled&quot;&gt; _link_text&lt;/span&gt;
         &lt;&lt;/if&gt;&gt;
-            &lt;/div&gt;
-          &lt;span class=&quot;desc&quot;&gt;
-            &lt;br&gt;
-            &lt;&lt;= desc(_item) &gt;&gt;
-          &lt;/span&gt;
-        &lt;br&gt;
       &lt;&lt;/if&gt;&gt;
+        &lt;/div&gt;
     &lt;&lt;/capture&gt;&gt;
   &lt;&lt;/widget&gt;&gt;
   
@@ -1251,7 +1380,7 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
     &lt;&lt;set _cost = setup.items[_item].raw_value&gt;&gt;
     &lt;&lt;capture _cost _item&gt;&gt;
       &lt;&lt;set _link_text = &quot;&lt;span class=&#39;itemName&#39;&gt;&quot; + setup.items[_item].display_name&gt;&gt;
-      &lt;&lt;set _link_text = _link_text + &quot;&lt;/span&gt;&lt;span class=&#39;itemCost&#39;&gt;&quot; + _cost + &quot; &quot; + setup.currency[1] + &quot;&lt;/span&gt;&quot;&gt;&gt;
+      &lt;&lt;set _link_text = _link_text + &quot;&lt;/span&gt;&lt;div class=&#39;item-dim&#39;&gt;&lt;div class=&#39;filled&#39;&gt;&lt;/div&gt;&lt;div&gt;&lt;/div&gt;&lt;div&gt;&lt;/div&gt;&lt;div&gt;&lt;/div&gt;&lt;/div&gt;&lt;span class=&#39;itemCost&#39;&gt;&quot; + _cost + &quot; &quot; + setup.currency[1] + &quot;&lt;/span&gt;&quot;&gt;&gt;
 	  &lt;div class=&quot;itemHover&quot; @data-name=&quot;_item&quot;&gt;
         &lt;&lt;if $money &gt;= _cost and canAddItem(_item) and _use_links&gt;&gt;\
           &lt;&lt;link _link_text shop&gt;&gt;
@@ -1262,11 +1391,6 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
           &lt;span class=&quot;disabled&quot;&gt; _link_text&lt;/span&gt;
         &lt;&lt;/if&gt;&gt;
       &lt;/div&gt;
-          &lt;span class=&quot;desc&quot;&gt;
-            &lt;br&gt;
-            &lt;&lt;= desc(_item) &gt;&gt;
-          &lt;/span&gt;
-          &lt;br&gt;
     &lt;&lt;/capture&gt;&gt;
   &lt;&lt;/widget&gt;&gt;
 
@@ -1294,8 +1418,12 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
           &lt;&lt;buy_link _stock[_i] $location[0] _allow_sales&gt;&gt;
         &lt;&lt;/for&gt;&gt;
       &lt;/div&gt;
-    &lt;/div&gt;
+    &lt;/div&gt;&lt;br&gt;
+    &lt;&lt;if _allow_sales&gt;&gt;
+    &lt;div id=&quot;sell-box&quot; class=&quot;hoverEffect&quot;&gt;Place a specific item here to sell it, or click the sell links above.&lt;/div&gt;
+    &lt;&lt;else&gt;&gt;
 	&lt;div id=&quot;hover-description&quot;&gt;Mouse over item for a description.&lt;/div&gt;
+    &lt;&lt;/if&gt;&gt;
   &lt;&lt;/widget&gt;&gt;
 &lt;&lt;/nobr&gt;&gt;</tw-passagedata><tw-passagedata pid="14" name="dead_raw_dead" tags="story" position="725,300" size="100,100">&lt;&lt;set $story_tags to $story_tags.concat(&quot;dead_raw_dead&quot;)&gt;&gt;\
 &lt;&lt;= disp(&quot;dead_raw&quot;)&gt;&gt; has been attacked and destroyed by the &lt;&lt;= setup.terms[&quot;alien&quot;][&quot;org&quot;]&gt;&gt;. Food shortages are expected, as &lt;&lt;print disp(&quot;dead_raw&quot;)&gt;&gt; was the primary provide of food in this solar system. Cargo ships that were heading towards &lt;&lt;print disp(&quot;dead_raw&quot;)&gt;&gt; are advised to stop by &lt;&lt;print disp(&quot;raw&quot;)&gt;&gt; to refuel and pick up food supplies for other planets. 
