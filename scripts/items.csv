@@ -23,3 +23,4 @@ substrate_contam_al,Red Mud,0,-1,1,1,1,,,,"A byproduct of aluminum processing. H
 substrate_contam_mix,Tailings,0,1,1,1,1,,,,Dirt contaminateed with various chemicals.
 chem_volatile,Liquid Oxygen,0.9,-1,100,1,1,explosion,,,"Portable, explosive, and expensive. "
 alien_candy,Alien Candy,0,-1,10,1,1,,,,Candy from distant star systems.
+baking_soda,Deoderizer,0,10,20,1,1,,,,Manufactured and needed on most ships. Very few species can stand each others gases. 

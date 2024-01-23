@@ -259,132 +259,52 @@ nutes1
 seeds_spinach0
 substrate1
 chem
-*/</style><script role="script" id="twine-user-script" type="text/twine-javascript">// Display
-window.disp = (object) => {
-  if (State.variables.planets.hasOwnProperty(object)) {
-    return State.variables.planets[object].display_name;
-  }
-  return setup.items[object].display_name;
-}
+*/</style><script role="script" id="twine-user-script" type="text/twine-javascript">/***************************************************************
 
-window.dispArr = (arr) => {
-  if (arr[0].hasOwnProperty("display_name")) {
-    return arr.map((x) => x.display_name).join(", ");
-  }
-  return arr.map((x) => window.disp(x)).join(", ");
-}
+disp(item/planet) => display name
+dispArr(array of items/planets/strings) => comma seperated display names
+desc(item) => item description
 
-window.desc = (object) => {
-  if (State.variables.planets.hasOwnProperty(object)) {
-    return "Todo - migrate planet descriptions";
-    //return State.variables.planets[object].display_name;
-  }
-  return setup.items[object].description;
-}
+contactMeError()
+
+addTag(tag)
+isPastTag(tag)
+isOnPlanet() #redo: isOnSurface
+
+hasItem(itemName)
+
+items
+  cargo
+    cargoIndexByName(name) => i
+    cargoIndexByCoord
+    firstEmptySlot(width, length)
+    inventoryItems # gets cargo
+  holding
+    isHoldingItem(itemName)
+  cargo + holding
+    inventoryPop([str] or [x, y])
+    inventoryAdd(toAdd, x, y) x and y are optional
+    hasItem(itemName)
+    pickUpItem(x, y)
+    putDownItem(x, y)
+  general
+    createFromRecipe(holding, putOnto)
+
+sales
+  getSellCost(planet, item)
+  sell # mouesclikc
 
 
-window.raiseContactMeError = () => {
-  State.variables.feedback_strings.push(`This should not have happened. Please click "Export State" on the top, and contact Sen with a desc of what you were doing. Thank you for finding bugs!`);
-}
+needs updating
+  inventoryClean - use on death and check holding
+  canAddItem - wtf this is hella dated
+  passTime, _updateItemDemand,
+  createFromRecipe - on stabilizers
+  getSellCost - on day memory and multishop
+  sell (multishop)
+  putDownItem - 2x2 itm
 
-// Story handiness
-window.addTag = (storyTag) => {
-  // should be smarter in future, if there's quests and multiple stories going on 
-  // check if it's in list of tags as well
-  State.variables.story_tags.push(storyTag);
-}
-
-window.isPastTag = (storyTag) => {
-  return State.variables.story_tags.includes(storyTag);
-}
-
-window.isOnPlanet = () => {
-  return State.variables.location[1] === 0;
-}
-
-// Inventory
-window.inventoryPop = (toPop) => {
-  let indexToSplice = -1;
-  if (typeof(toPop[0]) === "string") {
-    if (window.isHoldingItem(toPop[0])) {
-      State.variables.holding = null;
-      return;
-    }
-    indexToSplice = State.variables.cargo.findIndex(
-      (x) => x.name === toPop[0]
-    );	
-  } else if (typeof(toPop[0]) === "number") {
-    indexToSplice = getItemIndexByCoord(toPop[0], toPop[1]);
-  } else {
-    throw new Error(
-      "Incorrect parameter for inventoryPop " + toPop.toString()
-    );
-  }
-  if (indexToSplice !== -1) {
-    State.variables.cargo.splice(indexToSplice, 1);
-  }
-}
-
-window.isHoldingItem = (itemName) => {
-  return (State.variables.holding && 
-          State.variables.holding["name"] === itemName) 
-}
-
-window.hasItem = (itemName) => {
-  if (window.isHoldingItem(itemName)) {
-    return true;
-  }
-  let index = State.variables.cargo.findIndex(
-    (x) => x.name === itemName
-  );
-  return index !== -1;
-}
-
-window.inventoryAdd = (toAdd, x, y) => {
-  if (!setup.items.hasOwnProperty(toAdd)) {
-    throw new Error("You made a typo : " + toAdd.toString())
-  }
-  if (!window.canAddItem(toAdd, x, y)) {
-    throw new Error("Not enough space");
-  }
-  let item = (Object.assign({}, setup.items[toAdd]));
-  item.name = toAdd;
-  if (typeof(x) === 'undefined' && typeof(y) === 'undefined') {
-    if (State.variables.holding === null) {
-      State.variables.holding = item;
-    } else 
-      let slot = firstEmptySlot(1, 1);
-      if (slot !== -1) {
-        item.coordinates = firstEmptySlot(1, 1);
-        State.variables.cargo.push(item);
-      } else {
-        window.raiseContactMeError();
-      }
-    }
-  } else {
-    item.coordinates = [x, y];
-    State.variables.cargo.push(item);
-  }
-}
-
-window.firstEmptySlot = (w, l) => {
-  // assumes 1, 1 for now
-  for (let y = 0; y < 2; y++) {
-    for (let x = 0; x < 4; x++) {
-      let openSpot = true;
-      for (let c = 0; c < State.variables.cargo.length; c++) {
-        if (State.variables.cargo[c].coordinates[1] === y &&
-            State.variables.cargo[c].coordinates[0] === x) {
-          openSpot = false;
-        }
-      }
-      if (openSpot) {
-        return [x, y];
-      }
-    }
-  }
-  return -1;
-}
+***************************************************************/
 
 window.inventoryClean = () => {
   let isDead = (x) => x.lifespan === 0;
@@ -397,9 +317,7 @@ window.inventoryClean = () => {
   }
 }
 
-window.inventoryItems = () => {
-  return State.variables.cargo;
-}
+window.inventoryItems = () => { return State.variables.cargo; }
 
 window.canAddItem = (item, x, y) => {
   // this will be more complicated with area
@@ -457,30 +375,6 @@ window.passTime = (days) => {
   }
 }
 
-window.weightedRandom = function(weightDict) {
-  let weightTotal = 0;
-  let choice = Math.random();
-  let keys = Object.keys(weightDict);
-  for (let i=0; i < keys.length; i++) {
-    if (weightTotal + weightDict[keys[i]] >= choice) {
-      return keys[i]; 
-    }
-    weightTotal += weightDict[keys[i]];
-  }
-}
-
-
-window.randChoice = (arr) => {
-  // Let's see if this works better than either?
-  return arr[Math.floor(Math.random() * arr.length)];
-}
-
-window.addStorTag = (tag) => {
-  if (State.variables.story_tags.includes(tag)) {
-    State.variables.story_tags;
-  }
-}
-
 window._updateItemDemand = (planet, item) => {
   let weight = 1;
   if (item.contains("food") && window.isPastTag("dead_raw_dead")) {
@@ -494,29 +388,6 @@ window._updateItemDemand = (planet, item) => {
   } else {
     State.variables.planets[planet].demand[item] = demand * weight;
   }
-}
-
-window.getItemIndexByCoord = (x, y) => {
-  for (let c = 0; c < State.variables.cargo.length; c++) {
-    if (State.variables.cargo[c].coordinates[0] === x &&
-        State.variables.cargo[c].coordinates[1] === y) {
-      return c;
-    }
-  }
-  return -1;
-}
-
-window.pickUpItem = (inventory, x, y) => {
-  let pickupIndex = window.getItemIndexByCoord(x, y);
-  State.variables.holding = Object.assign({}, State.variables.cargo[pickupIndex]);
-  window.inventoryPop([x, y]);
-}
-
-window.putDownItem = (x, y) => {
-  let toAdd = Object.assign({}, State.variables.holding);
-  toAdd.coordinates = [x, y];
-  State.variables.cargo.push(toAdd);
-  State.variables.holding = null;
 }
 
 window.createFromRecipe = (hold, putOnto) => {
@@ -579,7 +450,7 @@ window.mouseClickItem = function(event) {
       // assign item to holding
       let coords = object.attr("data-index").split("|");
       coords = [parseInt(coords[0]), parseInt(coords[1])]
-      window.pickUpItem("cargo", coords[0], coords[1]);
+      window.pickUpItem(coords[0], coords[1]);
       refresh = true;
     }
   } else {
@@ -697,6 +568,109 @@ window.renderInventoryGrid = () => {
   }
 }
 
+// Inventory
+window.cargoIndexByName = (item) => { 
+  return State.variables.cargo.findIndex((x) => x.name === item); 
+}
+
+window.cargoIndexByCoord = (x, y) => {
+  for (let c = 0; c < State.variables.cargo.length; c++) {
+    if (State.variables.cargo[c].coordinates[0] === x &&
+        State.variables.cargo[c].coordinates[1] === y) {
+      return c;
+    }
+  }
+  debugger;
+  return -1;
+}
+
+window.inventoryPop = (toPop) => {
+  let indexToSplice = -1;
+  if (typeof(toPop[0]) === "string") {
+    if (window.isHoldingItem(toPop[0])) {
+      State.variables.holding = null;
+      return;
+    }
+    indexToSplice = window.cargoIndexByName(toPop[0]);
+  } else if (typeof(toPop[0]) === "number") {
+    indexToSplice = window.cargoIndexByCoord(toPop[0], toPop[1]);
+  } else {
+    throw new Error("Incorrect parameter for inventoryPop " + toPop.toString());
+  }
+  if (indexToSplice !== -1) { State.variables.cargo.splice(indexToSplice, 1); }
+}
+window.isHoldingItem = (itemName) => {
+  return (State.variables.holding && 
+          State.variables.holding["name"] === itemName) 
+}
+
+window.hasItem = (itemName) => {
+  if (window.isHoldingItem(itemName)) {
+    return true;
+  }
+  return window.cargoIndexByName(itemName) !== -1;
+}
+
+window.inventoryAdd = (toAdd, x, y) => {
+  if (!setup.items.hasOwnProperty(toAdd)) {
+    throw new Error("You made a typo : " + toAdd.toString())
+  }
+  if (!window.canAddItem(toAdd, x, y)) {
+    throw new Error("Not enough space");
+  }
+  let item = (Object.assign({}, setup.items[toAdd]));
+  item.name = toAdd;
+  if (typeof(x) === 'undefined' && typeof(y) === 'undefined') {
+    if (State.variables.holding === null) {
+      State.variables.holding = item;
+    } else {
+      let slot = firstEmptySlot(1, 1);
+      if (slot !== -1) {
+        item.coordinates = firstEmptySlot(1, 1);
+        State.variables.cargo.push(item);
+      } else {
+        window.contactMeError();
+      }
+    }
+  } else {
+    item.coordinates = [x, y];
+    State.variables.cargo.push(item);
+  }
+}
+
+window.firstEmptySlot = (width, length) => {
+  // assumes 1, 1 for now
+  for (let y = 0; y < 2; y++) {
+    for (let x = 0; x < 4; x++) {
+      let openSpot = true;
+      for (let c = 0; c < State.variables.cargo.length; c++) {
+        if (State.variables.cargo[c].coordinates[1] === y &&
+            State.variables.cargo[c].coordinates[0] === x) {
+          openSpot = false;
+        }
+      }
+      if (openSpot) {
+        return [x, y];
+      }
+    }
+  }
+  return -1;
+}
+
+window.pickUpItem = (x, y) => {
+  let pickupIndex = window.cargoIndexByCoord(x, y);
+  State.variables.holding = Object.assign({}, State.variables.cargo[pickupIndex]);
+  window.inventoryPop([x, y]);
+}
+
+window.putDownItem = (x, y) => {
+  let toAdd = Object.assign({}, State.variables.holding);
+  toAdd.coordinates = [x, y];
+  State.variables.cargo.push(toAdd);
+  State.variables.holding = null;
+}
+
+
 // Actual onrender JS
 $(document).on(':passagedisplay', function(eventObject) {
   // header export
@@ -714,38 +688,60 @@ $(document).on(':passagedisplay', function(eventObject) {
   $("#sell-box").click((e) => { window.sell(); })
 });
 
+// random help
+window.weightedRandom = function(weightDict) {
+  let weightTotal = 0;
+  let choice = Math.random();
+  let keys = Object.keys(weightDict);
+  for (let i=0; i < keys.length; i++) {
+    if (weightTotal + weightDict[keys[i]] >= choice) {
+      return keys[i]; 
+    }
+    weightTotal += weightDict[keys[i]];
+  }
+}
+window.randChoice = (arr) => { return arr[Math.floor(Math.random() * arr.length)]; }
+
+// display
+window.disp = (o) => { 
+  return (setup.items.hasOwnProperty(o) ? setup.items : State.variables.planets)[o].display_name; 
+}
+window.dispArr = (arr) => {
+  let f = arr[0].hasOwnProperty("display_name") ? ((x) => x.display_name) : ((x) => window.disp(x));
+  return arr.map(f).join(", ");
+}
+window.desc = (o) => { return setup.items[o].description; }
+window.contactMeError = () => { 
+  State.variables.feedback_strings.push(`This should not have happened.
+  Please click "Export State" on the top, and contact Sen with a desc 
+  of what you were doing. Thank you for finding bugs!`); 
+}
+
+// handiness
+window.addTag = (t) => {
+  if (setup.tags.includes(t)){ State.variables.story_tags.push(t); } 
+  else { throw new Error(`story tag misspelled ${t}`) }
+}
+window.isPastTag = (t) => { return State.variables.story_tags.includes(t); }
+window.isOnPlanet = () => { return State.variables.location[1] === 0; }
+
+
 // Repetitive Macro stuff
-
-Macro.add('inventoryAdd', {
-  handler: function() {
-    window.inventoryAdd(this.args[0], this.args[1], this.args[2]);
-  }
-});
-
-Macro.add('inventoryPop', {
-  handler: function() {
-    window.inventoryPop(this.args);
-  }
-});
-
-Macro.add('desc', {
-  handler: function() {
-    window.desc(this.args[0]);
-  }
-});
-
-Macro.add('passTime', {
-  handler: function() {
-    window.passTime(this.args[0]);
-  }
-});
-
-Macro.add('hasItem', {
-  handler: function() {
-    window.hasItem(this.args[0]);
-  }
-});
-</script><tw-tag name="Notes" color="red"></tw-tag><tw-tag name="script-pile" color="purple"></tw-tag><tw-tag name="location" color="green"></tw-tag><tw-tag name="widget-like" color="blue"></tw-tag><tw-tag name="story" color="orange"></tw-tag><tw-passagedata pid="1" name="on_planet" tags="location" position="425,300" size="100,100">&lt;&lt;if isPastTag(&quot;dead_raw_dead&quot;)&gt;&gt;\
+let macros = [
+  "addTag",
+  "inventoryAdd",
+  "desc",
+  "passTime",
+  "hasItem",
+]
+for (const func of macros) {
+  Macro.add(func, { handler: function() {
+    window[func](...this.args);
+  }});
+}
+Macro.add("inventoryPop", { handler: function() {
+  window["inventoryPop"](this.args);
+}});</script><tw-tag name="Notes" color="red"></tw-tag><tw-tag name="script-pile" color="purple"></tw-tag><tw-tag name="location" color="green"></tw-tag><tw-tag name="widget-like" color="blue"></tw-tag><tw-tag name="story" color="orange"></tw-tag><tw-passagedata pid="1" name="on_planet" tags="location" position="425,300" size="100,100">&lt;&lt;if isPastTag(&quot;dead_raw_dead&quot;)&gt;&gt;\
 	With the destruction of &lt;&lt;= disp(&quot;dead_raw&quot;) &gt;&gt;, you might be able to make more monies and upgrade your ship. 
 &lt;&lt;else&gt;&gt;\
 	Running a cargo ship is a simple job. Buy stuff from one planet, sell it to another planet that needs it and will pay more for it.
@@ -788,7 +784,7 @@ You are currently on &lt;&lt;link _link_desc planet_description&gt;&gt;\
 &lt;&lt;set $npc_talk = [&quot;dead_raw&quot;, 1]&gt;&gt;
 &lt;&lt;set $feedback_strings = [&quot;Error message&quot;]&gt;&gt;
 
-
+&lt;&lt;addTag &quot;dead_raw_dead&quot;&gt;&gt;
 &lt;&lt;inventoryAdd &quot;space_food1&quot; 1 1&gt;&gt;
 &lt;&lt;inventoryAdd &quot;space_food1&quot; 3 1&gt;&gt;
 
@@ -1255,7 +1251,7 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
         ],
         &quot;expiration_function&quot;: &quot;&quot;,
         &quot;on_expiration&quot;: [],
-        &quot;description&quot;: &quot;Sand composed of tasty minerals.&quot;
+        &quot;description&quot;: &quot;Sand composed of \u201ctasty\u201d minerals.&quot;
     },
     &quot;substrate_contam_al&quot;: {
         &quot;name&quot;: &quot;substrate_contam_al&quot;,
@@ -1312,6 +1308,20 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
         &quot;expiration_function&quot;: &quot;&quot;,
         &quot;on_expiration&quot;: [],
         &quot;description&quot;: &quot;Candy from distant star systems.&quot;
+    },
+    &quot;baking_soda&quot;: {
+        &quot;name&quot;: &quot;baking_soda&quot;,
+        &quot;display_name&quot;: &quot;Deoderizer&quot;,
+        &quot;fragility&quot;: &quot;0&quot;,
+        &quot;lifespan&quot;: &quot;10&quot;,
+        &quot;raw_value&quot;: &quot;20&quot;,
+        &quot;dimensions&quot;: [
+            &quot;1&quot;,
+            &quot;1&quot;
+        ],
+        &quot;expiration_function&quot;: &quot;&quot;,
+        &quot;on_expiration&quot;: [],
+        &quot;description&quot;: &quot;Manufactured and needed on most ships. Very few species can stand each others gases. &quot;
     }
 }&gt;&gt;</tw-passagedata><tw-passagedata pid="12" name="PlanetInit" tags="script-pile" position="225,25" size="100,100">&lt;&lt;set $planets to {
 	&quot;raw&quot;: {
@@ -1653,7 +1663,11 @@ You got 300 monies.
 &lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="20" name="GlobalsInit" tags="script-pile" position="425,25" size="100,100">&lt;&lt;set setup.fuel_cost = 10&gt;&gt;
 &lt;&lt;set setup.trash_cost = 30&gt;&gt;
 &lt;&lt;set setup.wages = Math.max(setup.fuel_cost, setup.trash_cost)&gt;&gt;
-&lt;&lt;set setup.currency = [&quot;ducat&quot;, &quot;ducats&quot;]&gt;&gt;</tw-passagedata><tw-passagedata pid="21" name="terms" tags="" position="200,150" size="100,100">▪ Ajurhang:
+&lt;&lt;set setup.currency = [&quot;ducat&quot;, &quot;ducats&quot;]&gt;&gt;
+&lt;&lt;set setup.tags = Object.keys({
+	&quot;dead_raw_dead&quot;: &quot;Post dead raw destruction&quot;,
+    &quot;first_seeds&quot;: &quot;After getting the first seeds.&quot;
+ })&gt;&gt;</tw-passagedata><tw-passagedata pid="21" name="terms" tags="" position="200,150" size="100,100">▪ Ajurhang:
 	Species: Kooperai
     &lt;&lt;if isPastTag(&quot;firstSeeds&quot;)&gt;&gt;\
     	Plantlike being that is a great customer.  Willing to upgrade your ship in exchange for performing simple experiments. Much taller than the average Kooperai.
@@ -1668,8 +1682,7 @@ You got 300 monies.
 	Angry beetles. They really like explosions.
  &lt;&lt;/if&gt;&gt;\
  
-&lt;&lt;return&gt;&gt;</tw-passagedata><tw-passagedata pid="22" name="storytag_ref" tags="" position="75,150" size="100,100">firstSeeds: After Ajurhang gives you the seeds. 
-dead_raw_dead: Added after Elysium is blown up.</tw-passagedata><tw-passagedata pid="23" name="RecipesInit" tags="script-pile" position="525,25" size="100,100">&lt;&lt;set setup.recipes = {
+&lt;&lt;return&gt;&gt;</tw-passagedata><tw-passagedata pid="22" name="RecipesInit" tags="script-pile" position="525,25" size="100,100">&lt;&lt;set setup.recipes = {
       &quot;nutrients1&quot;: {
     	&quot;substrate_basic&quot;: {
         	&quot;seed_spinach&quot;: &quot;sprout_spinach&quot;,
@@ -1677,7 +1690,7 @@ dead_raw_dead: Added after Elysium is blown up.</tw-passagedata><tw-passagedata 
         }
       }
 }
-&gt;&gt;</tw-passagedata><tw-passagedata pid="24" name="sleep" tags="story" position="675,425" size="100,100">You get ready to enter cryosleep. 
+&gt;&gt;</tw-passagedata><tw-passagedata pid="23" name="sleep" tags="story" position="675,425" size="100,100">You get ready to enter cryosleep. 
 &lt;&lt;nobr&gt;&gt;
 &lt;&lt;set _text_dict = {
 	&quot;Experts say cryosleep helps you age slower. Experts that avoid cryosleep.&quot;: .1,
@@ -1716,7 +1729,7 @@ dead_raw_dead: Added after Elysium is blown up.</tw-passagedata><tw-passagedata 
     margin: auto;
     display: block;
   }
-&lt;/style&gt;</tw-passagedata><tw-passagedata pid="25" name="npc_list" tags="story" position="550,550" size="100,100">Choose who to approach.
+&lt;/style&gt;</tw-passagedata><tw-passagedata pid="24" name="npc_list" tags="story" position="550,550" size="100,100">Choose who to approach.
 &lt;&lt;if $location[0] == &quot;raw&quot;&gt;&gt;\
 	[[A large shark with flowers.|npc1]]
 	[[Exciteable four legged fur thing|npc2]]
@@ -1735,7 +1748,7 @@ dead_raw_dead: Added after Elysium is blown up.</tw-passagedata><tw-passagedata 
 	[[A tumbling ball of mycelia.|npc3]]
 &lt;&lt;/if&gt;&gt;
 &lt;&lt;return&gt;&gt;
-</tw-passagedata><tw-passagedata pid="26" name="npc1" tags="location story" position="675,550" size="100,100">&lt;&lt;if $desc_planet == &quot;raw&quot;&gt;&gt;\
+</tw-passagedata><tw-passagedata pid="25" name="npc1" tags="location story" position="675,550" size="100,100">&lt;&lt;if $desc_planet == &quot;raw&quot;&gt;&gt;\
 	I&#39;m going to be a flower farmer one day!
 &lt;&lt;elseif $desc_planet == &quot;mfg&quot;&gt;&gt;
 	Haze: Move! I&#39;m cleaning, and this could dissolve you. 
@@ -1746,7 +1759,7 @@ dead_raw_dead: Added after Elysium is blown up.</tw-passagedata><tw-passagedata 
     &quot;The atmosphere is too thin for me to fly.&quot;
 &lt;&lt;/if&gt;&gt;
 &lt;&lt;return&gt;&gt;
-</tw-passagedata><tw-passagedata pid="27" name="npc2" tags="location story" position="775,550" size="100,100">&lt;&lt;if $desc_planet == &quot;raw&quot;&gt;&gt;\
+</tw-passagedata><tw-passagedata pid="26" name="npc2" tags="location story" position="775,550" size="100,100">&lt;&lt;if $desc_planet == &quot;raw&quot;&gt;&gt;\
 	I get to swim and eat fish everyday!
 &lt;&lt;elseif $desc_planet == &quot;mfg&quot;&gt;&gt;
 	Small bushy plant: Everything&#39;s dark and cold here. 
@@ -1758,7 +1771,7 @@ dead_raw_dead: Added after Elysium is blown up.</tw-passagedata><tw-passagedata 
 	I spoke to it for several minutes. It does not seem to want to respond.
 &lt;&lt;/if&gt;&gt;
 &lt;&lt;return&gt;&gt;
-</tw-passagedata><tw-passagedata pid="28" name="npc3" tags="location story" position="875,550" size="100,100">&lt;&lt;if $desc_planet == &quot;raw&quot;&gt;&gt;\
+</tw-passagedata><tw-passagedata pid="27" name="npc3" tags="location story" position="875,550" size="100,100">&lt;&lt;if $desc_planet == &quot;raw&quot;&gt;&gt;\
 	Snail: Mmmm... a little wet, but this is a good vacation home. 
 &lt;&lt;elseif $desc_planet == &quot;mfg&quot;&gt;&gt;
 	Cloud: I&#39;m going to become a star someday!
@@ -1768,7 +1781,7 @@ dead_raw_dead: Added after Elysium is blown up.</tw-passagedata><tw-passagedata 
 	Ball: I here there&#39;s a planet made of food, but we&#39;re not allowed on it. 
 &lt;&lt;/if&gt;&gt;
 &lt;&lt;return&gt;&gt;
-</tw-passagedata><tw-passagedata pid="29" name="game_over_volatile" tags="story" position="100,700" size="100,100">Why did I think sleeping with &lt;&lt;= disp(&quot;chem_volatile&quot;)&gt;&gt; was a good idea?
+</tw-passagedata><tw-passagedata pid="28" name="game_over_volatile" tags="story" position="100,700" size="100,100">Why did I think sleeping with &lt;&lt;= disp(&quot;chem_volatile&quot;)&gt;&gt; was a good idea?
 &lt;style&gt;
   #header a { 
     pointer-events: none;
