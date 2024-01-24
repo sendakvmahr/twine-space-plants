@@ -373,6 +373,10 @@ window.passTime = (days) => {
       window.inventoryAdd(toAdd[i]);
     }
   }
+  State.variables.day_state = {
+  	"sold": [],
+    "times_worked": 0;
+  }
 }
 
 window._updateItemDemand = (planet, item) => {
@@ -783,6 +787,10 @@ You are currently on &lt;&lt;link _link_desc planet_description&gt;&gt;\
 &lt;&lt;set $holding = null&gt;&gt;
 &lt;&lt;set $npc_talk = [&quot;dead_raw&quot;, 1]&gt;&gt;
 &lt;&lt;set $feedback_strings = [&quot;Error message&quot;]&gt;&gt;
+&lt;&lt;set $day_state = {
+	&quot;sold&quot;:[],
+    &quot;times_worked&quot;: 0,
+}&gt;&gt;
 
 &lt;&lt;addTag &quot;dead_raw_dead&quot;&gt;&gt;
 &lt;&lt;inventoryAdd &quot;space_food1&quot; 1 1&gt;&gt;
@@ -1408,14 +1416,8 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
       &lt;&lt;if _cost &gt; 0&gt;&gt;
      	&lt;&lt;if (_use_links &amp;&amp; hasItem(_item))&gt;&gt;
               &lt;&lt;link _link_text shop&gt;&gt;
+                &lt;&lt;set $day_state[&quot;sold&quot;].push(_item)&gt;&gt;
                 &lt;&lt;inventoryPop _item&gt;&gt;
-                  /*
-                  &lt;&lt;if $planets[_planet].demand[_item] * .8 &lt; 1&gt;&gt;
-                    $planets[_planet].demand[_item] = 1
-                  &lt;&lt;else&gt;&gt;
-                    $planets[_planet].demand[_item] = $planets[_planet].demand[_item] * .8
-                  &lt;&lt;/if&gt;&gt;
-                  */
                 &lt;&lt;set $money = $money + _cost&gt;&gt;
               &lt;&lt;/link&gt;&gt;
         &lt;&lt;else&gt;&gt;
@@ -1649,7 +1651,8 @@ You got 300 monies.
       &lt;&lt;set _count += 1&gt;&gt;
       &lt;&lt;if _count &gt;= _done_count&gt;&gt;
       		&lt;&lt;set $money = $money + setup.wages&gt;&gt;
-			&lt;&lt;replace &quot;#work&quot;&gt;&gt;You&#39;ve sorted enough bags and got paid.&lt;&lt;/replace&gt;&gt;        
+			&lt;&lt;replace &quot;#work&quot;&gt;&gt;You&#39;ve sorted enough bags and got paid.&lt;&lt;/replace&gt;&gt; 
+            &lt;&lt;set $day_state[&quot;times_worked&quot;] += 1&gt;&gt;
 			&lt;&lt;replace &quot;#sortlink&quot;&gt;&gt;&lt;&lt;/replace&gt;&gt;        
        &lt;&lt;else&gt;&gt;   
 			&lt;&lt;replace &quot;#count&quot;&gt;&gt;&lt;&lt;=_count&gt;&gt;&lt;&lt;/replace&gt;&gt;   
