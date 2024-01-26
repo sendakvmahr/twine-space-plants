@@ -1,26 +1,27 @@
-item_name,display_name,fragility,lifespan,raw_value,dimension_x,dimension_y,expiration_function,expiration_spawn,expiration_spawn_weights,description
-empty,Nothing,0,-1,0,1,1,,,,An empty space.
-seed_spinach,Spinach Seed,0,-1,0,1,1,,,,Spinach seeds.
-seed_pineapple,Pineapple Seed,0,-1,0,1,1,,,,Pineapple seeds.
-sprout_spinach,Spinach Sprout,0,15,5,1,1,,"“substrate_basic”,”produce_spinach”","1,1",A spinach seedling. Will become fresh greens after 15 weeks.
-sprout_pineapple,Baby Pineapple,0,40,5,1,1,,"“substrate_basic”,[“produce_pineapple”,”produce_pineapple_rare”]","1,[.9,.1]",A budding pineapple cutting.
-produce_pineapple_rare,Crested Pineapple,0.7,10,100,1,1,,,,"A mutated pineapple. Expensive, but difficult to sell. "
-produce_pineapple,Pineapple,0.2,10,300,1,2,,,,An old fruit that is still as finicky as it was centuries ago.
-produce_spinach,Fresh Spinach,0.1,15,20,1,1,,,,Tasty leaves.
-raw_metal_copper,Copper Ore,0,-1,5,1,1,,,,Copper ore.
-raw_metal_gold,Gold Ore,0,-1,30,1,1,,,,"Shiny, impure gold."
-raw_metal_aluminum,Aluminum Grains,0,-1,20,1,1,,,,Unrefined aluminum bits.
-raw_metal_plat,Platinum Ore,0,-1,80,2,2,,,,Platinum ore.
-space_food1,Ultra Pasteurized Fiber,0,-1,1,1,1,,,,"A depressing, stable and cheap cube."
-space_food2,Vacuum Sealed Greens,0.05,40,5,1,1,,,,"Vacuum sealed, pasteurized greens with little flavor."
-space_food3,Hard Fruits,0.1,50,15,1,1,,,,"Hard fruits that would hurt many species, but have a chance of surviving through space."
-supplies1,Camping Supplies,0,-1,10,1,1,,,,Camping gear.
-supplies2,Maintenance Tools,0,-1,30,1,1,,,,Tools to fix luxuries.
-supplies3,Luxuries,0.05,-1,50,1,1,,,,You’re unsure of what is inside. The unboxing is supposed to be part of the experience. 
-nutrients1,555 Nutrient Mix,0,-1,10,1,1,,,,Basic hydroponic nutrient mix.
-substrate_basic,Sand,0,-1,5,2,1,,,,Sand composed of “tasty” minerals.
-substrate_contam_al,Red Mud,0,-1,1,1,1,,,,"A byproduct of aluminum processing. Has some uses, but the mud is worth less than the aluminum inside."
-substrate_contam_mix,Tailings,0,1,1,1,1,,,,Dirt contaminateed with various chemicals.
-chem_volatile,Liquid Oxygen,0.9,-1,100,1,1,explosion,,,"Portable, explosive, and expensive. "
-alien_candy,Alien Candy,0,-1,10,1,1,,,,Candy from distant star systems.
-baking_soda,Deoderizer,0,10,20,1,1,,,,Manufactured and needed on most ships. Very few species can stand each others gases. 
+item_name,display_name,tags,fragility,lifespan,raw_value,dimension_x,dimension_y,addon_function,addon_args,expiration_function,expiration_spawn,expiration_spawn_weights,description
+empty,Nothing,,0,-1,0,1,1,,,,,,An empty space.
+seed_spinach,Spinach Seed,seed,0,-1,0,1,1,,,,,,Spinach seeds.
+seed_pineapple,Pineapple Seed,seed,0,-1,0,1,1,,,,,,Pineapple seeds.
+sprout_spinach,Spinach Sprout,sprout,0,15,5,1,1,,,,"“substrate_basic”,”produce_spinach”","1,1",A spinach seedling. Will become fresh greens after 15 weeks.
+sprout_pineapple,Baby Pineapple,sprout,0,40,5,1,1,,,,"“substrate_basic”,[“produce_pineapple”,”produce_pineapple_rare”]","1,[.9,.1]",A budding pineapple cutting.
+produce_pineapple_rare,Crested Pineapple,"plant,food,rare",0.7,10,100,1,1,,,,,,"A mutated pineapple. Expensive, but difficult to sell. "
+produce_pineapple,Pineapple,"plant,food",0.2,10,300,1,2,,,,,,An old fruit that is still as finicky as it was centuries ago.
+produce_spinach,Fresh Spinach,"plant,food",0.1,15,20,1,1,,,,,,Tasty leaves.
+raw_metal_copper,Copper Ore,"ore,raw",0,-1,5,1,1,,,,,,Copper ore.
+raw_metal_gold,Gold Ore,"ore,raw",0,-1,30,1,1,,,,,,"Shiny, impure gold."
+raw_metal_aluminum,Aluminum Grains,"ore,raw",0,-1,20,1,1,,,,,,Unrefined aluminum bits.
+raw_metal_plat,Platinum Ore,"ore,raw",0,-1,80,2,2,,,,,,Platinum ore.
+space_food1,Ultra Pasteurized Fiber,food,0,-1,1,1,1,,,,,,"A depressing, stable and cheap cube."
+space_food2,Vacuum Sealed Greens,food,0.05,40,5,1,1,,,,,,"Vacuum sealed, pasteurized greens with little flavor."
+space_food3,Hard Fruits,"plant,food",0.1,50,15,1,1,,,,,,"Hard fruits that would hurt many species, but have a chance of surviving through space."
+supplies1,Camping Supplies,tools,0,-1,10,1,1,,,,,,Camping gear.
+supplies2,Maintenance Tools,tools,0,-1,30,1,1,,,,,,Tools to fix luxuries.
+supplies3,Luxuries,tools,0.05,-1,50,1,1,,,,,,You’re unsure of what is inside. The unboxing is supposed to be part of the experience. 
+nutrients1,555 Nutrient Mix,nutrient,0,-1,10,1,1,,,,,,Basic hydroponic nutrient mix.
+substrate_basic,Sand,substrate,0,-1,5,2,1,,,,,,Sand composed of “tasty” minerals.
+substrate_contam_al,Red Mud,substrate,0,-1,1,1,1,,,,,,"A byproduct of aluminum processing. Has some uses, but the mud is worth less than the aluminum inside."
+substrate_contam_mix,Tailings,substrate,0,1,1,1,1,,,,,,Dirt contaminateed with various chemicals.
+chem_volatile,Liquid Oxygen,chemical,0.9,-1,100,1,1,,,explosion,,,"Portable, explosive, and expensive. "
+alien_candy,Alien Candy,food,0,-1,10,1,1,,,,,,Candy from distant star systems.
+baking_soda,Deoderizer,chemical,0,30,20,1,1,,,,,,Manufactured and needed on most ships. Very few species can stand each others gases. 
+bucket,Plastic Bucket,stabilizer,0,0,3,1,1,reinforce_chem,"-.1, 1.5",,,,"A sturdy, nonreactive bucket. Great for holding reactive reagents."

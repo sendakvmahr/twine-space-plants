@@ -33,5 +33,8 @@ with open("items.csv") as csvfile:
 			"expiration_function": r[header.index("expiration_function")],
 			"on_expiration": expiration_info,
 			"description": r[header.index("description")],
+			"tags": r[header.index("tags")].split(","),
+			"addon_function": r[header.index("addon_function")],
+			"addon_args": r[header.index("addon_args")].split(","),
 		}
 print("<<set setup.items = " + json.dumps(result, indent=4) + ">>")

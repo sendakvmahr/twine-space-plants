@@ -374,8 +374,8 @@ window.passTime = (days) => {
     }
   }
   State.variables.day_state = {
-  	"sold": [],
-    "times_worked": 0;
+    "sold": [],
+    "times_worked": 0
   }
 }
 
@@ -395,6 +395,7 @@ window._updateItemDemand = (planet, item) => {
 }
 
 window.createFromRecipe = (hold, putOnto) => {
+  // should really be "assignonto" or somethin
   let recipeResults = setup.recipes[hold][putOnto];
   let toAssign = ""; 
   if (typeof(recipeResults) === "object") {
@@ -414,6 +415,23 @@ window.createFromRecipe = (hold, putOnto) => {
 window.getSellCost = function(planet, item) {
   let val = State.variables.planets[planet]["demand"][item] * setup.items[item]["raw_value"];
   return (isNaN(val)) ? 0 : val;
+}
+
+// a seperate function for application items because... spaghetti
+window.applyItem = (hold, putOnto) => {
+  let itemEffect = setup.items[hold["name"]]["addon_function"];
+  let itemArgs = setup.items[hold["name"]]["addon_args"].map((x) => parseFloat(x));
+  let baseTags = setup.items[putOnto["name"]]["tags"]
+  if (itemEffect === "reinforce_chem" && baseTags.includes("chemical")) {
+    let result =  Object.assign({
+      "name": putOnto["name"]
+    }, putOnto);
+    result["fragility"] = (parseFloat(result["fragility"]) + itemArgs[0]).toFixed(2); // arg
+    result["fragility"] = result["fragility"] < 0 ? 0 : result["fragility"];
+    result["lifespan"] *= Math.floor(itemArgs[1]);
+    return result;
+  }
+  return null;
 }
 
 window.sell = function() {
@@ -481,6 +499,13 @@ window.mouseClickItem = function(event) {
         toAppend.coordinates = coords;
         window.inventoryPop(coords);
         State.variables.cargo.push(toAppend);
+      } else if (setup.items[holding]["tags"].includes("stabilizer")) {
+        let i = window.cargoIndexByCoord(coords[0], coords[1]);
+        let applyAttempt = window.applyItem(State.variables.holding, State.variables.cargo[i]);
+        if (applyAttempt !== null){
+          State.variables.cargo[i] = window.applyItem(State.variables.holding, State.variables.cargo[i]);
+          State.variables.holding = null;
+        }
       } else {
         State.variables.feedback_strings.push(`${window.disp(holding)} cannot be placed on ${window.disp(putOnto)}`)
       }
@@ -500,7 +525,7 @@ window.renderItemHover = function(cargoItem, dataIndex) {
   let stats = $("<div class='stats'></div>");
   stats.append($("<p>Fragility: " + cargoItem.fragility + "</p>"));
   stats.append($("<p>Base Value: " + cargoItem.raw_value + "</p>"));
-  stats.append($("<p>Lifespan: " + ((cargoItem.lifespan === -1) ? "Infinite" : cargoItem.lifespan) + "</p>"));
+  stats.append($("<p>Lifespan: " + ((cargoItem.lifespan === -1 || cargoItem.lifespan === "-1") ? "Infinite" : cargoItem.lifespan) + "</p>"));
   result.append($("<div class='name'>" + cargoItem.display_name + "</div>"));
   result.append(stats);
   result.append($("<div class='desc'>" + cargoItem.description + "</div>"));
@@ -525,7 +550,6 @@ window.renderInventoryGrid = () => {
     let inventoryGrid = $("#inventory_grid");
     for (let y = 0; y < 2; y++) {
       for (let x = 0; x < 4; x++) {
-        let rendered = false;
         let toAppend = "";
         let dataIndex = x.toString() + "|" + y.toString();
         for (let c = 0; c < State.variables.cargo.length; c++) {
@@ -584,7 +608,6 @@ window.cargoIndexByCoord = (x, y) => {
       return c;
     }
   }
-  debugger;
   return -1;
 }
 
@@ -792,15 +815,17 @@ You are currently on &lt;&lt;link _link_desc planet_description&gt;&gt;\
     &quot;times_worked&quot;: 0,
 }&gt;&gt;
 
+&lt;&lt;set $location to [&quot;mfg&quot;, 0] &gt;&gt;
+&lt;&lt;set $money to 300&gt;&gt;
 &lt;&lt;addTag &quot;dead_raw_dead&quot;&gt;&gt;
 &lt;&lt;inventoryAdd &quot;space_food1&quot; 1 1&gt;&gt;
-&lt;&lt;inventoryAdd &quot;space_food1&quot; 3 1&gt;&gt;
+&lt;&lt;inventoryAdd &quot;chem_volatile&quot; 3 1&gt;&gt;
 
 &lt;&lt;inventoryAdd &quot;nutrients1&quot; 2 1&gt;&gt;
-&lt;&lt;inventoryAdd &quot;nutrients1&quot; 0 1&gt;&gt;
+&lt;&lt;inventoryAdd &quot;bucket&quot; 0 1&gt;&gt;
 
-&lt;&lt;inventoryAdd &quot;substrate_basic&quot; 0 0&gt;&gt;
-&lt;&lt;inventoryAdd &quot;substrate_basic&quot; 2 0&gt;&gt;
+&lt;&lt;inventoryAdd &quot;bucket&quot; 0 0&gt;&gt;
+&lt;&lt;inventoryAdd &quot;bucket&quot; 2 0&gt;&gt;
 </tw-passagedata><tw-passagedata pid="3" name="PassageHeader" tags="widget-like" position="325,150" size="100,100">&lt;&lt;include &#39;util&#39;&gt;&gt;\
 &lt;&lt;set _currentInventory = inventoryItems()&gt;&gt;\
 &lt;div id=&quot;header&quot;&gt;
@@ -978,7 +1003,14 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
         ],
         &quot;expiration_function&quot;: &quot;&quot;,
         &quot;on_expiration&quot;: [],
-        &quot;description&quot;: &quot;An empty space.&quot;
+        &quot;description&quot;: &quot;An empty space.&quot;,
+        &quot;tags&quot;: [
+            &quot;&quot;
+        ],
+        &quot;addon_function&quot;: &quot;&quot;,
+        &quot;addon_args&quot;: [
+            &quot;&quot;
+        ]
     },
     &quot;seed_spinach&quot;: {
         &quot;name&quot;: &quot;seed_spinach&quot;,
@@ -992,7 +1024,14 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
         ],
         &quot;expiration_function&quot;: &quot;&quot;,
         &quot;on_expiration&quot;: [],
-        &quot;description&quot;: &quot;Spinach seeds.&quot;
+        &quot;description&quot;: &quot;Spinach seeds.&quot;,
+        &quot;tags&quot;: [
+            &quot;seed&quot;
+        ],
+        &quot;addon_function&quot;: &quot;&quot;,
+        &quot;addon_args&quot;: [
+            &quot;&quot;
+        ]
     },
     &quot;seed_pineapple&quot;: {
         &quot;name&quot;: &quot;seed_pineapple&quot;,
@@ -1006,7 +1045,14 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
         ],
         &quot;expiration_function&quot;: &quot;&quot;,
         &quot;on_expiration&quot;: [],
-        &quot;description&quot;: &quot;Pineapple seeds.&quot;
+        &quot;description&quot;: &quot;Pineapple seeds.&quot;,
+        &quot;tags&quot;: [
+            &quot;seed&quot;
+        ],
+        &quot;addon_function&quot;: &quot;&quot;,
+        &quot;addon_args&quot;: [
+            &quot;&quot;
+        ]
     },
     &quot;sprout_spinach&quot;: {
         &quot;name&quot;: &quot;sprout_spinach&quot;,
@@ -1027,7 +1073,14 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
                 &quot;produce_spinach&quot;: 1
             }
         ],
-        &quot;description&quot;: &quot;A spinach seedling. Will become fresh greens after 15 weeks.&quot;
+        &quot;description&quot;: &quot;A spinach seedling. Will become fresh greens after 15 weeks.&quot;,
+        &quot;tags&quot;: [
+            &quot;sprout&quot;
+        ],
+        &quot;addon_function&quot;: &quot;&quot;,
+        &quot;addon_args&quot;: [
+            &quot;&quot;
+        ]
     },
     &quot;sprout_pineapple&quot;: {
         &quot;name&quot;: &quot;sprout_pineapple&quot;,
@@ -1049,7 +1102,14 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
                 &quot;produce_pineapple_rare&quot;: 0.1
             }
         ],
-        &quot;description&quot;: &quot;A budding pineapple cutting.&quot;
+        &quot;description&quot;: &quot;A budding pineapple cutting.&quot;,
+        &quot;tags&quot;: [
+            &quot;sprout&quot;
+        ],
+        &quot;addon_function&quot;: &quot;&quot;,
+        &quot;addon_args&quot;: [
+            &quot;&quot;
+        ]
     },
     &quot;produce_pineapple_rare&quot;: {
         &quot;name&quot;: &quot;produce_pineapple_rare&quot;,
@@ -1063,7 +1123,16 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
         ],
         &quot;expiration_function&quot;: &quot;&quot;,
         &quot;on_expiration&quot;: [],
-        &quot;description&quot;: &quot;A mutated pineapple. Expensive, but difficult to sell. &quot;
+        &quot;description&quot;: &quot;A mutated pineapple. Expensive, but difficult to sell. &quot;,
+        &quot;tags&quot;: [
+            &quot;plant&quot;,
+            &quot;food&quot;,
+            &quot;rare&quot;
+        ],
+        &quot;addon_function&quot;: &quot;&quot;,
+        &quot;addon_args&quot;: [
+            &quot;&quot;
+        ]
     },
     &quot;produce_pineapple&quot;: {
         &quot;name&quot;: &quot;produce_pineapple&quot;,
@@ -1077,7 +1146,15 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
         ],
         &quot;expiration_function&quot;: &quot;&quot;,
         &quot;on_expiration&quot;: [],
-        &quot;description&quot;: &quot;An old fruit that is still as finicky as it was centuries ago.&quot;
+        &quot;description&quot;: &quot;An old fruit that is still as finicky as it was centuries ago.&quot;,
+        &quot;tags&quot;: [
+            &quot;plant&quot;,
+            &quot;food&quot;
+        ],
+        &quot;addon_function&quot;: &quot;&quot;,
+        &quot;addon_args&quot;: [
+            &quot;&quot;
+        ]
     },
     &quot;produce_spinach&quot;: {
         &quot;name&quot;: &quot;produce_spinach&quot;,
@@ -1091,7 +1168,15 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
         ],
         &quot;expiration_function&quot;: &quot;&quot;,
         &quot;on_expiration&quot;: [],
-        &quot;description&quot;: &quot;Tasty leaves.&quot;
+        &quot;description&quot;: &quot;Tasty leaves.&quot;,
+        &quot;tags&quot;: [
+            &quot;plant&quot;,
+            &quot;food&quot;
+        ],
+        &quot;addon_function&quot;: &quot;&quot;,
+        &quot;addon_args&quot;: [
+            &quot;&quot;
+        ]
     },
     &quot;raw_metal_copper&quot;: {
         &quot;name&quot;: &quot;raw_metal_copper&quot;,
@@ -1105,7 +1190,15 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
         ],
         &quot;expiration_function&quot;: &quot;&quot;,
         &quot;on_expiration&quot;: [],
-        &quot;description&quot;: &quot;Copper ore.&quot;
+        &quot;description&quot;: &quot;Copper ore.&quot;,
+        &quot;tags&quot;: [
+            &quot;ore&quot;,
+            &quot;raw&quot;
+        ],
+        &quot;addon_function&quot;: &quot;&quot;,
+        &quot;addon_args&quot;: [
+            &quot;&quot;
+        ]
     },
     &quot;raw_metal_gold&quot;: {
         &quot;name&quot;: &quot;raw_metal_gold&quot;,
@@ -1119,7 +1212,15 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
         ],
         &quot;expiration_function&quot;: &quot;&quot;,
         &quot;on_expiration&quot;: [],
-        &quot;description&quot;: &quot;Shiny, impure gold.&quot;
+        &quot;description&quot;: &quot;Shiny, impure gold.&quot;,
+        &quot;tags&quot;: [
+            &quot;ore&quot;,
+            &quot;raw&quot;
+        ],
+        &quot;addon_function&quot;: &quot;&quot;,
+        &quot;addon_args&quot;: [
+            &quot;&quot;
+        ]
     },
     &quot;raw_metal_aluminum&quot;: {
         &quot;name&quot;: &quot;raw_metal_aluminum&quot;,
@@ -1133,7 +1234,15 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
         ],
         &quot;expiration_function&quot;: &quot;&quot;,
         &quot;on_expiration&quot;: [],
-        &quot;description&quot;: &quot;Unrefined aluminum bits.&quot;
+        &quot;description&quot;: &quot;Unrefined aluminum bits.&quot;,
+        &quot;tags&quot;: [
+            &quot;ore&quot;,
+            &quot;raw&quot;
+        ],
+        &quot;addon_function&quot;: &quot;&quot;,
+        &quot;addon_args&quot;: [
+            &quot;&quot;
+        ]
     },
     &quot;raw_metal_plat&quot;: {
         &quot;name&quot;: &quot;raw_metal_plat&quot;,
@@ -1147,7 +1256,15 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
         ],
         &quot;expiration_function&quot;: &quot;&quot;,
         &quot;on_expiration&quot;: [],
-        &quot;description&quot;: &quot;Platinum ore.&quot;
+        &quot;description&quot;: &quot;Platinum ore.&quot;,
+        &quot;tags&quot;: [
+            &quot;ore&quot;,
+            &quot;raw&quot;
+        ],
+        &quot;addon_function&quot;: &quot;&quot;,
+        &quot;addon_args&quot;: [
+            &quot;&quot;
+        ]
     },
     &quot;space_food1&quot;: {
         &quot;name&quot;: &quot;space_food1&quot;,
@@ -1161,7 +1278,14 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
         ],
         &quot;expiration_function&quot;: &quot;&quot;,
         &quot;on_expiration&quot;: [],
-        &quot;description&quot;: &quot;A depressing, stable and cheap cube.&quot;
+        &quot;description&quot;: &quot;A depressing, stable and cheap cube.&quot;,
+        &quot;tags&quot;: [
+            &quot;food&quot;
+        ],
+        &quot;addon_function&quot;: &quot;&quot;,
+        &quot;addon_args&quot;: [
+            &quot;&quot;
+        ]
     },
     &quot;space_food2&quot;: {
         &quot;name&quot;: &quot;space_food2&quot;,
@@ -1175,7 +1299,14 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
         ],
         &quot;expiration_function&quot;: &quot;&quot;,
         &quot;on_expiration&quot;: [],
-        &quot;description&quot;: &quot;Vacuum sealed, pasteurized greens with little flavor.&quot;
+        &quot;description&quot;: &quot;Vacuum sealed, pasteurized greens with little flavor.&quot;,
+        &quot;tags&quot;: [
+            &quot;food&quot;
+        ],
+        &quot;addon_function&quot;: &quot;&quot;,
+        &quot;addon_args&quot;: [
+            &quot;&quot;
+        ]
     },
     &quot;space_food3&quot;: {
         &quot;name&quot;: &quot;space_food3&quot;,
@@ -1189,7 +1320,15 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
         ],
         &quot;expiration_function&quot;: &quot;&quot;,
         &quot;on_expiration&quot;: [],
-        &quot;description&quot;: &quot;Hard fruits that would hurt many species, but have a chance of surviving through space.&quot;
+        &quot;description&quot;: &quot;Hard fruits that would hurt many species, but have a chance of surviving through space.&quot;,
+        &quot;tags&quot;: [
+            &quot;plant&quot;,
+            &quot;food&quot;
+        ],
+        &quot;addon_function&quot;: &quot;&quot;,
+        &quot;addon_args&quot;: [
+            &quot;&quot;
+        ]
     },
     &quot;supplies1&quot;: {
         &quot;name&quot;: &quot;supplies1&quot;,
@@ -1203,7 +1342,14 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
         ],
         &quot;expiration_function&quot;: &quot;&quot;,
         &quot;on_expiration&quot;: [],
-        &quot;description&quot;: &quot;Camping gear.&quot;
+        &quot;description&quot;: &quot;Camping gear.&quot;,
+        &quot;tags&quot;: [
+            &quot;tools&quot;
+        ],
+        &quot;addon_function&quot;: &quot;&quot;,
+        &quot;addon_args&quot;: [
+            &quot;&quot;
+        ]
     },
     &quot;supplies2&quot;: {
         &quot;name&quot;: &quot;supplies2&quot;,
@@ -1217,7 +1363,14 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
         ],
         &quot;expiration_function&quot;: &quot;&quot;,
         &quot;on_expiration&quot;: [],
-        &quot;description&quot;: &quot;Tools to fix luxuries.&quot;
+        &quot;description&quot;: &quot;Tools to fix luxuries.&quot;,
+        &quot;tags&quot;: [
+            &quot;tools&quot;
+        ],
+        &quot;addon_function&quot;: &quot;&quot;,
+        &quot;addon_args&quot;: [
+            &quot;&quot;
+        ]
     },
     &quot;supplies3&quot;: {
         &quot;name&quot;: &quot;supplies3&quot;,
@@ -1231,7 +1384,14 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
         ],
         &quot;expiration_function&quot;: &quot;&quot;,
         &quot;on_expiration&quot;: [],
-        &quot;description&quot;: &quot;You\u2019re unsure of what is inside. The unboxing is supposed to be part of the experience. &quot;
+        &quot;description&quot;: &quot;You\u2019re unsure of what is inside. The unboxing is supposed to be part of the experience. &quot;,
+        &quot;tags&quot;: [
+            &quot;tools&quot;
+        ],
+        &quot;addon_function&quot;: &quot;&quot;,
+        &quot;addon_args&quot;: [
+            &quot;&quot;
+        ]
     },
     &quot;nutrients1&quot;: {
         &quot;name&quot;: &quot;nutrients1&quot;,
@@ -1245,7 +1405,14 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
         ],
         &quot;expiration_function&quot;: &quot;&quot;,
         &quot;on_expiration&quot;: [],
-        &quot;description&quot;: &quot;Basic hydroponic nutrient mix.&quot;
+        &quot;description&quot;: &quot;Basic hydroponic nutrient mix.&quot;,
+        &quot;tags&quot;: [
+            &quot;nutrient&quot;
+        ],
+        &quot;addon_function&quot;: &quot;&quot;,
+        &quot;addon_args&quot;: [
+            &quot;&quot;
+        ]
     },
     &quot;substrate_basic&quot;: {
         &quot;name&quot;: &quot;substrate_basic&quot;,
@@ -1259,7 +1426,14 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
         ],
         &quot;expiration_function&quot;: &quot;&quot;,
         &quot;on_expiration&quot;: [],
-        &quot;description&quot;: &quot;Sand composed of \u201ctasty\u201d minerals.&quot;
+        &quot;description&quot;: &quot;Sand composed of \u201ctasty\u201d minerals.&quot;,
+        &quot;tags&quot;: [
+            &quot;substrate&quot;
+        ],
+        &quot;addon_function&quot;: &quot;&quot;,
+        &quot;addon_args&quot;: [
+            &quot;&quot;
+        ]
     },
     &quot;substrate_contam_al&quot;: {
         &quot;name&quot;: &quot;substrate_contam_al&quot;,
@@ -1273,7 +1447,14 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
         ],
         &quot;expiration_function&quot;: &quot;&quot;,
         &quot;on_expiration&quot;: [],
-        &quot;description&quot;: &quot;A byproduct of aluminum processing. Has some uses, but the mud is worth less than the aluminum inside.&quot;
+        &quot;description&quot;: &quot;A byproduct of aluminum processing. Has some uses, but the mud is worth less than the aluminum inside.&quot;,
+        &quot;tags&quot;: [
+            &quot;substrate&quot;
+        ],
+        &quot;addon_function&quot;: &quot;&quot;,
+        &quot;addon_args&quot;: [
+            &quot;&quot;
+        ]
     },
     &quot;substrate_contam_mix&quot;: {
         &quot;name&quot;: &quot;substrate_contam_mix&quot;,
@@ -1287,7 +1468,14 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
         ],
         &quot;expiration_function&quot;: &quot;&quot;,
         &quot;on_expiration&quot;: [],
-        &quot;description&quot;: &quot;Dirt contaminateed with various chemicals.&quot;
+        &quot;description&quot;: &quot;Dirt contaminateed with various chemicals.&quot;,
+        &quot;tags&quot;: [
+            &quot;substrate&quot;
+        ],
+        &quot;addon_function&quot;: &quot;&quot;,
+        &quot;addon_args&quot;: [
+            &quot;&quot;
+        ]
     },
     &quot;chem_volatile&quot;: {
         &quot;name&quot;: &quot;chem_volatile&quot;,
@@ -1301,7 +1489,14 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
         ],
         &quot;expiration_function&quot;: &quot;explosion&quot;,
         &quot;on_expiration&quot;: [],
-        &quot;description&quot;: &quot;Portable, explosive, and expensive. &quot;
+        &quot;description&quot;: &quot;Portable, explosive, and expensive. &quot;,
+        &quot;tags&quot;: [
+            &quot;chemical&quot;
+        ],
+        &quot;addon_function&quot;: &quot;&quot;,
+        &quot;addon_args&quot;: [
+            &quot;&quot;
+        ]
     },
     &quot;alien_candy&quot;: {
         &quot;name&quot;: &quot;alien_candy&quot;,
@@ -1315,13 +1510,20 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
         ],
         &quot;expiration_function&quot;: &quot;&quot;,
         &quot;on_expiration&quot;: [],
-        &quot;description&quot;: &quot;Candy from distant star systems.&quot;
+        &quot;description&quot;: &quot;Candy from distant star systems.&quot;,
+        &quot;tags&quot;: [
+            &quot;food&quot;
+        ],
+        &quot;addon_function&quot;: &quot;&quot;,
+        &quot;addon_args&quot;: [
+            &quot;&quot;
+        ]
     },
     &quot;baking_soda&quot;: {
         &quot;name&quot;: &quot;baking_soda&quot;,
         &quot;display_name&quot;: &quot;Deoderizer&quot;,
         &quot;fragility&quot;: &quot;0&quot;,
-        &quot;lifespan&quot;: &quot;10&quot;,
+        &quot;lifespan&quot;: &quot;30&quot;,
         &quot;raw_value&quot;: &quot;20&quot;,
         &quot;dimensions&quot;: [
             &quot;1&quot;,
@@ -1329,7 +1531,36 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
         ],
         &quot;expiration_function&quot;: &quot;&quot;,
         &quot;on_expiration&quot;: [],
-        &quot;description&quot;: &quot;Manufactured and needed on most ships. Very few species can stand each others gases. &quot;
+        &quot;description&quot;: &quot;Manufactured and needed on most ships. Very few species can stand each others gases. &quot;,
+        &quot;tags&quot;: [
+            &quot;chemical&quot;
+        ],
+        &quot;addon_function&quot;: &quot;&quot;,
+        &quot;addon_args&quot;: [
+            &quot;&quot;
+        ]
+    },
+    &quot;bucket&quot;: {
+        &quot;name&quot;: &quot;bucket&quot;,
+        &quot;display_name&quot;: &quot;Plastic Bucket&quot;,
+        &quot;fragility&quot;: &quot;0&quot;,
+        &quot;lifespan&quot;: &quot;0&quot;,
+        &quot;raw_value&quot;: &quot;3&quot;,
+        &quot;dimensions&quot;: [
+            &quot;1&quot;,
+            &quot;1&quot;
+        ],
+        &quot;expiration_function&quot;: &quot;&quot;,
+        &quot;on_expiration&quot;: [],
+        &quot;description&quot;: &quot;A sturdy, nonreactive bucket. Great for holding reactive reagents.&quot;,
+        &quot;tags&quot;: [
+            &quot;stabilizer&quot;
+        ],
+        &quot;addon_function&quot;: &quot;reinforce_chem&quot;,
+        &quot;addon_args&quot;: [
+            &quot;-.1&quot;,
+            &quot; 1.5&quot;
+        ]
     }
 }&gt;&gt;</tw-passagedata><tw-passagedata pid="12" name="PlanetInit" tags="script-pile" position="225,25" size="100,100">&lt;&lt;set $planets to {
 	&quot;raw&quot;: {
@@ -1361,7 +1592,7 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
         	&quot;substrate_basic&quot;: 0,
             &quot;alien_candy&quot;: 1,
         },
-        stock: [&quot;supplies1&quot;, &quot;supplies2&quot;, &quot;supplies3&quot;, &quot;chem_volatile&quot;, &quot;nutrients1&quot;]
+        stock: [&quot;supplies1&quot;, &quot;supplies2&quot;, &quot;supplies3&quot;, &quot;chem_volatile&quot;, &quot;nutrients1&quot;, &quot;bucket&quot;]
     },
    &quot;tourism&quot;:{
     	display_name: &quot;Persephone&quot;,
