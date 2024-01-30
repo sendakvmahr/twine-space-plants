@@ -98,7 +98,7 @@ var LZString={_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234
 		<div id="init-lacking"><p>Browser lacks capabilities required to play.</p><p>Upgrade or switch to another browser.</p></div>
 		<div id="init-loading"><div>Loading&hellip;</div></div>
 	</div>
-	<tw-storydata name="Space Plants" startnode="5" creator="Twine" creator-version="2.8.0" format="SugarCube" format-version="2.36.1" ifid="a39d4033-db33-4cc3-9e10-aa95abfe18de" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">.disabled { color: darkgrey; }
+	<tw-storydata name="Space Plants" startnode="17" creator="Twine" creator-version="2.8.0" format="SugarCube" format-version="2.36.1" ifid="a39d4033-db33-4cc3-9e10-aa95abfe18de" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">.disabled { color: darkgrey; }
 .detail-link.link-external::after, #export-state::after { content: none; }
 #header {
   display: flex;
@@ -251,6 +251,17 @@ var LZString={_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234
 .itemHover:hover, .hoverEffect:hover {
   background: #333;
 }
+.doublesize {
+  width: calc(200% - 2px);
+  height: calc(200% - 12px);
+  z-index: 1;
+  background: #111;
+}
+#held-item-slot .doublesize {
+  width: auto;
+  height: auto;
+  background: none;
+}
 /*
 mats
 food
@@ -297,9 +308,7 @@ sales
 
 needs updating
   inventoryClean - use on death and check holding
-  canAddItem - wtf this is hella dated
   passTime, _updateItemDemand,
-  createFromRecipe - on stabilizers
   getSellCost - on day memory and multishop
   sell (multishop)
   putDownItem - 2x2 itm
@@ -320,8 +329,51 @@ window.inventoryClean = () => {
 window.inventoryItems = () => { return State.variables.cargo; }
 
 window.canAddItem = (item, x, y) => {
-  // this will be more complicated with area
-  return window.inventoryItems().length < State.variables.max_cargo;
+  // this is awful soup
+  if (State.variables.holding === null) { return true; }
+  if (typeof(item) === "string") {
+    item = setup["items"][item];
+  }
+  if ((typeof(x) === "undefined") && (typeof(y) === "undefined")) {
+    // no coords, just plop it everywhere till it maybe fits
+    for (let y = 0; y < 2; y++) {
+      for (let x = 0; x < 4; x++) {
+        for (let c = 0; c < State.variables.cargo.length; c++) {
+          if (window._canAddItemCoord(item, x, y)) {
+            return [x, y];
+          }
+        }
+      }
+    }
+    return false;
+  } else {
+    return window._canAddItemCoord(item, x, y);
+  }
+}
+
+window._canAddItemCoord = (item, x, y) => {
+  let itemCoords = [];
+  for (let w = 0; w < parseInt(item["dimensions"][0]); w++) {
+    for (let h = 0; h < parseInt(item["dimensions"][1]); h++) {
+      if ((x + w <=3) && (y+h <= 1)) {
+        itemCoords.push((x+w) + "," + (y+h));
+      } else {
+        return false;
+      }
+    }
+  }
+  for (let c = 0; c < State.variables.cargo.length; c++) {
+    let xc = State.variables.cargo[c]['coordinates'][0];
+    let yc = State.variables.cargo[c]['coordinates'][1];
+    for (let w = 0; w < parseInt(State.variables.cargo[c]["dimensions"][0]); w++) {
+      for (let h = 0; h < parseInt(State.variables.cargo[c]["dimensions"][1]); h++) {
+        if (itemCoords.includes((xc+w) + "," + (yc+h))) {
+          return false;
+        }
+      }
+    }
+  }
+  return [x, y];
 }
 
 // Time passage/updates
@@ -521,7 +573,12 @@ window.renderItemHover = function(cargoItem, dataIndex) {
   if (cargoItem === null) {
     return $("<div class='itemHover' data-name='empty' data-index=" + dataIndex + "></div>");
   }
-  let result = $("<div class='itemHover' data-name='" + cargoItem.name + "' data-index=" + dataIndex + "></div>");
+  let result = "";
+  if (parseInt(cargoItem["dimensions"][0]) !== 1) {
+    result = $("<div class='itemHover doublesize' data-name='" + cargoItem.name + "' data-index=" + dataIndex + "></div>");
+  } else {
+    result = $("<div class='itemHover' data-name='" + cargoItem.name + "' data-index=" + dataIndex + "></div>");
+  }
   let stats = $("<div class='stats'></div>");
   stats.append($("<p>Fragility: " + cargoItem.fragility + "</p>"));
   stats.append($("<p>Base Value: " + cargoItem.raw_value + "</p>"));
@@ -651,12 +708,10 @@ window.inventoryAdd = (toAdd, x, y) => {
     if (State.variables.holding === null) {
       State.variables.holding = item;
     } else {
-      let slot = firstEmptySlot(1, 1);
-      if (slot !== -1) {
-        item.coordinates = firstEmptySlot(1, 1);
+      item.coordinates = canAddItem(item);
+      debugger;
+      if (item.coordinates) {
         State.variables.cargo.push(item);
-      } else {
-        window.contactMeError();
       }
     }
   } else {
@@ -768,7 +823,7 @@ for (const func of macros) {
 }
 Macro.add("inventoryPop", { handler: function() {
   window["inventoryPop"](this.args);
-}});</script><tw-tag name="Notes" color="red"></tw-tag><tw-tag name="script-pile" color="purple"></tw-tag><tw-tag name="location" color="green"></tw-tag><tw-tag name="widget-like" color="blue"></tw-tag><tw-tag name="story" color="orange"></tw-tag><tw-passagedata pid="1" name="on_planet" tags="location" position="425,300" size="100,100">&lt;&lt;if isPastTag(&quot;dead_raw_dead&quot;)&gt;&gt;\
+}});    </script><tw-tag name="Notes" color="red"></tw-tag><tw-tag name="script-pile" color="purple"></tw-tag><tw-tag name="location" color="green"></tw-tag><tw-tag name="widget-like" color="blue"></tw-tag><tw-tag name="story" color="orange"></tw-tag><tw-passagedata pid="1" name="on_planet" tags="location" position="425,300" size="100,100">&lt;&lt;if isPastTag(&quot;dead_raw_dead&quot;)&gt;&gt;\
 	With the destruction of &lt;&lt;= disp(&quot;dead_raw&quot;) &gt;&gt;, you might be able to make more monies and upgrade your ship. 
 &lt;&lt;else&gt;&gt;\
 	Running a cargo ship is a simple job. Buy stuff from one planet, sell it to another planet that needs it and will pay more for it.
@@ -809,24 +864,33 @@ You are currently on &lt;&lt;link _link_desc planet_description&gt;&gt;\
 &lt;&lt;set $character = {}&gt;&gt;
 &lt;&lt;set $holding = null&gt;&gt;
 &lt;&lt;set $npc_talk = [&quot;dead_raw&quot;, 1]&gt;&gt;
-&lt;&lt;set $feedback_strings = [&quot;Error message&quot;]&gt;&gt;
+&lt;&lt;set $feedback_strings = []&gt;&gt;
 &lt;&lt;set $day_state = {
 	&quot;sold&quot;:[],
     &quot;times_worked&quot;: 0,
 }&gt;&gt;
+&lt;&lt;set $location to [&quot;dead_raw&quot;, 0] &gt;&gt;
+&lt;&lt;inventoryAdd &quot;substrate_basic&quot; 0 0&gt;&gt;
+&lt;&lt;inventoryAdd &quot;substrate_basic&quot; 1 0&gt;&gt;
+&lt;&lt;inventoryAdd &quot;substrate_basic&quot; 2 0&gt;&gt;
+&lt;&lt;inventoryAdd &quot;substrate_basic&quot; 3 0&gt;&gt;
+&lt;&lt;inventoryAdd &quot;substrate_basic&quot; 0 1&gt;&gt;
+&lt;&lt;inventoryAdd &quot;substrate_basic&quot; 1 1&gt;&gt;
+&lt;&lt;inventoryAdd &quot;substrate_basic&quot; 2 1&gt;&gt;
+&lt;&lt;inventoryAdd &quot;substrate_basic&quot; 3 1&gt;&gt;
 
+
+/*
 &lt;&lt;set $location to [&quot;mfg&quot;, 0] &gt;&gt;
 &lt;&lt;set $money to 300&gt;&gt;
 &lt;&lt;addTag &quot;dead_raw_dead&quot;&gt;&gt;
-&lt;&lt;inventoryAdd &quot;space_food1&quot; 1 1&gt;&gt;
-&lt;&lt;inventoryAdd &quot;chem_volatile&quot; 3 1&gt;&gt;
+&lt;&lt;inventoryAdd &quot;chem_volatile&quot; 2 0&gt;&gt;
 
-&lt;&lt;inventoryAdd &quot;nutrients1&quot; 2 1&gt;&gt;
 &lt;&lt;inventoryAdd &quot;bucket&quot; 0 1&gt;&gt;
-
 &lt;&lt;inventoryAdd &quot;bucket&quot; 0 0&gt;&gt;
-&lt;&lt;inventoryAdd &quot;bucket&quot; 2 0&gt;&gt;
-</tw-passagedata><tw-passagedata pid="3" name="PassageHeader" tags="widget-like" position="325,150" size="100,100">&lt;&lt;include &#39;util&#39;&gt;&gt;\
+&lt;&lt;inventoryAdd &quot;bucket&quot; 1 1&gt;&gt;
+&lt;&lt;inventoryAdd &quot;bucket&quot; 1 0&gt;&gt;
+*/</tw-passagedata><tw-passagedata pid="3" name="PassageHeader" tags="widget-like" position="325,150" size="100,100">&lt;&lt;include &#39;util&#39;&gt;&gt;\
 &lt;&lt;set _currentInventory = inventoryItems()&gt;&gt;\
 &lt;div id=&quot;header&quot;&gt;
   &lt;div&gt;\
@@ -1484,8 +1548,8 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
         &quot;lifespan&quot;: &quot;-1&quot;,
         &quot;raw_value&quot;: &quot;100&quot;,
         &quot;dimensions&quot;: [
-            &quot;1&quot;,
-            &quot;1&quot;
+            &quot;2&quot;,
+            &quot;2&quot;
         ],
         &quot;expiration_function&quot;: &quot;explosion&quot;,
         &quot;on_expiration&quot;: [],
@@ -1544,7 +1608,7 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
         &quot;name&quot;: &quot;bucket&quot;,
         &quot;display_name&quot;: &quot;Plastic Bucket&quot;,
         &quot;fragility&quot;: &quot;0&quot;,
-        &quot;lifespan&quot;: &quot;0&quot;,
+        &quot;lifespan&quot;: &quot;-1&quot;,
         &quot;raw_value&quot;: &quot;3&quot;,
         &quot;dimensions&quot;: [
             &quot;1&quot;,
@@ -1756,7 +1820,6 @@ Lifespan: How many weeks this can spend in transit before becoming worthless.
         &quot;singular&quot;: &quot;Qwinon&quot;
      }
 } &gt;&gt;</tw-passagedata><tw-passagedata pid="17" name="Intro1" tags="story" position="125,300" size="100,100">&lt;&lt;nobr&gt;&gt;
-&lt;&lt;set $location to [&quot;dead_raw&quot;, 0] &gt;&gt;
 &lt;&lt;set $body to &quot;nonsolid&quot;&gt;&gt;&lt;&lt;set $habitat to &quot;sky&quot;&gt;&gt;
 &lt;span class=&quot;author-notes&quot;&gt;For brevity and scope, body type has been set to &lt;&lt;= $body&gt;&gt; and habitat has been set to &lt;&lt;= $habitat&gt;&gt;.&lt;/span&gt;
 &lt;span id=&quot;text3&quot; &gt;
