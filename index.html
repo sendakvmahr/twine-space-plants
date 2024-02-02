@@ -824,12 +824,10 @@ for (const func of macros) {
 Macro.add("inventoryPop", { handler: function() {
   window["inventoryPop"](this.args);
 }});    </script><tw-tag name="Notes" color="red"></tw-tag><tw-tag name="script-pile" color="purple"></tw-tag><tw-tag name="location" color="green"></tw-tag><tw-tag name="widget-like" color="blue"></tw-tag><tw-tag name="story" color="orange"></tw-tag><tw-passagedata pid="1" name="on_planet" tags="location" position="425,300" size="100,100">&lt;&lt;if isPastTag(&quot;dead_raw_dead&quot;)&gt;&gt;\
-	With the destruction of &lt;&lt;= disp(&quot;dead_raw&quot;) &gt;&gt;, you might be able to make more monies and upgrade your ship. 
-&lt;&lt;else&gt;&gt;\
-	Running a cargo ship is a simple job. Buy stuff from one planet, sell it to another planet that needs it and will pay more for it.
+	With the destruction of &lt;&lt;= disp(&quot;dead_raw&quot;) &gt;&gt;, I might be able to make more &lt;&lt;=setup.currency[1]&gt;&gt;. Especially with the things Ajurhang left me. 
 &lt;&lt;/if&gt;&gt;\
 &lt;&lt;set _link_desc = disp($location[0]) &gt;&gt;\
-You are currently on &lt;&lt;link _link_desc planet_description&gt;&gt;\
+I am currently on &lt;&lt;link _link_desc planet_description&gt;&gt;\
 	&lt;&lt;set $desc_planet =$location[0]&gt;&gt;\
 &lt;&lt;/link&gt;&gt;.
 
@@ -980,7 +978,7 @@ You are currently on &lt;&lt;link _link_desc planet_description&gt;&gt;\
 
 &lt;&lt;return&gt;&gt;</tw-passagedata><tw-passagedata pid="6" name="on_planet_details" tags="location widget-like" position="425,425" size="100,100">Most planets have a [[center|npc_list]] where visitors and inhabitants go to meet each other. 
 
-There&#39;s a building for freelancers if you were desperate enough for a job to [[apply|menial_labor]].
+There&#39;s a building for freelancers if I was desperate enough for a job to [[apply|menial_labor]].
 
 &lt;&lt;return&gt;&gt;</tw-passagedata><tw-passagedata pid="7" name="planet_description" tags="widget-like" position="625,150" size="100,100">&lt;&lt;include &quot;sales&quot;&gt;&gt;\
 Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
@@ -1010,7 +1008,7 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
     	&lt;&lt;link _text planet_description&gt;&gt;&lt;&lt;set $desc_planet = _planet&gt;&gt;&lt;&lt;/link&gt;&gt;
      &lt;&lt;/capture&gt;&gt;
   &lt;&lt;/widget&gt;&gt;
-&lt;&lt;/nobr&gt;&gt;  </tw-passagedata><tw-passagedata pid="9" name="ship" tags="location" position="600,300" size="100,100">You are sitting on your ship. 
+&lt;&lt;/nobr&gt;&gt;  </tw-passagedata><tw-passagedata pid="9" name="ship" tags="location" position="600,300" size="100,100">I am sitting on my ship. 
 &lt;&lt;if $location[0] == &quot;dead_raw&quot; and $location[1] &lt;= 10&gt;&gt;\
   An emergency [[news|dead_raw_dead]] announcement has been sent out.
 &lt;&lt;else&gt;&gt;\
@@ -1037,7 +1035,7 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
   &quot;default&quot;: [
     &quot;Dissolved &quot; + disp(either(Object.keys(setup.items))) + &quot; trends on &quot; + disp(&quot;tourism&quot;) + &quot;, leading to a shortage of solvents and an increase in hospistal visits.&quot;,
     &quot;Static. You wish you could splurge on a music player for your ship.&quot;,
-    &quot;You listen to a soda advertisement for several minutes before shutting it off.&quot;,
+    &quot;I listened to a soda advertisement for several minutes before shutting it off.&quot;,
     &quot;Shipping companies complain about lack of workers, and workers continue to complain about lack of holidays.&quot;,
     &quot;Recreational use of volatile chemicals on &quot; + disp(&quot;tourism&quot;) + &quot; continues to draw derision from &quot; + disp(&quot;raw&quot;) + &quot;.&quot;,
     &quot;Silence. Nobody&#39;s out there today.&quot; 
@@ -1054,7 +1052,7 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
 	&lt;&lt;= either(_updates[&quot;default&quot;]) &gt;&gt;
 &lt;&lt;/if&gt;&gt;\
 
-&lt;&lt;return&gt;&gt;</tw-passagedata><tw-passagedata pid="11" name="ItemInit" tags="script-pile" position="325,25" size="100,100">&lt;&lt;set setup.items = {
+&lt;&lt;return&gt;&gt;	</tw-passagedata><tw-passagedata pid="11" name="ItemInit" tags="script-pile" position="325,25" size="100,100">&lt;&lt;set setup.items = {
     &quot;empty&quot;: {
         &quot;name&quot;: &quot;empty&quot;,
         &quot;display_name&quot;: &quot;Nothing&quot;,
@@ -1778,10 +1776,7 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
 &lt;&lt;/nobr&gt;&gt;</tw-passagedata><tw-passagedata pid="14" name="dead_raw_dead" tags="story" position="725,300" size="100,100">&lt;&lt;set $story_tags to $story_tags.concat(&quot;dead_raw_dead&quot;)&gt;&gt;\
 &lt;&lt;= disp(&quot;dead_raw&quot;)&gt;&gt; has been attacked and destroyed by the &lt;&lt;= setup.terms[&quot;alien&quot;][&quot;org&quot;]&gt;&gt;. Food shortages are expected, as &lt;&lt;print disp(&quot;dead_raw&quot;)&gt;&gt; was the primary provide of food in this solar system. Cargo ships that were heading towards &lt;&lt;print disp(&quot;dead_raw&quot;)&gt;&gt; are advised to stop by &lt;&lt;print disp(&quot;raw&quot;)&gt;&gt; to refuel and pick up food supplies for other planets. 
 
-&lt;&lt;linkreplace &quot;Huh. Someone I knew was on that planet.&quot;&gt;&gt;\
-Their dream was to *eventually build space stations that could make each planet largely independent with its own facilities for food, manufacturing, etc. so that trade between planets was primarily for demand for raw materials and thing that took lots of skill to make*
-
-I wasn&#39;t weren&#39;t fond of their enthusiasm to destroy my livelihood. But they were a good source of information, and willing to explain anything I asked about, along with information I didn&#39;t think I&#39;d need to know about. 
+&lt;&lt;linkreplace &quot;Huh. Someone I knew was on that planet.&quot;&gt;&gt;
 
 Like how sand, nutrients, and seeds were all it took to grow food in space. And how &lt;&lt;= disp(&quot;mfg&quot;)&gt;&gt; was the main source of those supplies.
 
@@ -1869,7 +1864,7 @@ Lifespan: How many weeks this can spend in transit before becoming worthless.
     &lt;&lt;= $character[&quot;name&quot;] &gt;&gt;: You ordered 30 tons of sand delivered. &lt;br/&gt;
     Ajurhang: Right! Yes! The minerals from &lt;&lt;=disp(&quot;mfg&quot;)&gt;&gt;. Let take a look. 
    
-    You released the sand into a big pile. Ajurhang stuck a tendril in before rustling over and taking the payment system out of your hand.
+    REPLACE WITH CUSTOM SHOP
     
     Ajurhang: Absolutely delicious. Wait, they spelled my name as Azhrhong? That&#39;s why it took so long? How did they get THAT? It&#39;s Ajurhang! A-J-U-R-H-A-N-G! It&#39;s a simple name! Ugh. Well, there&#39;s your payment.
     
@@ -1937,15 +1932,15 @@ You got 300 monies.
 &lt;/style&gt;</tw-passagedata><tw-passagedata pid="19" name="menial_labor" tags="location" position="425,550" size="100,100">&lt;&lt;if $money &lt; setup.wages&gt;&gt;\
  	&lt;&lt;set _count = 0&gt;&gt;\
     &lt;&lt;set _done_count = 300&gt;&gt;\
-  	&lt;span id=&quot;work&quot;&gt;You got assigned to sort trash. You&#39;ll get &lt;&lt;= setup.wages&gt;&gt; &lt;&lt;=setup.currency[1]&gt;&gt; after &lt;&lt;=_done_count&gt;&gt; bags of trash sorted.
-    You&#39;ve sorted &lt;span id=&quot;count&quot;&gt;&lt;&lt;=_count&gt;&gt;&lt;/span&gt;/&lt;&lt;=_done_count&gt;&gt; bags. 
+  	&lt;span id=&quot;work&quot;&gt;I got assigned to sort trash. I&#39;ll get &lt;&lt;= setup.wages&gt;&gt; &lt;&lt;=setup.currency[1]&gt;&gt; after &lt;&lt;=_done_count&gt;&gt; bags of trash sorted.
+    I&#39;ve sorted &lt;span id=&quot;count&quot;&gt;&lt;&lt;=_count&gt;&gt;&lt;/span&gt;/&lt;&lt;=_done_count&gt;&gt; bags. 
     &lt;/span&gt;
 &lt;span id=&quot;sortlink&quot;&gt;
   &lt;&lt;link &quot;Sort a bag of trash&quot;&gt;&gt;
       &lt;&lt;set _count += 1&gt;&gt;
       &lt;&lt;if _count &gt;= _done_count&gt;&gt;
       		&lt;&lt;set $money = $money + setup.wages&gt;&gt;
-			&lt;&lt;replace &quot;#work&quot;&gt;&gt;You&#39;ve sorted enough bags and got paid.&lt;&lt;/replace&gt;&gt; 
+			&lt;&lt;replace &quot;#work&quot;&gt;&gt;I&#39;ve sorted enough bags and got paid.&lt;&lt;/replace&gt;&gt; 
             &lt;&lt;set $day_state[&quot;times_worked&quot;] += 1&gt;&gt;
 			&lt;&lt;replace &quot;#sortlink&quot;&gt;&gt;&lt;&lt;/replace&gt;&gt;        
        &lt;&lt;else&gt;&gt;   
@@ -1955,7 +1950,7 @@ You got 300 monies.
   &lt;/span&gt;
   &lt;&lt;return &quot;Quit&quot;&gt;&gt;
 &lt;&lt;else&gt;&gt;
-	You&#39;d rather spend your time somewhere else. 
+	I&#39;d rather spend my time somewhere else. 
     &lt;&lt;return&gt;&gt;
 &lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="20" name="GlobalsInit" tags="script-pile" position="425,25" size="100,100">&lt;&lt;set setup.fuel_cost = 10&gt;&gt;
 &lt;&lt;set setup.trash_cost = 30&gt;&gt;
