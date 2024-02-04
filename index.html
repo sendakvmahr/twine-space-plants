@@ -98,7 +98,7 @@ var LZString={_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234
 		<div id="init-lacking"><p>Browser lacks capabilities required to play.</p><p>Upgrade or switch to another browser.</p></div>
 		<div id="init-loading"><div>Loading&hellip;</div></div>
 	</div>
-	<tw-storydata name="Space Plants" startnode="17" creator="Twine" creator-version="2.8.0" format="SugarCube" format-version="2.36.1" ifid="a39d4033-db33-4cc3-9e10-aa95abfe18de" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">.disabled { color: darkgrey; }
+	<tw-storydata name="Space Plants" startnode="4" creator="Twine" creator-version="2.8.0" format="SugarCube" format-version="2.36.1" ifid="a39d4033-db33-4cc3-9e10-aa95abfe18de" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">.disabled { color: darkgrey; }
 .detail-link.link-external::after, #export-state::after { content: none; }
 #header {
   display: flex;
@@ -405,13 +405,11 @@ window._canAddItemCoord = (item, x, y) => {
 
 // Time passage/updates
 window.passTime = (days) => {
-  let planets = Object.keys(State.variables.planets);
   for (let d = 0; d < days; d++) {
-    // Update planetary demands
-    for (let p = 0; p < planets.length; p++) {
+    for (let p = 0; p < State.variables.planets.length; p++) {
       let planet = planets[p];
       let demandList = Object.keys(
-        State.variables.planets[planet].demand
+        State.variables.shops[planet].demand
       );
       for (let dmd = 0; dmd < demandList.length; dmd++) {
         let item = demandList[dmd];
