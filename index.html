@@ -1676,87 +1676,99 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
     	display_name: &quot;Elysium&quot;,
     	location: 10,
     }
-}&gt;&gt;</tw-passagedata><tw-passagedata pid="13" name="sales" tags="script-pile widget-like" position="25,250" size="100,100">&lt;&lt;include &quot;sales&quot;&gt;&gt;\
-&lt;span id=&quot;text4&quot;&gt;
-   Ajurhang: Good morning. I think. Oh! Hello &lt;&lt;= $character[&quot;name&quot;] &gt;&gt;! Right! The minerals from &lt;&lt;=disp(&quot;mfg&quot;)&gt;&gt;. Let take a look. 
-
-  &lt;&lt;salesInterface true ajurhang_tut&gt;&gt;
-  &lt;div id=&quot;inventory_container&quot;&gt;&lt;div id=&quot;inventory_grid&quot;&gt;&lt;/div&gt;&lt;/div&gt;
-&lt;/span&gt;
-&lt;span id=&quot;text5&quot; class=&quot;hidden&quot;&gt;
-    Ajurhang: Absolutely delicious. Wait, they spelled my name as Azhrhong? Is why it took so long? How did they get THAT? It&#39;s Ajurhang! A-J-U-R-H-A-N-G! It&#39;s a simple name! Ugh. Well, there&#39;s your payment.    
-   &lt;&lt;linkreplace &quot;Did you order 30 tons of snacks?&quot;&gt;&gt;\
-   	&lt;&lt;toggleclass &quot;#text6&quot; &quot;hidden&quot;&gt;&gt;\
-    &lt;&lt;= $character[&quot;name&quot;] &gt;&gt;: Did you order 30 tons of snacks?
-    &lt;&lt;/linkreplace&gt;&gt;
-&lt;/span&gt;&lt;&lt;nobr&gt;&gt;
-
-&lt;span id=&quot;text6&quot; class=&quot;hidden&quot;&gt;
-	Ajurhang: Only a third of it is for snacking! Most of it is for my experiments. There&#39;s very few colonized planets with quality substrates, and even fewer substrates that can be taken across planets.&lt;br/&gt;&lt;br/&gt;
-    They gesture at the IV bag plugged into them.&lt;br/&gt;&lt;br/&gt;	
-    Ajurhang: I&#39;ve been using this liquid nutrients for 10 months. This is NOT real food!&lt;br/&gt;&lt;br/&gt;
-    &lt;&lt;if  [&quot;vertebrate&quot;, &quot;mollusk&quot;, &quot;insect&quot;].includes($character[&quot;body&quot;])&gt;&gt;
-    	&lt;&lt;set _reply_text = &quot;Nobody eats real food in space.&quot;&gt;&gt;
-    &lt;&lt;elseif $character[&quot;body&quot;] === &quot;plant&quot;&gt;&gt;
-		&lt;&lt;set _reply_text = &quot;I like that stuff.&quot;&gt;&gt;
-    &lt;&lt;elseif $character[&quot;body&quot;] === &quot;nonsolid&quot;&gt;&gt;
-    	Ajurhang: I&#39;m not sure if you&#39;d understand. 
-    	&lt;&lt;set _reply_text = &quot;Hey. I don&#39;t have a body but I eat too.&quot;&gt;&gt;
-    &lt;&lt;/if&gt;&gt;&lt;br/&gt;&lt;br/&gt;
-    &lt;&lt;set _reply_text = _reply_text + &quot; But I understand.&quot;&gt;&gt;
-&lt;&lt;linkreplace _reply_text&gt;&gt;
-	&lt;&lt;= $character[&quot;name&quot;] &gt;&gt;:&lt;&lt;= _reply_text&gt;&gt;
-    &lt;&lt;toggleclass &quot;#text7&quot; &quot;hidden&quot;&gt;&gt;
-&lt;&lt;/linkreplace&gt;&gt;&lt;br/&gt;&lt;br/&gt;
-&lt;/span&gt;
-
-&lt;span id=&quot;text7&quot; class=&quot;hidden&quot;&gt;
-	Ajurhang:
-    &lt;&lt;if $character[&quot;body&quot;] === &quot;nonsolid&quot;&gt;&gt;
-    	You... eat too? How-Nevermind, it&#39;d be rude of me to interrogate you about your possible nutrient intake system. But you might understand why this is important then.
-    &lt;&lt;elseif $character[&quot;body&quot;] === &quot;plant&quot;&gt;&gt;
-    	Well, then this is for those of us with taste.
+}&gt;&gt;</tw-passagedata><tw-passagedata pid="13" name="sales" tags="script-pile widget-like" position="25,250" size="100,100">&lt;&lt;nobr&gt;&gt;
+  &lt;&lt;widget &#39;sell_link&#39;&gt;&gt;
+    &lt;&lt;set _item = _args[0]&gt;&gt;
+    &lt;&lt;set _shop = _args[1]&gt;&gt;
+    &lt;&lt;set _use_links = _args[2]&gt;&gt;
+    &lt;&lt;if Object.keys($shops[_shop].demand).includes(_item)&gt;&gt;
+      &lt;&lt;set _cost = window.getSellCost(_shop, _item);&gt;&gt;
     &lt;&lt;else&gt;&gt;
-    	Then you&#39;ll understand why this is imporant.
-    &lt;&lt;/if&gt;&gt;&lt;br/&gt;&lt;br/&gt;
-    They gesture at the pile of sand.&lt;br/&gt;&lt;br/&gt; 
-    Ajurhang: I want all planets to be habitable for all kinds of life - starting with unsentient food, and eventually, sustaining beings like &lt;&lt;if $character[&quot;body&quot;] === &quot;plant&quot;&gt;&gt;us&lt;&lt;else&gt;&gt;me&lt;&lt;/if&gt;&gt;. I didn&#39;t get off my home planet to end up restricted to planets with bright stars, thin atmospheres, and on active trade routes.&lt;br/&gt;&lt;br/&gt; 
-    Ajurhang: Anyways, I appreciate your help so far. &lt;br/&gt;&lt;br/&gt;
-&lt;&lt;linkreplace &quot;For this much markup, I&#39;ll be happy to bring you whatever you need.&quot;&gt;&gt;&lt;&lt;toggleclass &quot;#text8&quot; &quot;hidden&quot;&gt;&gt;
-	&lt;&lt;= $character[&quot;name&quot;] &gt;&gt;: For this much markup, I&#39;ll be happy to bring you whatever you need.
-&lt;&lt;/linkreplace&gt;&gt;&lt;br/&gt;&lt;br/&gt;
-&lt;/span&gt;
+      &lt;&lt;set _cost = 0&gt;&gt;
+    &lt;&lt;/if&gt;&gt;
+    &lt;&lt;capture _cost _item&gt;&gt;
+      &lt;&lt;set _link_text = &quot;&lt;span class=&#39;itemName&#39;&gt;&quot; + disp(_item) &gt;&gt; 
+      &lt;&lt;if _cost &lt; parseInt(setup.items[_item][&quot;raw_value&quot;])&gt;&gt;
+        &lt;&lt;set _indicator = &quot;&lt;span class=&#39;down&#39;&gt;-&lt;/span&gt;&quot; &gt;&gt;
+      &lt;&lt;elseif _cost === parseInt(setup.items[_item][&quot;raw_value&quot;])&gt;&gt;
+        &lt;&lt;set _indicator = &quot;&lt;span&gt;=&lt;/span&gt;&quot; &gt;&gt;
+      &lt;&lt;else&gt;&gt;
+        &lt;&lt;set _indicator = &quot;&lt;span class=&#39;up&#39;&gt;+&lt;/span&gt;&quot; &gt;&gt;
+      &lt;&lt;/if&gt;&gt;
+      &lt;&lt;set _link_text = _link_text + &quot;&lt;/span&gt;&lt;div class=&#39;item-dim&#39;&gt;&lt;div class=&#39;filled&#39;&gt;&lt;/div&gt;&lt;div&gt;&lt;/div&gt;&lt;div&gt;&lt;/div&gt;&lt;div&gt;&lt;/div&gt;&lt;/div&gt;&lt;span class=&#39;itemCost&#39;&gt;&quot; + _indicator + _cost + &quot; &quot; +  setup.currency[1] + &quot;&lt;/span&gt;&quot;&gt;&gt;
+      &lt;div class=&quot;itemHover&quot; @data-name=&quot;_item&quot;&gt;
+      &lt;&lt;if _cost &gt; 0&gt;&gt;
+        &lt;&lt;if (_use_links &amp;&amp; hasItem(_item) &amp;&amp; !(_item === &quot;alien_candy&quot; &amp;&amp; $day_state[&quot;sold&quot;].filter(x =&gt; x == &quot;alien_candy&quot;).length &gt;= 2 )) &gt;&gt;
+              &lt;&lt;set _passage = passage();&gt;&gt;
+              &lt;&lt;link _link_text _passage&gt;&gt;
+                &lt;&lt;set $day_state[&quot;sold&quot;].push(_item)&gt;&gt;
+                &lt;&lt;inventoryPop _item&gt;&gt;
+                &lt;&lt;set $money = $money + _cost&gt;&gt;
+              &lt;&lt;/link&gt;&gt;
+        &lt;&lt;else&gt;&gt;
+              &lt;span class=&quot;disabled&quot;&gt; _link_text&lt;/span&gt;
+        &lt;&lt;/if&gt;&gt;
+      &lt;&lt;/if&gt;&gt;
+        &lt;/div&gt;
+    &lt;&lt;/capture&gt;&gt;
+  &lt;&lt;/widget&gt;&gt;
+  
+  &lt;&lt;widget &#39;buy_link&#39;&gt;&gt;
+    &lt;&lt;set _item = _args[0]&gt;&gt;
+    &lt;&lt;set _shop = _args[1]&gt;&gt;
+    &lt;&lt;set _use_links = _args[2]&gt;&gt;
+    &lt;&lt;set _cost = setup.items[_item].raw_value&gt;&gt;
+    &lt;&lt;capture _cost _item&gt;&gt;
+      &lt;&lt;set _link_text = &quot;&lt;span class=&#39;itemName&#39;&gt;&quot; + setup.items[_item].display_name&gt;&gt;
+      &lt;&lt;set _link_text = _link_text + &quot;&lt;/span&gt;&lt;div class=&#39;item-dim&#39;&gt;&lt;div class=&#39;filled&#39;&gt;&lt;/div&gt;&lt;div&gt;&lt;/div&gt;&lt;div&gt;&lt;/div&gt;&lt;div&gt;&lt;/div&gt;&lt;/div&gt;&lt;span class=&#39;itemCost&#39;&gt;&quot; + _cost + &quot; &quot; + setup.currency[1] + &quot;&lt;/span&gt;&quot;&gt;&gt;
+    &lt;div class=&quot;itemHover&quot; @data-name=&quot;_item&quot;&gt;
+        &lt;&lt;if $money &gt;= _cost and canAddItem(_item) and _use_links&gt;&gt;\
+          &lt;&lt;link _link_text shop&gt;&gt;
+            &lt;&lt;inventoryAdd _item&gt;&gt;
+            &lt;&lt;set $money = $money - _cost&gt;&gt;
+          &lt;&lt;/link&gt;&gt;
+        &lt;&lt;else&gt;&gt;
+          &lt;span class=&quot;disabled&quot;&gt; _link_text&lt;/span&gt;
+        &lt;&lt;/if&gt;&gt;
+      &lt;/div&gt;
+    &lt;&lt;/capture&gt;&gt;
+  &lt;&lt;/widget&gt;&gt;
 
-&lt;span id=&quot;text8&quot; class=&quot;hidden&quot;&gt;
-	Ajurhang: I will absolutely take you up on that offer. But you should take up some other jobs in the meantime. It&#39;ll take time before I figure out what exactly I need, and you should do something that pays you better than hauling sand. Which is probably anything else sold here on [[Elysium|on_planet]]. I&#39;ll reach out soon!
-&lt;/span&gt;
-&lt;&lt;/nobr&gt;&gt;
-
-&lt;style&gt;
-  #header a { 
-    pointer-events: none;
-    cursor: default;
-    text-decoration: none;
-    color: white;
-  }
-  img {
-    max-width: 500px;
-    margin: auto;
-    display: block;
-  }
-  #trash {
-  	opacity: 0;
-  }
-&lt;/style&gt;
-
-&lt;&lt;script&gt;&gt;
-  $(document).on(&#39;:passagedisplay&#39;, (ev) =&gt; {
-    if (State.variables.cargo.length === 0 &amp;&amp; State.variables.holding === null) {
-        $(&quot;#text4&quot;).toggleClass(&quot;hidden&quot;);
-        $(&quot;#text5&quot;).toggleClass(&quot;hidden&quot;);
-    }
-  });
-&lt;&lt;/script&gt;&gt;</tw-passagedata><tw-passagedata pid="14" name="dead_raw_dead" tags="story" position="575,275" size="100,100">&lt;&lt;set $story_tags to $story_tags.concat(&quot;dead_raw_dead&quot;)&gt;&gt;\
+  &lt;&lt;widget &quot;salesInterface&quot;&gt;&gt;
+    &lt;&lt;set _allow_sales = _args[0]&gt;&gt;
+    &lt;&lt;set _sales_key = _args[1]&gt;&gt;
+    &lt;&lt;capture _sales_key&gt;&gt;
+      &lt;&lt;if _allow_sales &gt;&gt;
+        &lt;&lt;set _sell_string = &quot;Sell&quot;&gt;&gt;
+        &lt;&lt;set _buy_string = &quot;Buy&quot;&gt;&gt;
+      &lt;&lt;else&gt;&gt;
+        &lt;&lt;set _sell_string = &quot;Will Buy (Estimated)&quot;&gt;&gt;
+        &lt;&lt;set _buy_string = &quot;Will Sell (Estimated)&quot;&gt;&gt;
+      &lt;&lt;/if&gt;&gt;
+      &lt;div class=&quot;sales-interface&quot; @data_name=_sales_key&gt;
+        &lt;div&gt;
+          &lt;h4 style=&quot;margin: 0&quot;&gt;&lt;&lt;=_sell_string&gt;&gt;&lt;/h4&gt;
+          &lt;&lt;set _sell_set = Object.keys($shops[_sales_key].demand)&gt;&gt;
+          &lt;&lt;for _i = 0; _i &lt; _sell_set.length; _i++&gt;&gt;
+            &lt;&lt;sell_link _sell_set[_i] _sales_key _allow_sales&gt;&gt;
+          &lt;&lt;/for&gt;&gt;
+        &lt;/div&gt;
+        &lt;div&gt;
+          &lt;h4 style=&quot;margin: 0&quot;&gt;&lt;&lt;=_buy_string&gt;&gt;&lt;/h4&gt;
+          &lt;&lt;set _stock = $shops[_sales_key].stock&gt;&gt;
+          &lt;&lt;for _i = 0; _i &lt; _stock.length; _i++&gt;&gt;
+            &lt;&lt;buy_link _stock[_i] _sales_key _allow_sales&gt;&gt;
+          &lt;&lt;/for&gt;&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;&lt;br&gt;
+      &lt;&lt;if _allow_sales&gt;&gt;
+        &lt;div id=&quot;sell-box&quot; class=&quot;hoverEffect&quot;&gt;Place a specific item here to sell it, or click the sell links above.&lt;/div&gt;
+      &lt;&lt;else&gt;&gt;
+        &lt;div id=&quot;hover-description&quot;&gt;Mouse over item for a description. Items with pluses are being bought for higher than average sale price, and items with minuses are being bought for lower.&lt;/div&gt;
+      &lt;&lt;/if&gt;&gt;
+    &lt;&lt;/capture&gt;&gt;
+  &lt;&lt;/widget&gt;&gt;
+&lt;&lt;/nobr&gt;&gt;</tw-passagedata><tw-passagedata pid="14" name="dead_raw_dead" tags="story" position="575,275" size="100,100">&lt;&lt;set $story_tags to $story_tags.concat(&quot;dead_raw_dead&quot;)&gt;&gt;\
 &lt;&lt;= disp(&quot;dead_raw&quot;)&gt;&gt; has been attacked and destroyed by the &lt;&lt;= setup.terms[&quot;alien&quot;][&quot;org&quot;]&gt;&gt;. Food shortages are expected, as &lt;&lt;print disp(&quot;dead_raw&quot;)&gt;&gt; was the primary provide of food in this solar system. Cargo ships that were heading towards &lt;&lt;print disp(&quot;dead_raw&quot;)&gt;&gt; are advised to stop by &lt;&lt;print disp(&quot;raw&quot;)&gt;&gt; to refuel and pick up food supplies for other planets. 
 
 &lt;&lt;linkreplace &quot;Huh. Someone I knew was on that planet.&quot;&gt;&gt;
@@ -1818,16 +1830,7 @@ Lifespan: How many weeks this can spend in transit before becoming worthless.
   &lt;&lt;/button&gt;&gt;
 	&lt;span id=&quot;name&quot;&gt;&lt;/span&gt;
 &lt;/span&gt;
-&lt;&lt;set $money to 300&gt;&gt;
 
-&lt;&lt;inventoryPop &quot;substrate1&quot;&gt;&gt;
-&lt;&lt;inventoryPop &quot;substrate1&quot;&gt;&gt;
-&lt;&lt;inventoryPop &quot;substrate1&quot;&gt;&gt;
-&lt;&lt;inventoryPop &quot;substrate1&quot;&gt;&gt;
-&lt;&lt;inventoryPop &quot;substrate1&quot;&gt;&gt;
-&lt;&lt;inventoryPop &quot;substrate1&quot;&gt;&gt;
-&lt;&lt;inventoryPop &quot;substrate1&quot;&gt;&gt;
-&lt;&lt;inventoryPop &quot;substrate1&quot;&gt;&gt;
 &lt;&lt;/nobr&gt;&gt;
 /*[[Intro2]]*/
 &lt;style&gt;
@@ -1848,6 +1851,7 @@ Lifespan: How many weeks this can spend in transit before becoming worthless.
 
   &lt;&lt;salesInterface true ajurhang_tut&gt;&gt;
   &lt;div id=&quot;inventory_container&quot;&gt;&lt;div id=&quot;inventory_grid&quot;&gt;&lt;/div&gt;&lt;/div&gt;
+  &lt;span class=&quot;author-notes&quot;&gt;If you sell all the sand and this notice doesn&#39;t disappear, then click the sell box again.&lt;/span&gt;
 &lt;/span&gt;
 &lt;span id=&quot;text5&quot; class=&quot;hidden&quot;&gt;
     Ajurhang: Absolutely delicious. Wait, they spelled my name as Azhrhong? Is why it took so long? How did they get THAT? It&#39;s Ajurhang! A-J-U-R-H-A-N-G! It&#39;s a simple name! Ugh. Well, there&#39;s your payment.    
@@ -2033,36 +2037,36 @@ Lifespan: How many weeks this can spend in transit before becoming worthless.
 	[[A tumbling ball of mycelia.|npc3]]
 &lt;&lt;/if&gt;&gt;
 &lt;&lt;return&gt;&gt;
-</tw-passagedata><tw-passagedata pid="25" name="npc1" tags="location story" position="525,525" size="100,100">&lt;&lt;if $desc_planet == &quot;raw&quot;&gt;&gt;\
+</tw-passagedata><tw-passagedata pid="25" name="npc1" tags="location story" position="525,525" size="100,100">&lt;&lt;if $location[0] == &quot;raw&quot;&gt;&gt;\
 	I&#39;m going to be a flower farmer one day!
-&lt;&lt;elseif $desc_planet == &quot;mfg&quot;&gt;&gt;
+&lt;&lt;elseif $location[0] == &quot;mfg&quot;&gt;&gt;
 	Haze: Move! I&#39;m cleaning, and this could dissolve you. 
-&lt;&lt;elseif $desc_planet == &quot;tourism&quot;&gt;&gt;\
+&lt;&lt;elseif $location[0] == &quot;tourism&quot;&gt;&gt;\
 	Before you can get closer, the liquid explodes. The insects cheer about how many views this will get on social media. 
-&lt;&lt;elseif $desc_planet == &quot;dead_raw&quot;&gt;&gt;\
+&lt;&lt;elseif $location[0] == &quot;dead_raw&quot;&gt;&gt;\
 	It looks at me sadly. 
     &quot;The atmosphere is too thin for me to fly.&quot;
 &lt;&lt;/if&gt;&gt;
 &lt;&lt;return&gt;&gt;
-</tw-passagedata><tw-passagedata pid="26" name="npc2" tags="location story" position="625,525" size="100,100">&lt;&lt;if $desc_planet == &quot;raw&quot;&gt;&gt;\
+</tw-passagedata><tw-passagedata pid="26" name="npc2" tags="location story" position="625,525" size="100,100">&lt;&lt;if $location[0] == &quot;raw&quot;&gt;&gt;\
 	I get to swim and eat fish everyday!
-&lt;&lt;elseif $desc_planet == &quot;mfg&quot;&gt;&gt;
+&lt;&lt;elseif $location[0] == &quot;mfg&quot;&gt;&gt;
 	Small bushy plant: Everything&#39;s dark and cold here. 
     Lizard: There&#39;s not even a point in having windows.
     Another lizard: I heard it&#39;s warmer underground, but I don&#39;t want to move.
-&lt;&lt;elseif $desc_planet == &quot;tourism&quot;&gt;&gt;\\
+&lt;&lt;elseif $location[0] == &quot;tourism&quot;&gt;&gt;\\
 	Tree: I&#39;m here for my summer vacation. Gotta get a nice sunbleach before I go home.
-&lt;&lt;elseif $desc_planet == &quot;dead_raw&quot;&gt;&gt;\
+&lt;&lt;elseif $location[0] == &quot;dead_raw&quot;&gt;&gt;\
 	I spoke to it for several minutes. It does not seem to want to respond.
 &lt;&lt;/if&gt;&gt;
 &lt;&lt;return&gt;&gt;
-</tw-passagedata><tw-passagedata pid="27" name="npc3" tags="location story" position="725,525" size="100,100">&lt;&lt;if $desc_planet == &quot;raw&quot;&gt;&gt;\
+</tw-passagedata><tw-passagedata pid="27" name="npc3" tags="location story" position="725,525" size="100,100">&lt;&lt;if $location[0] == &quot;raw&quot;&gt;&gt;\
 	Snail: Mmmm... a little wet, but this is a good vacation home. 
-&lt;&lt;elseif $desc_planet == &quot;mfg&quot;&gt;&gt;
+&lt;&lt;elseif $location[0] == &quot;mfg&quot;&gt;&gt;
 	Cloud: I&#39;m going to become a star someday!
-&lt;&lt;elseif $desc_planet == &quot;tourism&quot;&gt;&gt;\
+&lt;&lt;elseif $location[0] == &quot;tourism&quot;&gt;&gt;\
 	It grows wings and runs after you take a step in its direction. Maybe you should leave it alone. 
-&lt;&lt;elseif $desc_planet == &quot;dead_raw&quot;&gt;&gt;\
+&lt;&lt;elseif $location[0] == &quot;dead_raw&quot;&gt;&gt;\
 	Ball: I here there&#39;s a planet made of food, but we&#39;re not allowed on it. 
 &lt;&lt;/if&gt;&gt;
 &lt;&lt;return&gt;&gt;
