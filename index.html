@@ -98,8 +98,16 @@ var LZString={_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234
 		<div id="init-lacking"><p>Browser lacks capabilities required to play.</p><p>Upgrade or switch to another browser.</p></div>
 		<div id="init-loading"><div>Loading&hellip;</div></div>
 	</div>
-	<tw-storydata name="Space Plants" startnode="4" creator="Twine" creator-version="2.8.0" format="SugarCube" format-version="2.36.1" ifid="a39d4033-db33-4cc3-9e10-aa95abfe18de" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">.disabled { color: darkgrey; }
+	<tw-storydata name="Space Plants" startnode="1" creator="Twine" creator-version="2.8.0" format="SugarCube" format-version="2.36.1" ifid="a39d4033-db33-4cc3-9e10-aa95abfe18de" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">.disabled { color: darkgrey; }
 .detail-link.link-external::after, #export-state::after { content: none; }
+.pixel {
+  -ms-interpolation-mode: nearest-neighbor;
+  image-rendering: crisp-edges;
+  image-rendering: pixelated;
+}
+#hover-description {
+	min-height: 4em;
+}
 #header {
   display: flex;
   justify-content: space-between;
@@ -854,6 +862,13 @@ Macro.add("inventoryPop", { handler: function() {
 	With the destruction of &lt;&lt;= disp(&quot;dead_raw&quot;) &gt;&gt;, I might be able to make more &lt;&lt;=setup.currency[1]&gt;&gt;. Especially with the things Ajurhang left me. 
 &lt;&lt;/if&gt;&gt;\
 &lt;&lt;set _link_desc = disp($location[0]) &gt;&gt;\
+&lt;&lt;set _imgsrc = &quot;./images/&quot; + $location[0] + &quot;_l.png&quot;&gt;&gt;\
+	&lt;img class=&quot;pixel&quot; @src=_imgsrc style=&quot;
+        width: 30%;
+        height: auto;
+        margin: auto;
+        display: block;
+    &quot;/&gt;
 I am currently on &lt;&lt;link _link_desc planet_description&gt;&gt;\
 	&lt;&lt;set $desc_planet =$location[0]&gt;&gt;\
 &lt;&lt;/link&gt;&gt;.
@@ -1012,6 +1027,7 @@ I am currently on &lt;&lt;link _link_desc planet_description&gt;&gt;\
 There&#39;s a building for freelancers if I was desperate enough for a job to [[apply|menial_labor]].
 
 &lt;&lt;return&gt;&gt;</tw-passagedata><tw-passagedata pid="7" name="planet_description" tags="widget-like" position="575,150" size="100,100">&lt;&lt;include &quot;sales&quot;&gt;&gt;\
+
 Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
 &lt;&lt;if $desc_planet == &quot;raw&quot;&gt;&gt;
 	An oceanic planet rich in dissolved &lt;b&gt;minerals and metals&lt;/b&gt;. Upon reaching space, the native species were surprised to find out their shed shells were considered valuable ores and alloys. 
@@ -1030,6 +1046,15 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
 &lt;&lt;/if&gt;&gt;
 &lt;&lt;if !isPastTag(&quot;dead_raw_dead&quot;) or $desc_planet != &quot;dead_raw&quot;&gt;&gt;\
 	&lt;&lt;salesInterface false $desc_planet&gt;&gt;
+    &lt;&lt;set _imgsrc = &quot;./images/&quot; + $desc_planet + &quot;.png&quot;&gt;&gt;\
+        &lt;img class=&quot;pixel&quot; @src=_imgsrc style=&quot;
+            width: 30%;
+            height: auto;
+            margin: auto;
+            display: block;
+        &quot;/&gt;
+
+&lt;&lt;else&gt;&gt;
 &lt;&lt;/if&gt;&gt;
 
 &lt;&lt;return&gt;&gt;
