@@ -98,7 +98,7 @@ var LZString={_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234
 		<div id="init-lacking"><p>Browser lacks capabilities required to play.</p><p>Upgrade or switch to another browser.</p></div>
 		<div id="init-loading"><div>Loading&hellip;</div></div>
 	</div>
-	<tw-storydata name="Space Plants" startnode="1" creator="Twine" creator-version="2.8.0" format="SugarCube" format-version="2.36.1" ifid="a39d4033-db33-4cc3-9e10-aa95abfe18de" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">.disabled { color: darkgrey; }
+	<tw-storydata name="Space Plants" startnode="17" creator="Twine" creator-version="2.8.0" format="SugarCube" format-version="2.36.1" ifid="a39d4033-db33-4cc3-9e10-aa95abfe18de" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">.disabled { color: darkgrey; }
 .detail-link.link-external::after, #export-state::after { content: none; }
 .pixel {
   -ms-interpolation-mode: nearest-neighbor;
@@ -1094,6 +1094,15 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
      &lt;&lt;/capture&gt;&gt;
   &lt;&lt;/widget&gt;&gt;
 &lt;&lt;/nobr&gt;&gt;  </tw-passagedata><tw-passagedata pid="9" name="ship" tags="location" position="450,275" size="100,100">I am sitting on my ship. 
+&lt;&lt;if 1 === 0&gt;&gt;
+&lt;&lt;else&gt;&gt;
+	&lt;img class=&quot;pixel&quot; src=&quot;./images/ship_uggo.png&quot; style=&quot;
+            width: 30%;
+            height: auto;
+            margin: auto;
+            display: block;
+        &quot;/&gt;
+&lt;&lt;/if&gt;&gt;
 &lt;&lt;if $location[0] == &quot;dead_raw&quot; and $location[1] &lt;= 10&gt;&gt;\
   An emergency [[news|dead_raw_dead]] announcement has been sent out.
 &lt;&lt;else&gt;&gt;\
