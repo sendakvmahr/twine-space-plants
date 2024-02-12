@@ -98,7 +98,7 @@ var LZString={_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234
 		<div id="init-lacking"><p>Browser lacks capabilities required to play.</p><p>Upgrade or switch to another browser.</p></div>
 		<div id="init-loading"><div>Loading&hellip;</div></div>
 	</div>
-	<tw-storydata name="Space Plants" startnode="17" creator="Twine" creator-version="2.8.0" format="SugarCube" format-version="2.36.1" ifid="a39d4033-db33-4cc3-9e10-aa95abfe18de" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">.disabled { color: darkgrey; }
+	<tw-storydata name="Space Plants" startnode="5" creator="Twine" creator-version="2.8.0" format="SugarCube" format-version="2.36.1" ifid="a39d4033-db33-4cc3-9e10-aa95abfe18de" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">.disabled { color: darkgrey; }
 .detail-link.link-external::after, #export-state::after { content: none; }
 .pixel {
   -ms-interpolation-mode: nearest-neighbor;
@@ -704,7 +704,20 @@ window.renderInventoryGrid = () => {
         if ($(this).attr("id") === "trash") {
           $("#hover-description").html("Throw items away for a fee. Can only be done on planets.");
         } else {  
-          $("#hover-description").html(window.desc($(this).data("name")));
+          let _item = $(this).data("name");
+          let prices = "";
+          let planets = ["raw", "mfg", "tourism"];
+          if (window.isPastTag("dead_raw_dead")) { 
+            planets.push("dead_raw") 
+          }
+          planets.forEach((el) => {
+            let _cost = window.getSellCost(el, _item);
+            if (_cost > 0){
+              prices += `<br/>${ window.disp(el) }: ${ window.getSellCost(el, _item) }`;
+            }
+          })
+          prices = (prices ? `<p>Prices:${prices}</p>` : "<p>Prices: None</p>");
+          $("#hover-description").html(window.desc(_item) + "<span class='hoverprice'>" + prices + "</span>");
         }
       },
       function() {
@@ -847,7 +860,11 @@ window.randChoice = (arr) => { return arr[Math.floor(Math.random() * arr.length)
 
 // display
 window.disp = (o) => { 
-  return (setup.items.hasOwnProperty(o) ? setup.items : State.variables.planets)[o].display_name; 
+  try {
+    return ((setup.items.hasOwnProperty(o)) ? setup.items[o].display_name : State.variables.planets[o].display_name); 
+  } catch (error) {
+    debugger;
+  }
 }
 window.dispArr = (arr) => {
   let f = arr[0].hasOwnProperty("display_name") ? ((x) => x.display_name) : ((x) => window.disp(x));
@@ -971,8 +988,6 @@ I am currently on &lt;&lt;link _link_desc planet_description&gt;&gt;\
         [[Location|ship]]: Reaching &lt;&lt;details_link _disp_location $location[0]&gt;&gt; tomorrow.
     &lt;&lt;else&gt;&gt;\
         [[Location|ship]]: $location[1] days away from &lt;&lt;details_link _disp_location $location[0]&gt;&gt;
-    &lt;&lt;/if&gt;&gt;\
-    &lt;&lt;if isPastTag(&quot;dead_raw_dead&quot;)&gt;&gt;Seeds: &lt;&lt;= dispArr($seeds) &gt;&gt;
     &lt;&lt;/if&gt;&gt;\
     [[Cargo|inventory_view]]: (_currentInventory.length/$max_cargo)
     Fuel: &lt;&lt;if $fuel&gt;&gt;Full&lt;&lt;else&gt;&gt;Empty&lt;&lt;/if&gt;&gt;
