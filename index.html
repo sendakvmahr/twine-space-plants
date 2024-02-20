@@ -650,6 +650,8 @@ window.mouseClickItem = function(event) {
 }
 
 window.renderItemHover = function(cargoItem, dataIndex) {
+  let debug = State.variables.debug;
+  console.log(debug);
   if (cargoItem === null) {
     return $("<div class='itemHover' data-name='empty' data-index=" + dataIndex + "></div>");
   }
@@ -980,6 +982,7 @@ I am currently on &lt;&lt;link _link_desc planet_description&gt;&gt;\
 	&quot;sold&quot;:[],
     &quot;times_worked&quot;: 0,
 }&gt;&gt;
+&lt;&lt;set $debug = true&gt;&gt;
 /*
 &lt;&lt;set $location to [&quot;dead_raw&quot;, 0] &gt;&gt;
 &lt;&lt;inventoryAdd &quot;substrate_contam_al&quot; 0 0&gt;&gt;
