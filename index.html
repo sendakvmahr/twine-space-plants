@@ -98,7 +98,7 @@ var LZString={_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234
 		<div id="init-lacking"><p>Browser lacks capabilities required to play.</p><p>Upgrade or switch to another browser.</p></div>
 		<div id="init-loading"><div>Loading&hellip;</div></div>
 	</div>
-	<tw-storydata name="Space Plants" startnode="17" creator="Twine" creator-version="2.8.0" format="SugarCube" format-version="2.36.1" ifid="a39d4033-db33-4cc3-9e10-aa95abfe18de" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">.disabled { color: darkgrey; }
+	<tw-storydata name="Space Plants" startnode="16" creator="Twine" creator-version="2.8.0" format="SugarCube" format-version="2.36.1" ifid="a39d4033-db33-4cc3-9e10-aa95abfe18de" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">.disabled { color: darkgrey; }
 .detail-link.link-external::after, #export-state::after { content: none; }
 
 #location-tracker a{
@@ -413,7 +413,7 @@ window._tickCargo = () => {
       if (window.canAddItem(toAdd[i])) {
         window.inventoryAdd(toAdd[i]);
       } else {
-        State.variables.daily_reports.push("A " + disp_name + " has been pushed out of existence due to lack of room.");
+        State.variables.daily_reports.push("A " + window.disp(toAdd[i]) + " has been pushed out of existence due to lack of room.");
       }
     }
 }
@@ -806,7 +806,6 @@ window.inventoryAdd = (toAdd, x, y) => {
       State.variables.holding = item;
     } else {
       item.coordinates = canAddItem(item);
-      debugger;
       if (item.coordinates) {
         State.variables.cargo.push(item);
       }
@@ -926,8 +925,14 @@ for (const func of macros) {
 }
 Macro.add("inventoryPop", { handler: function() {
   window["inventoryPop"](this.args);
-  }});    </script><tw-tag name="Notes" color="red"></tw-tag><tw-tag name="script-pile" color="purple"></tw-tag><tw-tag name="location" color="green"></tw-tag><tw-tag name="widget-like" color="blue"></tw-tag><tw-tag name="story" color="orange"></tw-tag><tw-passagedata pid="1" name="on_planet" tags="location" position="275,275" size="100,100">&lt;&lt;if isPastTag(&quot;dead_raw_dead&quot;)&gt;&gt;\
-	With the destruction of &lt;&lt;= disp(&quot;dead_raw&quot;) &gt;&gt;, I might be able to make more &lt;&lt;=setup.currency[1]&gt;&gt;. Especially with the things Ajurhang left me. 
+  }});    </script><tw-tag name="Notes" color="red"></tw-tag><tw-tag name="script-pile" color="purple"></tw-tag><tw-tag name="location" color="green"></tw-tag><tw-tag name="widget-like" color="blue"></tw-tag><tw-tag name="story" color="orange"></tw-tag><tw-passagedata pid="1" name="on_planet" tags="location" position="275,275" size="100,100">&lt;&lt;if isPastTag(&quot;endgame&quot;)&gt;&gt;\
+    Let&#39;s take off	and see how those windows look. 
+&lt;&lt;elseif isPastTag(&quot;dead_raw_dead&quot;)&gt;&gt;\
+    With the destruction of &lt;&lt;= disp(&quot;dead_raw&quot;) &gt;&gt; and those seeds, I might be able to save up some &lt;&lt;=setup.currency[1]&gt;&gt;. Maybe start taking proper care of my ship. Buy some new windows at the market. 
+&lt;&lt;elseif isPastTag(&quot;onAjiQuest&quot;)&gt;&gt;\
+    Gotta give Aji her seeds, 4 sand, and 4 nutrients. Then deliver the seeds he gave me. Can&#39;t figure out why Aji wants the seeds back, but I suppose they&#39;ll tell me soon.   
+&lt;&lt;else&gt;&gt;\
+    Buy things, move around, sell things. It&#39;s simple.
 &lt;&lt;/if&gt;&gt;\
 &lt;&lt;set _link_desc = disp($location[0]) &gt;&gt;\
 &lt;&lt;set _imgsrc = &quot;./images/&quot; + $location[0] + &quot;_l.png&quot;&gt;&gt;\
@@ -941,24 +946,58 @@ I am currently on &lt;&lt;link _link_desc planet_description&gt;&gt;\
 	&lt;&lt;set $desc_planet =$location[0]&gt;&gt;\
 &lt;&lt;/link&gt;&gt;.
 
+[[Fiddle with inventory.|inventory_view]]
 [[Visit the market|shop]]
 [[Depart|depart_prepare]]
-[[Look around.|on_planet_details]]
-/%
-&lt;&lt;if $money &gt;= 50 and $story_point &gt;=1 &gt;&gt;\
-	&lt;&lt;link &quot;Stay for a while (Passes a week, costs 50 monies)&quot; &quot;on_planet&quot;&gt;&gt;\		
-    	&lt;&lt;update_weekly&gt;&gt;&lt;&lt;set $money = $money -50&gt;&gt;\
-    &lt;&lt;/link&gt;&gt;
+
+There are some other beings wandering around.
+&lt;&lt;if $location[0] == &quot;raw&quot;&gt;&gt;\
+	[[A large shark with flowers.|npc1]]
+	[[Exciteable four legged fur thing|npc2]]
+	[[A mollusk with an shell covered in gems.|npc3]]
+&lt;&lt;elseif $location[0] == &quot;mfg&quot;&gt;&gt;
+	[[A purple haze with liquid suspended inside it drips it on the floor.|npc1]]
+	[[An assortment of lizards and plants are piling under a heat lamp.|npc2]]
+	[[A pink cloud seems to be trying to maintain a sphere shape.|npc3]]
+    [[A grumpy fish is pacing around, tracking mud everywhere.|slaggy_dirtplace]]
+&lt;&lt;elseif $location[0] == &quot;tourism&quot;&gt;&gt;\
+	[[A small swarm of insects are hovering over a liquid.|npc1]]
+	[[A dark wooden pile of tentacles seems to be smoldering.|npc2]]
+	[[A mammalian ball shakes in a corner.|npc3]]
+&lt;&lt;elseif $location[0] == &quot;dead_raw&quot;&gt;&gt;\
+	[[A bird with metallic fish lips.|npc1]]
+	[[A... floating diamond?|npc2]]
+	[[A tumbling ball of mycelia.|npc3]]
 &lt;&lt;/if&gt;&gt;
-%/
-/*[[planet_description]]*/</tw-passagedata><tw-passagedata pid="2" name="StoryInit" tags="script-pile" position="25,25" size="100,100">&lt;&lt;include &quot;ItemInit&quot;&gt;&gt;
+&lt;&lt;nobr&gt;&gt;\
+&lt;&lt;if isOnPlanet(&quot;raw&quot;)&gt;&gt;
+  &lt;&lt;if isPastTag(&quot;hiddenShopAccess&quot;)&gt;&gt;
+  	[[I nod at the plant before continuing to another shop. |hidden_shop]]
+  &lt;&lt;elseif isPastTag(&quot;hiddenShop2&quot;)&gt;&gt;
+  	The plant started moving. I guess it was another mollusk, not a plant this whole time.
+    Snail: You come here often enough. If you would prefer to do business more directly, without the costs of doing it through the official trade areas, [[this place is open to you.|hidden_shop]].
+  	&lt;&lt;addTag hiddenShopAccess&gt;&gt;
+  &lt;&lt;elseif isPastTag(&quot;hiddenShop1&quot;)&gt;&gt;
+  	That plant still feels like it&#39;s watching me. Being watched by 1 eye is really weird. 
+  &lt;&lt;elseif isPastTag(&quot;hiddenShop0&quot;)&gt;&gt;
+  	It feels like that plant is watching me, even moreso than most eye-resembling flora. But only 2 eyes are staring at me.
+   &lt;&lt;else&gt;&gt;
+   	There&#39;s a plant that looks like it has eyes. I feel like wherever I go, 3 eyes are staring at me. 
+  &lt;&lt;/if&gt;&gt;
+&lt;&lt;/if&gt;&gt;
+&lt;br/&gt;
+&lt;&lt;/nobr&gt;&gt;\
+If you need to, you can stay the night in an overpriced, [[on-demand hotel|hotel]].
+There&#39;s a building for freelancers if I was desperate enough for a job to [[apply|menial_labor]].
+
+</tw-passagedata><tw-passagedata pid="2" name="StoryInit" tags="script-pile" position="25,25" size="100,100">&lt;&lt;include &quot;ItemInit&quot;&gt;&gt;
 &lt;&lt;include &quot;RecipesInit&quot;&gt;&gt;
 &lt;&lt;include &quot;TermInit&quot;&gt;&gt;
 &lt;&lt;include &quot;PlanetInit&quot;&gt;&gt;
 &lt;&lt;include &quot;GlobalsInit&quot;&gt;&gt;
 &lt;&lt;include &quot;ShopsInit&quot;&gt;&gt;
-&lt;&lt;set $seeds = [&quot;seed_spinach&quot;, &quot;seed_pineapple&quot;, &quot;seed_al_allium&quot;]&gt;&gt;
-&lt;&lt;set $selected_seed = 1&gt;&gt;
+&lt;&lt;set $seeds = []&gt;&gt;
+&lt;&lt;set $selected_seed = 0&gt;&gt;
 &lt;&lt;set $key_items = []&gt;&gt;
 &lt;&lt;set $cargo = []&gt;&gt;
 &lt;&lt;set $max_cargo to 8&gt;&gt;
@@ -1005,12 +1044,10 @@ I am currently on &lt;&lt;link _link_desc planet_description&gt;&gt;\
         [[Location|ship]]: $location[1] days away from &lt;&lt;details_link _disp_location $location[0]&gt;&gt;
         &lt;div id=&quot;location-tracker&quot;&gt;[[Go to current navigation hub|ship]]&lt;/div&gt;\
     &lt;&lt;/if&gt;&gt;\
-    [[Cargo|inventory_view]]: (_currentInventory.length/$max_cargo)
-    Fuel: &lt;&lt;if $fuel&gt;&gt;Full&lt;&lt;else&gt;&gt;Empty&lt;&lt;/if&gt;&gt;
   &lt;/div&gt;&lt;div id=&quot;settings&quot;&gt;\
+    [[Cargo|inventory_view]]: (_currentInventory.length/$max_cargo)
     Holding: &lt;&lt;if $holding === null&gt;&gt;Nothing &lt;&lt;else&gt;&gt;&lt;&lt;=disp($holding.name)&gt;&gt;&lt;&lt;/if&gt;&gt;
-      [[Terms|terms]]
-      &lt;a id=&quot;export-state&quot; href=&quot;&quot;&gt;Export  State&lt;/a&gt;
+      &lt;a id=&quot;export-state&quot; href=&quot;&quot;&gt;Export  State&lt;/a&gt; (For debugging purposes)
   &lt;/div&gt;
 &lt;/div&gt;
 &lt;&lt;if $daily_reports.length != 0&gt;&gt;\
@@ -1040,7 +1077,7 @@ I am currently on &lt;&lt;link _link_desc planet_description&gt;&gt;\
                 &lt;&lt;if isPastTag(&quot;endgame&quot;)&gt;&gt; &lt;&lt;set _passage = &quot;endgame&quot;&gt;&gt;&lt;&lt;/if&gt;&gt;\
 	        	&lt;&lt;link _display _passage&gt;&gt;\
                 	&lt;&lt;set $previous_planet = $location[0]&gt;&gt;
-        			&lt;&lt;set $location = [_raw_name, either(17, 21, 25)]&gt;&gt;\
+        			&lt;&lt;set $location = [_raw_name, 7]&gt;&gt;\
                     &lt;&lt;if $location[0] != &quot;dead_raw&quot;&gt;&gt;\
                     	&lt;&lt;if isPastTag(&quot;secondDepart&quot;)&gt;&gt;
                         &lt;&lt;elseif isPastTag(&quot;firstDepart&quot;)&gt;&gt;
@@ -1078,13 +1115,13 @@ I am currently on &lt;&lt;link _link_desc planet_description&gt;&gt;\
 &lt;div id=&quot;inventory_container&quot;&gt;&lt;div id=&quot;inventory_grid&quot;&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;div id=&quot;hover-description&quot;&gt;Mouse over item for a description. Items with pluses are being bought for higher than average sale price, and items with minuses are being bought for lower.&lt;/div&gt;
 &lt;&lt;if !isPastTag(&quot;endgame&quot;)&gt;&gt;\ 
-	&lt;&lt;if $money &gt;= 1000&gt;&gt;\
-    	&lt;&lt;link &#39;Buy &quot;Pretty Space&quot; windows (1000 ducats)&#39; shop&gt;&gt;\
+	&lt;&lt;if $money &gt;= 2000&gt;&gt;\
+    	&lt;&lt;link &#39;Buy &quot;Pretty Space&quot; windows (2000 ducats)&#39; shop&gt;&gt;\
             &lt;&lt;addTag endgame&gt;&gt;\
-            &lt;&lt;set $money -= 1000&gt;&gt;\
+            &lt;&lt;set $money -= 2000&gt;&gt;\
         &lt;&lt;/link&gt;&gt;\
     &lt;&lt;else&gt;&gt;\
-    	&lt;span class=&quot;disabled&quot;&gt;Buy &quot;Pretty Space&quot; windows (1000 ducats)&lt;/span&gt;
+    	&lt;span class=&quot;disabled&quot;&gt;Buy &quot;Pretty Space&quot; windows (2000 ducats)&lt;/span&gt;
     &lt;&lt;/if&gt;&gt;\
 &lt;&lt;/if&gt;&gt;\
 &lt;&lt;if !$fuel&gt;&gt;\  /* refueling */
@@ -1101,29 +1138,7 @@ I am currently on &lt;&lt;link _link_desc planet_description&gt;&gt;\
 &lt;&lt;/if&gt;&gt;\
 
 
-&lt;&lt;return&gt;&gt;</tw-passagedata><tw-passagedata pid="6" name="on_planet_details" tags="location widget-like" position="275,400" size="100,100">Most planets have a [[center|npc_list]] where visitors and inhabitants go to meet each other. 
-
-There&#39;s a building for freelancers if I was desperate enough for a job to [[apply|menial_labor]].
-
-If you need to, you can stay the night in an overpriced, [[on-demand hotel|hotel]].
-
-&lt;&lt;nobr&gt;&gt;\
-&lt;&lt;if isOnPlanet(&quot;raw&quot;)&gt;&gt;
-  &lt;&lt;if isPastTag(&quot;hiddenShopAccess&quot;)&gt;&gt;
-  	[[I nod at the plant before continuing to another shop. |hidden_shop]]
-  &lt;&lt;elseif isPastTag(&quot;hiddenShop2&quot;)&gt;&gt;
-  	The plant started moving. I guess it was another mollusk, not a plant this whole time.
-    Snail: You come here often enough. If you would prefer to do business more directly, without the costs of doing it through the official trade areas, [[this place is open to you.|hidden_shop]].
-  	&lt;&lt;addTag hiddenShopAccess&gt;&gt;
-  &lt;&lt;elseif isPastTag(&quot;hiddenShop1&quot;)&gt;&gt;
-  	That plant still feels like it&#39;s watching me. 
-  &lt;&lt;elseif isPastTag(&quot;hiddenShop0&quot;)&gt;&gt;
-  	It feels like that plant is watching me, even moreso than most eye-resembling flora. 
-  &lt;&lt;/if&gt;&gt;
-&lt;&lt;/if&gt;&gt;
-&lt;&lt;/nobr&gt;&gt;\
-
-&lt;&lt;return&gt;&gt;</tw-passagedata><tw-passagedata pid="7" name="planet_description" tags="widget-like" position="575,150" size="100,100">&lt;&lt;include &quot;sales&quot;&gt;&gt;\
+&lt;&lt;return&gt;&gt;</tw-passagedata><tw-passagedata pid="6" name="planet_description" tags="widget-like" position="575,150" size="100,100">&lt;&lt;include &quot;sales&quot;&gt;&gt;\
 
 Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
 &lt;&lt;if $desc_planet == &quot;raw&quot;&gt;&gt;
@@ -1155,7 +1170,7 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
 &lt;&lt;/if&gt;&gt;
 
 &lt;&lt;return&gt;&gt;
-</tw-passagedata><tw-passagedata pid="8" name="util" tags="script-pile" position="25,150" size="100,100">&lt;&lt;nobr&gt;&gt;  
+</tw-passagedata><tw-passagedata pid="7" name="util" tags="script-pile" position="25,150" size="100,100">&lt;&lt;nobr&gt;&gt;  
   &lt;&lt;widget &#39;details_link&#39;&gt;&gt;
   	&lt;&lt;set _text = _args[0] &gt;&gt;
   	&lt;&lt;set _planet = _args[1] &gt;&gt;
@@ -1163,7 +1178,10 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
     	&lt;&lt;link _text planet_description&gt;&gt;&lt;&lt;set $desc_planet = _planet&gt;&gt;&lt;&lt;/link&gt;&gt;
      &lt;&lt;/capture&gt;&gt;
   &lt;&lt;/widget&gt;&gt;
-&lt;&lt;/nobr&gt;&gt;  </tw-passagedata><tw-passagedata pid="9" name="ship" tags="location" position="450,275" size="100,100">I am sitting on my ship. 
+&lt;&lt;/nobr&gt;&gt;  </tw-passagedata><tw-passagedata pid="8" name="ship" tags="location" position="450,275" size="100,100">I am sitting on my ship. 
+&lt;&lt;if isPastTag(&quot;dead_raw_dead&quot;)&gt;&gt;
+I should try growing something in the cargo bay. 
+&lt;&lt;/if&gt;&gt;
 &lt;&lt;if 1 === 0&gt;&gt;
 &lt;&lt;else&gt;&gt;
 	&lt;img class=&quot;pixel&quot; src=&quot;./images/ship_uggo.png&quot; style=&quot;
@@ -1173,19 +1191,33 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
             display: block;
         &quot;/&gt;
 &lt;&lt;/if&gt;&gt;
-&lt;&lt;if $location[0] == &quot;dead_raw&quot; and $location[1] &lt;= 10&gt;&gt;\
+&lt;&lt;if $location[0] == &quot;dead_raw&quot; &amp;&amp; $location[1] &lt;= 10 &amp;&amp; isPastTag(&quot;onAjiQuest&quot;)&gt;&gt;\
   An emergency [[news|dead_raw_dead]] announcement has been sent out.
 &lt;&lt;elseif isPastTag(&quot;secondDepart&quot;) &amp;&amp; !isPastTag(&quot;onAjiQuest&quot;)&gt;&gt;
 	&lt;&lt;addTag onAjiQuest&gt;&gt;\
-    You&#39;re getting an incoming call. [[ajiquest]]
+    There&#39;s a [[package|ajiquest]] with my name on it.
 &lt;&lt;else&gt;&gt;\
   [[Listen to the news|space_updates]]
   [[Manage your cargo|inventory_view]]
-  &lt;&lt;link &quot;Sleep normally (advance 1 day)&quot; sleep&gt;&gt;&lt;&lt;set $location[1] = $location[1] -1&gt;&gt;&lt;&lt;passTime 1&gt;&gt;&lt;&lt;/link&gt;&gt;
-    &lt;&lt;if $location[1] &gt; 7&gt;&gt;\
-    &lt;&lt;link &quot;Go to cryosleep (advance 1 week)&quot; sleep&gt;&gt;\
-      &lt;&lt;set $location[1] = $location[1] -7&gt;&gt;\
-      &lt;&lt;passTime 7&gt;&gt;
+  &lt;&lt;link &quot;Sleep normally (advance 1 day)&quot; sleep&gt;&gt;&lt;&lt;set $location[1] = $location[1] -1&gt;&gt;&lt;&lt;passTime 1&gt;&gt;
+      &lt;&lt;nobr&gt;&gt;
+        &lt;&lt;if $location[0] == &quot;raw&quot; &amp;&amp; $location[1] == 0&gt;&gt;
+        	&lt;&lt;if isPastTag(&quot;hiddenShopAccess&quot;)&gt;&gt;            
+            &lt;&lt;elseif isPastTag(&quot;hiddenShop2&quot;)&gt;&gt;
+            &lt;&lt;elseif isPastTag(&quot;hiddenShop1&quot;)&gt;&gt;
+            	&lt;&lt;addTag hiddenShop2 &gt;&gt;
+            &lt;&lt;elseif isPastTag(&quot;hiddenShop0&quot;)&gt;&gt;
+            	&lt;&lt;addTag hiddenShop1 &gt;&gt;
+            &lt;&lt;else&gt;&gt;
+            	&lt;&lt;addTag hiddenShop0 &gt;&gt;
+            &lt;&lt;/if&gt;&gt;
+        &lt;&lt;/if&gt;&gt;
+      &lt;&lt;/nobr&gt;&gt;
+  &lt;&lt;/link&gt;&gt;
+    &lt;&lt;if $location[1] &gt; 3&gt;&gt;\
+    &lt;&lt;link &quot;Go to cryosleep (advance 3 days)&quot; sleep&gt;&gt;\
+      &lt;&lt;set $location[1] = $location[1] -3&gt;&gt;\
+      &lt;&lt;passTime 3&gt;&gt;
     &lt;&lt;/link&gt;&gt;
   &lt;&lt;else&gt;&gt;\
     &lt;&lt;link &quot;Go to cryosleep (land on planet)&quot; sleep&gt;&gt;\
@@ -1203,15 +1235,15 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
             &lt;&lt;/if&gt;&gt;
         &lt;&lt;/if&gt;&gt;
       &lt;&lt;/nobr&gt;&gt;
-      &lt;&lt;set $fuel to false&gt;&gt;\
       &lt;&lt;passTime $location[1]&gt;&gt;\
     &lt;&lt;/link&gt;&gt;
   &lt;&lt;/if&gt;&gt;\
 &lt;&lt;/if&gt;&gt;\
 
 /*
+should set fuel to false on landing
 [[ship]][[on_planet]]
-*/</tw-passagedata><tw-passagedata pid="10" name="space_updates" tags="widget-like story" position="400,400" size="100,100">&lt;&lt;set _updates = {
+*/</tw-passagedata><tw-passagedata pid="9" name="space_updates" tags="widget-like story" position="400,400" size="100,100">&lt;&lt;set _updates = {
   &quot;default&quot;: [
     &quot;Dissolved &quot; + disp(either(Object.keys(setup.items))) + &quot; trends on &quot; + disp(&quot;tourism&quot;) + &quot;, leading to a shortage of solvents and an increase in hospistal visits.&quot;,
     &quot;Static. You wish you could splurge on a music player for your ship.&quot;,
@@ -1232,7 +1264,7 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
 	&lt;&lt;= either(_updates[&quot;default&quot;]) &gt;&gt;
 &lt;&lt;/if&gt;&gt;\
 
-&lt;&lt;return&gt;&gt;	</tw-passagedata><tw-passagedata pid="11" name="ItemInit" tags="script-pile" position="325,25" size="100,100">&lt;&lt;set setup.items = {
+&lt;&lt;return&gt;&gt;	</tw-passagedata><tw-passagedata pid="10" name="ItemInit" tags="script-pile" position="325,25" size="100,100">&lt;&lt;set setup.items = {
     &quot;empty&quot;: {
         &quot;name&quot;: &quot;empty&quot;,
         &quot;display_name&quot;: &quot;Nothing&quot;,
@@ -1321,7 +1353,7 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
         &quot;name&quot;: &quot;sprout_al_allium&quot;,
         &quot;display_name&quot;: &quot;Allium Sprout&quot;,
         &quot;fragility&quot;: &quot;0&quot;,
-        &quot;lifespan&quot;: &quot;40&quot;,
+        &quot;lifespan&quot;: &quot;8&quot;,
         &quot;raw_value&quot;: &quot;0&quot;,
         &quot;dimensions&quot;: [
             &quot;1&quot;,
@@ -1349,7 +1381,7 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
         &quot;name&quot;: &quot;sprout_spinach&quot;,
         &quot;display_name&quot;: &quot;Spinach Sprout&quot;,
         &quot;fragility&quot;: &quot;0&quot;,
-        &quot;lifespan&quot;: &quot;15&quot;,
+        &quot;lifespan&quot;: &quot;3&quot;,
         &quot;raw_value&quot;: &quot;5&quot;,
         &quot;dimensions&quot;: [
             &quot;1&quot;,
@@ -1377,7 +1409,7 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
         &quot;name&quot;: &quot;sprout_pineapple&quot;,
         &quot;display_name&quot;: &quot;Baby Pineapple&quot;,
         &quot;fragility&quot;: &quot;0&quot;,
-        &quot;lifespan&quot;: &quot;40&quot;,
+        &quot;lifespan&quot;: &quot;7&quot;,
         &quot;raw_value&quot;: &quot;5&quot;,
         &quot;dimensions&quot;: [
             &quot;1&quot;,
@@ -1407,7 +1439,7 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
         &quot;display_name&quot;: &quot;Crested Pineapple&quot;,
         &quot;fragility&quot;: &quot;0.7&quot;,
         &quot;lifespan&quot;: &quot;10&quot;,
-        &quot;raw_value&quot;: &quot;100&quot;,
+        &quot;raw_value&quot;: &quot;300&quot;,
         &quot;dimensions&quot;: [
             &quot;1&quot;,
             &quot;1&quot;
@@ -1430,7 +1462,7 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
         &quot;display_name&quot;: &quot;Pineapple&quot;,
         &quot;fragility&quot;: &quot;0.2&quot;,
         &quot;lifespan&quot;: &quot;10&quot;,
-        &quot;raw_value&quot;: &quot;300&quot;,
+        &quot;raw_value&quot;: &quot;100&quot;,
         &quot;dimensions&quot;: [
             &quot;1&quot;,
             &quot;1&quot;
@@ -1452,7 +1484,7 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
         &quot;display_name&quot;: &quot;Fresh Spinach&quot;,
         &quot;fragility&quot;: &quot;0.1&quot;,
         &quot;lifespan&quot;: &quot;15&quot;,
-        &quot;raw_value&quot;: &quot;20&quot;,
+        &quot;raw_value&quot;: &quot;60&quot;,
         &quot;dimensions&quot;: [
             &quot;1&quot;,
             &quot;1&quot;
@@ -1496,7 +1528,7 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
         &quot;display_name&quot;: &quot;Gold Ore&quot;,
         &quot;fragility&quot;: &quot;0&quot;,
         &quot;lifespan&quot;: &quot;-1&quot;,
-        &quot;raw_value&quot;: &quot;30&quot;,
+        &quot;raw_value&quot;: &quot;50&quot;,
         &quot;dimensions&quot;: [
             &quot;1&quot;,
             &quot;1&quot;
@@ -1773,14 +1805,14 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
         &quot;display_name&quot;: &quot;Alien Candy&quot;,
         &quot;fragility&quot;: &quot;0&quot;,
         &quot;lifespan&quot;: &quot;-1&quot;,
-        &quot;raw_value&quot;: &quot;10&quot;,
+        &quot;raw_value&quot;: &quot;30&quot;,
         &quot;dimensions&quot;: [
             &quot;1&quot;,
             &quot;1&quot;
         ],
         &quot;expiration_function&quot;: &quot;&quot;,
         &quot;on_expiration&quot;: [],
-        &quot;description&quot;: &quot;Candy from distant star systems. Pricey, but low demand. Only a few can be sold per planet.&quot;,
+        &quot;description&quot;: &quot;Candy from distant star systems. Pricey, but low demand. Can only sell 2 when selling to other planets.&quot;,
         &quot;tags&quot;: [
             &quot;food&quot;
         ],
@@ -1833,7 +1865,7 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
         ]
     }
 }&gt;&gt;
-</tw-passagedata><tw-passagedata pid="12" name="PlanetInit" tags="script-pile" position="225,25" size="100,100">&lt;&lt;set $planets to {
+</tw-passagedata><tw-passagedata pid="11" name="PlanetInit" tags="script-pile" position="225,25" size="100,100">&lt;&lt;set $planets to {
 	&quot;raw&quot;: {
     	display_name: &quot;Horai&quot;,
     	location: 0,
@@ -1850,7 +1882,7 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
     	display_name: &quot;Elysium&quot;,
     	location: 10,
     }
-}&gt;&gt;</tw-passagedata><tw-passagedata pid="13" name="sales" tags="script-pile widget-like" position="25,250" size="100,100">&lt;&lt;nobr&gt;&gt;
+}&gt;&gt;</tw-passagedata><tw-passagedata pid="12" name="sales" tags="script-pile widget-like" position="25,250" size="100,100">&lt;&lt;nobr&gt;&gt;
   &lt;&lt;widget &#39;sell_link&#39;&gt;&gt;
     &lt;&lt;set _item = _args[0]&gt;&gt;
     &lt;&lt;set _shop = _args[1]&gt;&gt;
@@ -1869,7 +1901,12 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
       &lt;&lt;else&gt;&gt;
         &lt;&lt;set _indicator = &quot;&lt;span class=&#39;up&#39;&gt;+&lt;/span&gt;&quot; &gt;&gt;
       &lt;&lt;/if&gt;&gt;
-      &lt;&lt;set _link_text = _link_text + &quot;&lt;/span&gt;&lt;div class=&#39;item-dim&#39;&gt;&lt;div class=&#39;filled&#39;&gt;&lt;/div&gt;&lt;div&gt;&lt;/div&gt;&lt;div&gt;&lt;/div&gt;&lt;div&gt;&lt;/div&gt;&lt;/div&gt;&lt;span class=&#39;itemCost&#39;&gt;&quot; + _indicator + _cost + &quot; &quot; +  setup.currency[1] + &quot;&lt;/span&gt;&quot;&gt;&gt;
+      &lt;&lt;if _item === &quot;chem_volatile&quot;&gt;&gt;
+      	&lt;&lt;set _spantext =  &quot;&lt;/span&gt;&lt;div class=&#39;item-dim&#39;&gt;&lt;div class=&#39;filled&#39;&gt;&lt;/div&gt;&lt;div class=&#39;filled&#39;&gt;&lt;/div&gt;&lt;div class=&#39;filled&#39;&gt;&lt;/div&gt;&lt;div class=&#39;filled&#39;&gt;&lt;/div&gt;&lt;/div&gt;&lt;span class=&#39;itemCost&#39;&gt;&quot; &gt;&gt;
+      &lt;&lt;else&gt;&gt;
+      	&lt;&lt;set _spantext =  &quot;&lt;/span&gt;&lt;div class=&#39;item-dim&#39;&gt;&lt;div class=&#39;filled&#39;&gt;&lt;/div&gt;&lt;div&gt;&lt;/div&gt;&lt;div&gt;&lt;/div&gt;&lt;div&gt;&lt;/div&gt;&lt;/div&gt;&lt;span class=&#39;itemCost&#39;&gt;&quot; &gt;&gt;
+      &lt;&lt;/if&gt;&gt;
+      &lt;&lt;set _link_text = _link_text + _spantext + _indicator + _cost + &quot; &quot; +  setup.currency[1] + &quot;&lt;/span&gt;&quot;&gt;&gt;
       &lt;div class=&quot;itemHover&quot; @data-name=&quot;_item&quot;&gt;
       &lt;&lt;if _cost &gt; 0&gt;&gt;
         &lt;&lt;if (_use_links &amp;&amp; hasItem(_item) &amp;&amp; !(_item === &quot;alien_candy&quot; &amp;&amp; $day_state[&quot;sold&quot;].filter(x =&gt; x == &quot;alien_candy&quot;).length &gt;= 2 )) &gt;&gt;
@@ -1893,8 +1930,13 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
     &lt;&lt;set _use_links = _args[2]&gt;&gt;
     &lt;&lt;set _cost = setup.items[_item].raw_value&gt;&gt;
     &lt;&lt;capture _cost _item&gt;&gt;
+      &lt;&lt;if _item === &quot;chem_volatile&quot;&gt;&gt;
+      	&lt;&lt;set _spantext =  &quot;&lt;/span&gt;&lt;div class=&#39;item-dim&#39;&gt;&lt;div class=&#39;filled&#39;&gt;&lt;/div&gt;&lt;div class=&#39;filled&#39;&gt;&lt;/div&gt;&lt;div class=&#39;filled&#39;&gt;&lt;/div&gt;&lt;div class=&#39;filled&#39;&gt;&lt;/div&gt;&lt;/div&gt;&lt;span class=&#39;itemCost&#39;&gt;&quot; &gt;&gt;
+      &lt;&lt;else&gt;&gt;
+      	&lt;&lt;set _spantext =  &quot;&lt;/span&gt;&lt;div class=&#39;item-dim&#39;&gt;&lt;div class=&#39;filled&#39;&gt;&lt;/div&gt;&lt;div&gt;&lt;/div&gt;&lt;div&gt;&lt;/div&gt;&lt;div&gt;&lt;/div&gt;&lt;/div&gt;&lt;span class=&#39;itemCost&#39;&gt;&quot; &gt;&gt;
+      &lt;&lt;/if&gt;&gt;
       &lt;&lt;set _link_text = &quot;&lt;span class=&#39;itemName&#39;&gt;&quot; + setup.items[_item].display_name&gt;&gt;
-      &lt;&lt;set _link_text = _link_text + &quot;&lt;/span&gt;&lt;div class=&#39;item-dim&#39;&gt;&lt;div class=&#39;filled&#39;&gt;&lt;/div&gt;&lt;div&gt;&lt;/div&gt;&lt;div&gt;&lt;/div&gt;&lt;div&gt;&lt;/div&gt;&lt;/div&gt;&lt;span class=&#39;itemCost&#39;&gt;&quot; + _cost + &quot; &quot; + setup.currency[1] + &quot;&lt;/span&gt;&quot;&gt;&gt;
+      &lt;&lt;set _link_text = _link_text +_spantext + _cost + &quot; &quot; + setup.currency[1] + &quot;&lt;/span&gt;&quot;&gt;&gt;
     &lt;div class=&quot;itemHover&quot; @data-name=&quot;_item&quot;&gt;
         &lt;&lt;if $money &gt;= _cost and canAddItem(_item) and _use_links&gt;&gt;\
         	&lt;&lt;set _passage = passage();&gt;&gt;
@@ -1943,62 +1985,68 @@ Planet name: &lt;&lt;print $planets[$desc_planet].display_name&gt;&gt;
       &lt;&lt;/if&gt;&gt;
     &lt;&lt;/capture&gt;&gt;
   &lt;&lt;/widget&gt;&gt;
-&lt;&lt;/nobr&gt;&gt;</tw-passagedata><tw-passagedata pid="14" name="dead_raw_dead" tags="story" position="575,275" size="100,100">&lt;&lt;set $story_tags to $story_tags.concat(&quot;dead_raw_dead&quot;)&gt;&gt;\
-&lt;&lt;= disp(&quot;dead_raw&quot;)&gt;&gt; has been attacked and destroyed by the &lt;&lt;= setup.terms[&quot;alien&quot;][&quot;org&quot;]&gt;&gt;. Food shortages are expected, as &lt;&lt;print disp(&quot;dead_raw&quot;)&gt;&gt; was the primary provide of food in this solar system. Cargo ships that were heading towards &lt;&lt;print disp(&quot;dead_raw&quot;)&gt;&gt; are advised to stop by &lt;&lt;print disp(&quot;raw&quot;)&gt;&gt; to refuel and pick up food supplies for other planets. 
+&lt;&lt;/nobr&gt;&gt;</tw-passagedata><tw-passagedata pid="13" name="dead_raw_dead" tags="story" position="575,275" size="100,100">&lt;&lt;set $story_tags to $story_tags.concat(&quot;dead_raw_dead&quot;)&gt;&gt;\
+&lt;&lt;= disp(&quot;dead_raw&quot;)&gt;&gt; has been attacked and destroyed by the &lt;&lt;= setup.terms[&quot;alien&quot;][&quot;org&quot;]&gt;&gt;. 
 
-&lt;&lt;linkreplace &quot;Huh. I don&#39;t think Ajuhrang would have made it out.&quot;&gt;&gt;
+Food shortages and price hikes are expected, as &lt;&lt;print disp(&quot;dead_raw&quot;)&gt;&gt; was the primary provide of food in this solar system. 
 
-Like how sand, nutrients, and seeds were all it took to grow food in space. And how &lt;&lt;= disp(&quot;mfg&quot;)&gt;&gt; was the main source of those supplies.
+&lt;&lt;linkreplace &quot;I don&#39;t think Ajurhang would have made it.&quot;&gt;&gt;I don&#39;t think Ajurhang would have made it.
 
-Maybe it would be better go there instead. 
+I don&#39;t really know what to do with his sand and nutrients. Nobody wants this stuff but her.
 
-&lt;&lt;set _display = &quot;Go to &quot; + disp(&quot;mfg&quot;)&gt;&gt;\
+Well...
+
+I&#39;ve got a substrate, nutrients, and seeds. Soon, everyone&#39;ll need food. It can&#39;t be that hard, right?
+
+Let&#39;s set a course and grow some money.
+
+&lt;&lt;set _display = &quot;Set a course to  &quot; + disp(&quot;mfg&quot;)&gt;&gt;\
 &lt;&lt;link _display ship&gt;&gt;\
-	&lt;&lt;set $location = [&quot;mfg&quot;, either(17, 21, 25)]&gt;&gt;\
+	&lt;&lt;set $location = [&quot;mfg&quot;, 5]&gt;&gt;\
 &lt;&lt;/link&gt;&gt;
-&lt;&lt;set _display = &quot;Go to &quot; + disp(&quot;raw&quot;)&gt;&gt;\
+&lt;&lt;set _display = &quot;Set a course to &quot; + disp(&quot;raw&quot;)&gt;&gt;\
 &lt;&lt;link _display ship&gt;&gt;\
-	&lt;&lt;set $location = [&quot;raw&quot;, either(17, 21, 25)]&gt;&gt;\
+	&lt;&lt;set $location = [&quot;raw&quot;, 5]&gt;&gt;\
 &lt;&lt;/link&gt;&gt;
 &lt;&lt;/linkreplace&gt;&gt;
-</tw-passagedata><tw-passagedata pid="15" name="inventory_view" tags="widget-like" position="475,150" size="100,100">&lt;&lt;include &quot;util&quot;&gt;&gt;\
+</tw-passagedata><tw-passagedata pid="14" name="inventory_view" tags="widget-like" position="475,150" size="100,100">&lt;&lt;include &quot;util&quot;&gt;&gt;\
 
 &lt;div id=&quot;seeds_inventory&quot;&gt;&lt;/div&gt;
 &lt;div id=&quot;inventory_container&quot;&gt;&lt;div id=&quot;trash&quot; class=&quot;itemHover&quot;&gt;Dispose of item (50 monies)&lt;/div&gt;&lt;div id=&quot;inventory_grid&quot;&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;div id=&quot;hover-description&quot;&gt;Mouse over item for a description.&lt;/div&gt;
 Fragility: How likely something is to break every week in transit.
 Base Value: Base value of item.
-Lifespan: How many weeks this can spend in transit before becoming worthless.
+Lifespan: How many days this can spend in transit before becoming worthless.
 
 &lt;&lt;if isPastTag(&quot;dead_raw_dead&quot;)&gt;&gt;\
-	Try moving sand onto nutrients to make a spinach sprout.
+	Put nutrients onto a substrate to try growing the selected seed. 
 &lt;&lt;else&gt;&gt;
 	Click an item to pick it up or select it. Then on another item to\
     swap their positions, or an empty spot to move the item.
 &lt;&lt;/if&gt;&gt;\
 
-&lt;&lt;return&gt;&gt;</tw-passagedata><tw-passagedata pid="16" name="TermInit" tags="script-pile" position="125,25" size="100,100">/*For all the terms I am sure I will replace a few times b/c I can&#39;t make up my mind*/
+&lt;&lt;return&gt;&gt;</tw-passagedata><tw-passagedata pid="15" name="TermInit" tags="script-pile" position="125,25" size="100,100">/*For all the terms I am sure I will replace a few times b/c I can&#39;t make up my mind*/
 &lt;&lt;set setup.terms = {
 	&quot;alien&quot;: {
     	&quot;org&quot;: &quot;Qwinon Swarm&quot;,
         &quot;plural&quot;: &quot;Qwinons&quot;,
         &quot;singular&quot;: &quot;Qwinon&quot;
      }
-} &gt;&gt;</tw-passagedata><tw-passagedata pid="17" name="Intro1" tags="story" position="150,400" size="100,100">&lt;&lt;nobr&gt;&gt;
+} &gt;&gt;</tw-passagedata><tw-passagedata pid="16" name="Intro1" tags="story" position="150,400" size="100,100">&lt;&lt;nobr&gt;&gt;
 &lt;&lt;set $body to &quot;nonsolid&quot;&gt;&gt;&lt;&lt;set $habitat to &quot;sky&quot;&gt;&gt;
-&lt;span class=&quot;author-notes&quot;&gt;For brevity and scope, body type has been set to &lt;&lt;= $body&gt;&gt; and habitat has been set to &lt;&lt;= $habitat&gt;&gt;.
-
-If you seem stuck in a location, use the &quot;current navigation hub&quot; button on the left. 
+&lt;span class=&quot;author-notes&quot;&gt;
+If you seem stuck on a page/area, use the &quot;current navigation hub&quot; button on the left. 
+&lt;br/&gt;The built in &quot;return&quot; function was not meant for this level of interactivity. 
 &lt;/span&gt;
 &lt;span id=&quot;text3&quot; &gt;
   &lt;p&gt;I am the owner of a 1-person cargo ship.&lt;/p&gt;
-  &lt;p&gt;That is the only reason I&#39;m here, delivering 30 tons of sand for a client that lives on a mountain. They live on THE highest mountain in &lt;&lt;= disp(&quot;dead_raw&quot;)&gt;&gt;, a planet known for its sunlight and vegetation. &lt;/p&gt;
+  &lt;p&gt;That is why I am here, delivering 30 tons of sand for a client that lives on a mountain. They live on THE highest mountain in &lt;&lt;= disp(&quot;dead_raw&quot;)&gt;&gt;, a planet known for its sunlight and vegetation. &lt;/p&gt;
   &lt;p&gt;I found them in a sunny clearing, fast asleep. Exactly what I was expecting from a nocturnal plant. &lt;/p&gt;
   &lt;&lt;linkreplace &quot;Better wake them up. \&quot;Delivery for Ajurhang!\&quot;&quot;&gt;&gt;&lt;&lt;toggleclass &quot;#text4&quot; &quot;hidden&quot;&gt;&gt;&lt;&lt;/linkreplace&gt;&gt;
 &lt;/span&gt;
 
 &lt;span id=&quot;text4&quot; class=&quot;hidden&quot;&gt;
-	Their bulbs and stalks slid in a way that reminded me of a hydra. Ajurhang told me their bulbs contained light sensory nerves, so they probably were looking at me. I gave them another wave. 
+	Their bulbs and stalks slid in a way that reminded me of a hydra. Ajurhang told me their bulbs contained light sensory nerves, so they probably were looking at me. I can never tell.
 	&lt;img src=&quot;./images/ajurhang.jpg&quot;/&gt;
    Ajurhang: Good morning. Oh! Hello
   &lt;&lt;textbox &quot;_input&quot; &quot;&quot;&gt;&gt;
@@ -2023,7 +2071,7 @@ If you seem stuck in a location, use the &quot;current navigation hub&quot; butt
     margin: auto;
     display: block;
   }
-&lt;/style&gt;</tw-passagedata><tw-passagedata pid="18" name="Intro2" tags="story" position="150,275" size="100,100">&lt;&lt;include &quot;sales&quot;&gt;&gt;\
+&lt;/style&gt;</tw-passagedata><tw-passagedata pid="17" name="Intro2" tags="story" position="150,275" size="100,100">&lt;&lt;include &quot;sales&quot;&gt;&gt;\
 &lt;span id=&quot;text4&quot;&gt;
    Ajurhang: Good morning. I think. Oh! Hello &lt;&lt;= $character[&quot;name&quot;] &gt;&gt;! Right! The minerals from &lt;&lt;=disp(&quot;mfg&quot;)&gt;&gt;. Let take a look. 
 
@@ -2033,6 +2081,7 @@ If you seem stuck in a location, use the &quot;current navigation hub&quot; butt
 &lt;/span&gt;
 &lt;span id=&quot;text5&quot; class=&quot;hidden&quot;&gt;
     Ajurhang: Absolutely delicious. Wait, they spelled my name as Azhrhong? Is why it took so long? How did they get THAT? It&#39;s Ajurhang! A-J-U-R-H-A-N-G! It&#39;s a simple name! Ugh. Well, there&#39;s your payment.    
+
    &lt;&lt;linkreplace &quot;Did you order 30 tons of snacks?&quot;&gt;&gt;\
    	&lt;&lt;toggleclass &quot;#text6&quot; &quot;hidden&quot;&gt;&gt;\
     &lt;&lt;= $character[&quot;name&quot;] &gt;&gt;: Did you order 30 tons of snacks?
@@ -2043,15 +2092,7 @@ If you seem stuck in a location, use the &quot;current navigation hub&quot; butt
 	Ajurhang: Only a third of it is for snacking! Most of it is for my experiments. There&#39;s very few colonized planets with quality substrates, and even fewer substrates that can be taken across planets.&lt;br/&gt;&lt;br/&gt;
     They gesture at the IV bag plugged into them.&lt;br/&gt;&lt;br/&gt;	
     Ajurhang: I&#39;ve been using this liquid nutrients for 10 months. This is NOT real food!&lt;br/&gt;&lt;br/&gt;
-    &lt;&lt;if  [&quot;vertebrate&quot;, &quot;mollusk&quot;, &quot;insect&quot;].includes($character[&quot;body&quot;])&gt;&gt;
-    	&lt;&lt;set _reply_text = &quot;Nobody eats real food in space.&quot;&gt;&gt;
-    &lt;&lt;elseif $character[&quot;body&quot;] === &quot;plant&quot;&gt;&gt;
-		&lt;&lt;set _reply_text = &quot;I like that stuff.&quot;&gt;&gt;
-    &lt;&lt;elseif $character[&quot;body&quot;] === &quot;nonsolid&quot;&gt;&gt;
-    	Ajurhang: I&#39;m not sure if you&#39;d understand. 
-    	&lt;&lt;set _reply_text = &quot;Hey. I don&#39;t have a body but I eat too.&quot;&gt;&gt;
-    &lt;&lt;/if&gt;&gt;&lt;br/&gt;&lt;br/&gt;
-    &lt;&lt;set _reply_text = _reply_text + &quot; But I understand.&quot;&gt;&gt;
+    &lt;&lt;set _reply_text = &quot;It really isn&#39;t. It&#39;s the Ultra Pasteurized Fiber, but for plants.&quot;&gt;&gt;
 &lt;&lt;linkreplace _reply_text&gt;&gt;
 	&lt;&lt;= $character[&quot;name&quot;] &gt;&gt;:&lt;&lt;= _reply_text&gt;&gt;
     &lt;&lt;toggleclass &quot;#text7&quot; &quot;hidden&quot;&gt;&gt;
@@ -2059,24 +2100,19 @@ If you seem stuck in a location, use the &quot;current navigation hub&quot; butt
 &lt;/span&gt;
 
 &lt;span id=&quot;text7&quot; class=&quot;hidden&quot;&gt;
-	Ajurhang:
-    &lt;&lt;if $character[&quot;body&quot;] === &quot;nonsolid&quot;&gt;&gt;
-    	You... eat too? How-Nevermind, it&#39;d be rude of me to interrogate you about your possible nutrient intake system. But you might understand why this is important then.
-    &lt;&lt;elseif $character[&quot;body&quot;] === &quot;plant&quot;&gt;&gt;
-    	Well, then this is for those of us with taste.
-    &lt;&lt;else&gt;&gt;
-    	Then you&#39;ll understand why this is imporant.
-    &lt;&lt;/if&gt;&gt;&lt;br/&gt;&lt;br/&gt;
+	Ajurhang: Yes! Exactly!
     They gesture at the pile of sand.&lt;br/&gt;&lt;br/&gt; 
-    Ajurhang: I want all planets to be habitable for all kinds of life - starting with unsentient food, and eventually, sustaining beings like &lt;&lt;if $character[&quot;body&quot;] === &quot;plant&quot;&gt;&gt;us&lt;&lt;else&gt;&gt;me&lt;&lt;/if&gt;&gt;. I didn&#39;t get off my home planet to end up restricted to planets with bright stars, thin atmospheres, and on active trade routes.&lt;br/&gt;&lt;br/&gt; 
-    Ajurhang: Anyways, I appreciate your help so far. &lt;br/&gt;&lt;br/&gt;
-&lt;&lt;linkreplace &quot;For this much markup, I&#39;ll be happy to bring you whatever you need.&quot;&gt;&gt;&lt;&lt;toggleclass &quot;#text8&quot; &quot;hidden&quot;&gt;&gt;
-	&lt;&lt;= $character[&quot;name&quot;] &gt;&gt;: For this much markup, I&#39;ll be happy to bring you whatever you need.
+    Ajurhang: I want all planets and ships to be habitable by all beings. I don&#39;t mean barely meeting environmental tolerances, I mean living healthily, comfortably, and not plugged into a nutrient bag all day. &lt;br/&gt;&lt;br/&gt; 
+    Ajurhang: I appreciate your help so far. &lt;br/&gt;&lt;br/&gt;
+&lt;&lt;linkreplace &quot;For this much markup, I&#39;ll bring you whatever you need.&quot;&gt;&gt;&lt;&lt;toggleclass &quot;#text8&quot; &quot;hidden&quot;&gt;&gt;
+	&lt;&lt;= $character[&quot;name&quot;] &gt;&gt;: For this much markup, I&#39;ll bring you whatever you need.
 &lt;&lt;/linkreplace&gt;&gt;&lt;br/&gt;&lt;br/&gt;
 &lt;/span&gt;
 
 &lt;span id=&quot;text8&quot; class=&quot;hidden&quot;&gt;
-	Ajurhang: I will absolutely take you up on that offer. For now, just take this. It&#39;ll give you info on how much things sell for on other planets, at least in the official shops. I&#39;ll help you take up some other jobs in the meantime. I&#39;ll need take time before I figure out what exactly I need, and you should do something that pays you better than hauling sand. Which is probably anything else sold here on [[Elysium|on_planet]]. I&#39;ll reach out soon!
+	Ajurhang: I will ask for more supplies eventually. I need time before I figure out what exactly I need. This should help.&lt;br/&gt;&lt;br/&gt;
+    They toss you a rectangular gadget. It shows the official, up to date buy and sell prices of goods on each planet in the star system.&lt;br/&gt;&lt;br/&gt; 
+    Ajurhang: Find something that sells better sand. Probably anything else sold here on [[Elysium|on_planet]] is better. I&#39;ll reach out soon!
 &lt;/span&gt;
 &lt;&lt;/nobr&gt;&gt;
 
@@ -2107,7 +2143,7 @@ If you seem stuck in a location, use the &quot;current navigation hub&quot; butt
         $(&quot;#text5&quot;).toggleClass(&quot;hidden&quot;);
     }
   });
-&lt;&lt;/script&gt;&gt;</tw-passagedata><tw-passagedata pid="19" name="menial_labor" tags="location" position="275,525" size="100,100">&lt;&lt;if $money &lt; setup.wages&gt;&gt;\
+&lt;&lt;/script&gt;&gt;</tw-passagedata><tw-passagedata pid="18" name="menial_labor" tags="location" position="275,525" size="100,100">&lt;&lt;if $money &lt; setup.wages&gt;&gt;\
  	&lt;&lt;set _count = 0&gt;&gt;\
     &lt;&lt;set _done_count = 300&gt;&gt;\
   	&lt;span id=&quot;work&quot;&gt;I got assigned to sort trash. I&#39;ll get &lt;&lt;= setup.wages&gt;&gt; &lt;&lt;=setup.currency[1]&gt;&gt; after &lt;&lt;=_done_count&gt;&gt; bags of trash sorted.
@@ -2130,7 +2166,7 @@ If you seem stuck in a location, use the &quot;current navigation hub&quot; butt
 &lt;&lt;else&gt;&gt;
 	I&#39;d rather spend my time somewhere else. 
     &lt;&lt;return&gt;&gt;
-&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="20" name="GlobalsInit" tags="script-pile" position="425,25" size="100,100">&lt;&lt;set setup.fuel_cost = 10&gt;&gt;
+&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="19" name="GlobalsInit" tags="script-pile" position="425,25" size="100,100">&lt;&lt;set setup.fuel_cost = 10&gt;&gt;
 &lt;&lt;set setup.trash_cost = 30&gt;&gt;
 &lt;&lt;set setup.wages = Math.max(setup.fuel_cost, setup.trash_cost)&gt;&gt;
 &lt;&lt;set setup.currency = [&quot;ducat&quot;, &quot;ducats&quot;]&gt;&gt;
@@ -2146,7 +2182,7 @@ If you seem stuck in a location, use the &quot;current navigation hub&quot; butt
     &quot;firstDepart&quot;: &quot;first non elysium departure&quot;,
     &quot;secondDepart&quot;: &quot;second nonelysium departure&quot;,
     &quot;onAjiQuest&quot;: &quot;aji gav you a quest&quot;
- })&gt;&gt;</tw-passagedata><tw-passagedata pid="21" name="terms" tags="" position="150,150" size="100,100">▪ Ajurhang:
+ })&gt;&gt;</tw-passagedata><tw-passagedata pid="20" name="terms" tags="" position="150,150" size="100,100">▪ Ajurhang:
 	Species: Kooperai
     &lt;&lt;if isPastTag(&quot;firstSeeds&quot;)&gt;&gt;\
     	Plantlike being that is a great customer.  Willing to upgrade your ship in exchange for performing simple experiments. Much taller than the average Kooperai.
@@ -2199,7 +2235,7 @@ If you seem stuck in a location, use the &quot;current navigation hub&quot; butt
   });
 &lt;&lt;/script&gt;&gt;
  
-&lt;&lt;return&gt;&gt;</tw-passagedata><tw-passagedata pid="22" name="RecipesInit" tags="script-pile" position="525,25" size="100,100">&lt;&lt;set setup.recipes = {
+&lt;&lt;return&gt;&gt;</tw-passagedata><tw-passagedata pid="21" name="RecipesInit" tags="script-pile" position="525,25" size="100,100">&lt;&lt;set setup.recipes = {
       &quot;nutrients1&quot;: {
     	&quot;substrate_basic&quot;: {
         	&quot;seed_spinach&quot;: &quot;sprout_spinach&quot;,
@@ -2209,14 +2245,14 @@ If you seem stuck in a location, use the &quot;current navigation hub&quot; butt
         	&quot;seed_al_allium&quot;: &quot;sprout_al_allium&quot;,
         }
       }
-}&gt;&gt;</tw-passagedata><tw-passagedata pid="23" name="sleep" tags="story" position="525,400" size="100,100">You get ready to enter cryosleep. 
+}&gt;&gt;</tw-passagedata><tw-passagedata pid="22" name="sleep" tags="story" position="525,400" size="100,100">You get ready to enter cryosleep. 
 &lt;&lt;nobr&gt;&gt;
 &lt;&lt;set _text_dict = {
 	&quot;Experts say cryosleep helps you age slower. Experts that avoid cryosleep.&quot;: .1,
 	&quot;Looked out the window before sleeping. It looks the same as last time.&quot;: .3,
     &quot;I say goodnight, to nobody in particular.&quot;: .3,
 	&quot;Maybe I should get a house plant for company. Wonder how Ajurhang would feel about that.&quot;: .1,
-    &quot;Wonder if the stars in solar systems would look different, or if it&#39;s more of the same.&quot;: .2,
+    &quot;Wonder if the stars in other1 solar systems would look different, or if it&#39;s more of the same.&quot;: .2,
     }&gt;&gt;
 &lt;&lt;if isPastTag(&quot;dead_raw_dead&quot;)&gt;&gt;
 &lt;&lt;set _text_dict = {
@@ -2253,27 +2289,7 @@ If you seem stuck in a location, use the &quot;current navigation hub&quot; butt
     margin: auto;
     display: block;
   }
-&lt;/style&gt;</tw-passagedata><tw-passagedata pid="24" name="npc_list" tags="story" position="400,525" size="100,100">Choose who to approach.
-&lt;&lt;if $location[0] == &quot;raw&quot;&gt;&gt;\
-	[[A large shark with flowers.|npc1]]
-	[[Exciteable four legged fur thing|npc2]]
-	[[A mollusk with an shell covered in gems.|npc3]]
-&lt;&lt;elseif $location[0] == &quot;mfg&quot;&gt;&gt;
-	[[A purple haze with liquid suspended inside is cleaning the floor.|npc1]]
-	[[An assortment of lizards and plants are piling under a heat lamp.|npc2]]
-	[[A pink cloud seems to be trying to maintain a sphere shape.|npc3]]
-    [[A grumpy fish is pacing around, tracking mud everywhere.|slaggy_dirtplace]]
-&lt;&lt;elseif $location[0] == &quot;tourism&quot;&gt;&gt;\
-	[[A small swarm of insects are hovering over a liquid.|npc1]]
-	[[A dark wooden pile of tentacles seems to be smoldering.|npc2]]
-	[[A mammalian ball shakes in a corner.|npc3]]
-&lt;&lt;elseif $location[0] == &quot;dead_raw&quot;&gt;&gt;\
-	[[A bird with metallic fish lips.|npc1]]
-	[[A... floating diamond?|npc2]]
-	[[A tumbling ball of mycelia.|npc3]]
-&lt;&lt;/if&gt;&gt;
-&lt;&lt;return&gt;&gt;
-</tw-passagedata><tw-passagedata pid="25" name="npc1" tags="location story" position="525,525" size="100,100">&lt;&lt;if $location[0] == &quot;raw&quot;&gt;&gt;\
+&lt;/style&gt;</tw-passagedata><tw-passagedata pid="23" name="npc1" tags="location story" position="525,525" size="100,100">&lt;&lt;if $location[0] == &quot;raw&quot;&gt;&gt;\
 	I&#39;m going to be a flower farmer one day!
 &lt;&lt;elseif $location[0] == &quot;mfg&quot;&gt;&gt;
 	Haze: Move! I&#39;m cleaning, and this could dissolve you. 
@@ -2284,7 +2300,7 @@ If you seem stuck in a location, use the &quot;current navigation hub&quot; butt
     &quot;The atmosphere is too thin for me to fly.&quot;
 &lt;&lt;/if&gt;&gt;
 &lt;&lt;return&gt;&gt;
-</tw-passagedata><tw-passagedata pid="26" name="npc2" tags="location story" position="625,525" size="100,100">&lt;&lt;if $location[0] == &quot;raw&quot;&gt;&gt;\
+</tw-passagedata><tw-passagedata pid="24" name="npc2" tags="location story" position="625,525" size="100,100">&lt;&lt;if $location[0] == &quot;raw&quot;&gt;&gt;\
 	I get to swim and eat fish everyday!
 &lt;&lt;elseif $location[0] == &quot;mfg&quot;&gt;&gt;
 	Small bushy plant: Everything&#39;s dark and cold here. 
@@ -2296,7 +2312,7 @@ If you seem stuck in a location, use the &quot;current navigation hub&quot; butt
 	I spoke to it for several minutes. It does not seem to want to respond.
 &lt;&lt;/if&gt;&gt;
 &lt;&lt;return&gt;&gt;
-</tw-passagedata><tw-passagedata pid="27" name="npc3" tags="location story" position="725,525" size="100,100">&lt;&lt;if $location[0] == &quot;raw&quot;&gt;&gt;\
+</tw-passagedata><tw-passagedata pid="25" name="npc3" tags="location story" position="725,525" size="100,100">&lt;&lt;if $location[0] == &quot;raw&quot;&gt;&gt;\
 	&lt;&lt;if isPastTag(&quot;aluminum&quot;)&gt;&gt;
       Snail: This is a good vacation home. Cozy weather, exellent amenities, and a tasty, imported snacks just for me. 
       &lt;&lt;return&gt;&gt;
@@ -2316,7 +2332,7 @@ If you seem stuck in a location, use the &quot;current navigation hub&quot; butt
 &lt;&lt;elseif $location[0] == &quot;dead_raw&quot;&gt;&gt;\
 	Ball: I here there&#39;s a planet made of food, but we&#39;re not allowed on it. 
     &lt;&lt;return&gt;&gt;
-&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="28" name="game_over_volatile" tags="story" position="650,400" size="100,100">Why did I think sleeping with &lt;&lt;= disp(&quot;chem_volatile&quot;)&gt;&gt; was a good idea? I&#39;m dead now.
+&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="26" name="game_over_volatile" tags="story" position="650,400" size="100,100">Why did I think sleeping with &lt;&lt;= disp(&quot;chem_volatile&quot;)&gt;&gt; was a good idea? I&#39;m dead now.
 
 Congratulations! You found the only game-over scenario! Please tell Sen about it, because it is curious about how many people ended up exploding.
 &lt;style&gt;
@@ -2326,7 +2342,10 @@ Congratulations! You found the only game-over scenario! Please tell Sen about it
     text-decoration: none;
     color: white;
   }
-&lt;/style&gt;</tw-passagedata><tw-passagedata pid="29" name="ShopsInit" tags="script-pile" position="625,25" size="100,100">&lt;&lt;set $shops = {
+  #location-tracker {
+  	display: none;
+  }
+&lt;/style&gt;</tw-passagedata><tw-passagedata pid="27" name="ShopsInit" tags="script-pile" position="625,25" size="100,100">&lt;&lt;set $shops = {
     &quot;raw&quot;: {
         demand: {
             &quot;produce_spinach&quot;: 1,
@@ -2375,8 +2394,8 @@ Congratulations! You found the only game-over scenario! Please tell Sen about it
             &quot;produce_pineapple&quot;: 4,
             &quot;raw_metal_aluminum&quot;: 2,
             &quot;raw_metal_gold&quot;: 2,
-            &quot;space_food1&quot;: 1,
-            &quot;space_food3&quot;: 2,
+            &quot;space_food1&quot;: 2,
+            &quot;space_food3&quot;: 4,
             &quot;supplies1&quot;: 2,
             &quot;chem_volatile&quot;: 2,
             &quot;nutrients1&quot;: 2,
@@ -2398,9 +2417,9 @@ Congratulations! You found the only game-over scenario! Please tell Sen about it
         &quot;produce_pineapple&quot;: 4,
         &quot;raw_metal_aluminum&quot;: 3,
       }, 
-      stock: [&quot;baking_soda&quot;]
+      stock: [&quot;baking_soda&quot;, &quot;bucket&quot;]
     }
-}&gt;&gt;</tw-passagedata><tw-passagedata pid="30" name="get_aluminum" tags="story" position="850,525" size="100,100">&lt;&lt;inventoryPop &quot;alien_candy&quot;&gt;&gt;
+}&gt;&gt;</tw-passagedata><tw-passagedata pid="28" name="get_aluminum" tags="story" position="850,525" size="100,100">&lt;&lt;inventoryPop &quot;alien_candy&quot;&gt;&gt;
 Oh! You&#39;re the contact who brings the shipments of &lt;&lt;= disp(&quot;alien_candy&quot;)&gt;&gt; to this planet! There&#39;s only a few of us who buy it, but it&#39;s so expensive because there&#39;s so few of us who buy it... But this will last me years. Here, take these. They grow in the mountains here, so some sort of metallic dirt would make them happy. Most species want the metal that these plants accumulate, but I think they&#39;re better off as roasted snacks.
 
 Got &lt;&lt;= disp(&quot;seed_al_allium&quot;) &gt;&gt;.
@@ -2408,7 +2427,7 @@ Got &lt;&lt;= disp(&quot;seed_al_allium&quot;) &gt;&gt;.
 
 &lt;&lt;set $seeds.push(&quot;seed_al_allium&quot;)&gt;&gt;
 &lt;&lt;addTag aluminum&gt;&gt;
-</tw-passagedata><tw-passagedata pid="31" name="slaggy_dirtplace" tags="location story" position="400,650" size="100,100">Stupid red mud.. It&#39;s full of metals, so I have have to pay for &quot;hazardous waste processing&quot; instead of normal disposal fees. How am I supposed to afford the fees for that?!
+</tw-passagedata><tw-passagedata pid="29" name="slaggy_dirtplace" tags="location story" position="400,650" size="100,100">Stupid red mud.. It&#39;s full of metals, so I have have to pay for &quot;hazardous waste processing&quot; instead of normal disposal fees. How am I supposed to afford the fees for that?!
 &lt;&lt;if isPastTag(&quot;aluminum&quot;)&gt;&gt;
 Huh? You&#39;ll take it off my hands for cheaper? Do the snails on &lt;&lt;=disp(&quot;raw&quot;)&gt;&gt; want it as soup or something? Well, you can take it if I&#39;m the one handling the paperwork.
 &lt;&lt;if canAddItem(&quot;substrate_contam_al&quot;)&gt;&gt;
@@ -2424,7 +2443,7 @@ Huh? You&#39;ll take it off my hands for cheaper? Do the snails on &lt;&lt;=disp
 &lt;&lt;/if&gt;&gt;\
 
 &lt;&lt;return&gt;&gt;
-</tw-passagedata><tw-passagedata pid="32" name="hotel" tags="location" position="150,525" size="100,100">The cost for a hotel is 150 ducats.
+</tw-passagedata><tw-passagedata pid="30" name="hotel" tags="location" position="150,525" size="100,100">The cost for a hotel is 150 ducats.
 
 &lt;&lt;if $money &gt;= 150&gt;&gt;
   &lt;&lt;link &quot;Spend the night&quot; hotel&gt;&gt;
@@ -2434,7 +2453,7 @@ Huh? You&#39;ll take it off my hands for cheaper? Do the snails on &lt;&lt;=disp
     &lt;&lt;set $day_state[&quot;sold&quot;] = _sold.map((x)=&gt;x)&gt;&gt;
   &lt;&lt;/link&gt;&gt;
 &lt;&lt;/if&gt;&gt;
-&lt;&lt;return&gt;&gt;</tw-passagedata><tw-passagedata pid="33" name="hidden_shop" tags="story location" position="200,650" size="100,100">&lt;&lt;include &quot;sales&quot;&gt;&gt;
+&lt;&lt;return&gt;&gt;</tw-passagedata><tw-passagedata pid="31" name="hidden_shop" tags="story location" position="200,650" size="100,100">&lt;&lt;include &quot;sales&quot;&gt;&gt;
 &lt;&lt;salesInterface true hidden&gt;&gt;
 &lt;div id=&quot;inventory_container&quot;&gt;&lt;div id=&quot;inventory_grid&quot;&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;div id=&quot;hover-description&quot;&gt;Mouse over item for a description. Items with pluses are being bought for higher than average sale price, and items with minuses are being bought for lower.&lt;/div&gt;
@@ -2444,7 +2463,7 @@ Huh? You&#39;ll take it off my hands for cheaper? Do the snails on &lt;&lt;=disp
 /*
 Other cool things it could&#39;ve done in the future - unlimited alien candy
 discount nutes
-*/</tw-passagedata><tw-passagedata pid="34" name="endgame" tags="story" position="800,150" size="100,100">&lt;img class=&quot;pixel&quot; src=&quot;./images/ship.png&quot; style=&quot;
+*/</tw-passagedata><tw-passagedata pid="32" name="endgame" tags="story" position="800,150" size="100,100">&lt;img class=&quot;pixel&quot; src=&quot;./images/ship.png&quot; style=&quot;
 width: 30%;
 height: auto;
 margin: auto;
@@ -2460,14 +2479,12 @@ If there&#39;s an emergency, I&#39;m not sure I could navigate with all these cl
 This was as far as I wanted to take this version. The purpose was to make sure the base gameplay was okay, as well as see how I felt the idea and working on it. I had fun working on it, so I hope you did too.
 
 Thank you for playing! (Be sure to let me know about any feedback or thoughts you had!)
-&lt;/span&gt;</tw-passagedata><tw-passagedata pid="35" name="ajiquest" tags="story" position="700,275" size="100,100">There&#39;s a small envelope from Ajuhrang. That must&#39;ve cost a lot to deliver. A note is scribbled inside.
+&lt;/span&gt;</tw-passagedata><tw-passagedata pid="33" name="ajiquest" tags="story" position="700,275" size="100,100">There&#39;s a small envelope from Ajuhrang. That must&#39;ve cost a lot to deliver. A note is scribbled inside.
 
 &quot;4 nutrients 4 sand
 400 ducats
-Keep seeds on ship, viability test
+Keep seeds on ship, bring back. Viability testing
 50 ducats&quot;
-
-Nice deal for stuff that barely takes up room. 
 
 Got &lt;&lt;= disp(&quot;seed_spinach&quot;) &gt;&gt;.
 Got &lt;&lt;= disp(&quot;seed_pineapple&quot;) &gt;&gt;.
